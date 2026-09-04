@@ -9,8 +9,39 @@ import {
   summarizeCheck,
   shapeLinkVerdict,
   walletAssessRequest,
+  shapeLookupVerdict,
 } from "../src/mcp.js";
 import { EngineError } from "../src/telegraph.js";
+
+// -- shapeLookupVerdict ---------------------------------------------------
+
+test("shapes a successful lookup into a readable line with the miner and cost", () => {
+  const outcome = {
+    ok: true,
+    result: { answer: "Ethereum gas is 12 gwei." },
+    minerName: "TxLens",
+    minerId: "9002",
+    costUsd: 0.01,
+  };
+  const text = shapeLookupVerdict("ethereum", outcome, "fallback", "0");
+  assert.match(text, /Ethereum gas is 12 gwei\./);
+  assert.match(text, /Answered by: TxLens \(miner id 9002\)/);
+  assert.match(text, /Cost: \$0\.01/);
+});
+
+test("falls back to the raw response when there is no readable summary", () => {
+  const outcome = { ok: true, result: { weird: "shape" }, minerName: "TxLens", minerId: "9002", costUsd: 0.01 };
+  const text = shapeLookupVerdict("x", outcome, "fallback", "0");
+  assert.match(text, /No readable summary came back/);
+  assert.match(text, /"weird":"shape"/);
+});
+
+test("reports a failed lookup as a plain sentence, not a crash", () => {
+  const outcome = { ok: false, error: "Telegraph returned HTTP 500." };
+  const text = shapeLookupVerdict("x", outcome, "fallback", "0");
+  assert.match(text, /Could not answer for "x"/);
+  assert.match(text, /HTTP 500/);
+});
 
 // -- walletAssessRequest ------------------------------------------------
 

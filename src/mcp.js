@@ -19,6 +19,7 @@ import { initPayments, paymentReady, askMiner, EngineError } from "./telegraph.j
 import { extractAnswer, extractConfidence } from "./answer.js";
 import { logAsk } from "./asklog.js";
 import { recordAnswered } from "./stats.js";
+import { intentInfo } from "./intents.js";
 
 const EVM_ADDRESS_RE = /^0x[a-fA-F0-9]{40}$/;
 
@@ -329,7 +330,90 @@ async function checkLinkSafety({ url }) {
   return textResult(text);
 }
 
+// Turns one own-miner lookup into a short, readable line. Shared by every
+// plain-data tool below (gas, price, weather, and so on), which all follow
+// the same shape: one question in, one summarised answer out.
+export function shapeLookupVerdict(value, outcome, fallbackMinerName, fallbackMinerId) {
+  if (!outcome.ok) {
+    return `Could not answer for "${value}". ${outcome.error}`;
+  }
+  const { text } = extractAnswer(outcome.result);
+  const confidence = extractConfidence(outcome.result);
+  const lines = [
+    text ?? "No readable summary came back. Raw response follows.",
+    text ? null : JSON.stringify(outcome.result).slice(0, 600),
+    confidence !== null ? `Confidence: ${Math.round(confidence * 100)}%` : null,
+    `Answered by: ${outcome.minerName ?? fallbackMinerName} (miner id ${outcome.minerId ?? fallbackMinerId})`,
+    typeof outcome.costUsd === "number" ? `Cost: $${outcome.costUsd.toFixed(2)}` : null,
+  ].filter(Boolean);
+  return lines.join("\n");
+}
+
+// Asks one of our own miners directly for a known intent, using the exact
+// same endpoint, method and parameter name the web app's second-opinion
+// panel already uses in production (see src/intents.js and server.js). That
+// mapping is proven, so this is wiring, not new integration work.
+async function askOwnMiner(intentKey, value) {
+  const info = intentInfo(intentKey);
+  const miner = config.ownMiners[info.miner];
+  const startedAt = Date.now();
+  const outcome = await safeAskMiner(miner.id, {
+    method: info.method,
+    endpoint: info.endpoint,
+    payload: { [info.param]: value },
+  });
+  const text = shapeLookupVerdict(value, outcome, miner.name, miner.id);
+  if (outcome.ok) {
+    logToolCall({
+      question: `${intentKey}: ${value}`,
+      intent: intentKey,
+      minerName: outcome.minerName ?? miner.name,
+      direct: true,
+      answer: text,
+      signalHash: outcome.signalHash,
+      paymentTx: outcome.paymentTx,
+      durationMs: Date.now() - startedAt,
+    });
+  }
+  return textResult(text, !outcome.ok);
+}
+
+// Every intent our miner serves other than fraud detection, which has its
+// own dedicated tool (check_wallet_safety) because its response shape is a
+// verdict, not a plain lookup. One MCP tool per row, so nothing here needs
+// a separate dashboard or a different app.
+const LOOKUP_TOOLS = [
+  { name: "check_transaction", intent: "ONCHAIN_TX_LOOKUP", field: "tx_hash", describe: "The transaction hash to look up, e.g. 0xabc...123." },
+  { name: "check_gas_price", intent: "GAS_PRICE", field: "chain", describe: "The chain to check gas on, e.g. ethereum." },
+  { name: "check_wallet_balance", intent: "WALLET_BALANCE_CHECK", field: "address", describe: "The wallet address to check, e.g. 0xabc...123." },
+  { name: "check_token_holders", intent: "TOKEN_HOLDER_COUNT", field: "token", describe: "The token to check, by symbol, name, or contract address." },
+  { name: "check_tvl", intent: "TVL_LOOKUP", field: "protocol", describe: "The protocol to check total value locked for, e.g. aave." },
+  { name: "check_crypto_price", intent: "CRYPTO_PRICE", field: "coin_id", describe: "The coin to price, e.g. bitcoin or eth." },
+  { name: "check_stock_price", intent: "STOCK_PRICE", field: "ticker", describe: "The stock ticker to price, e.g. AAPL." },
+  { name: "check_ssl_certificate", intent: "SSL_VERIFICATION", field: "domain", describe: "The domain to check the certificate of, e.g. example.com." },
+  { name: "check_weather", intent: "WEATHER_FORECAST", field: "location", describe: "The place to get a forecast for, e.g. Lagos, Nigeria." },
+  { name: "check_storm_alert", intent: "STORM_ALERT", field: "location", describe: "The place to check for active storm or severe weather alerts." },
+  { name: "check_ip_location", intent: "IP_GEOLOCATION", field: "ip", describe: "The IP address to locate, e.g. 8.8.8.8." },
+  { name: "search_academic_papers", intent: "ACADEMIC_SEARCH", field: "query", describe: "The research topic to find published papers on." },
+  { name: "search_web", intent: "WEB_SEARCH", field: "query", describe: "Any question answerable from the live web." },
+];
+
 function registerTools(server) {
+  for (const tool of LOOKUP_TOOLS) {
+    const info = intentInfo(tool.intent);
+    server.registerTool(
+      tool.name,
+      {
+        title: info.label,
+        description: `Asks Telegraph's txlens miner: ${info.plain}. Costs $0.01 in testnet USDC per call.`,
+        inputSchema: {
+          [tool.field]: z.string().describe(tool.describe),
+        },
+      },
+      async (args) => askOwnMiner(tool.intent, args[tool.field])
+    );
+  }
+
   server.registerTool(
     "check_wallet_safety",
     {

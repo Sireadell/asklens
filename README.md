@@ -75,15 +75,38 @@ npm test
 ## Using it from Claude, Cursor, or any MCP app
 
 AskLens also runs as an MCP server, so the same live miners answer from inside
-an editor or chat app instead of from the web page. Two tools:
+an editor or chat app instead of from the web page. There's no separate
+dashboard to open for any of this, it's all reachable from wherever you
+already work.
+
+Two verdict tools, which return a judgment with evidence, not just a number:
 
 | Tool | What you get |
 |---|---|
 | `check_wallet_safety` | A safety verdict on an EVM wallet: risk level, risk percentage, the reason in plain English, the signals behind it, and which miner answered |
 | `check_link_safety` | Whether a link's certificate is valid and where the site is hosted, merged into one answer |
 
-Every call is a real, paid request to a live miner. The wallet check costs one
-cent, the link check two, because it runs two checks.
+And thirteen plain lookups, one per intent our own miner serves, each
+answered directly rather than routed:
+
+| Tool | What it answers |
+|---|---|
+| `check_transaction` | Did this transaction go through, and what happened |
+| `check_gas_price` | What a transaction costs right now |
+| `check_wallet_balance` | How much a wallet holds |
+| `check_token_holders` | How many wallets hold a token |
+| `check_tvl` | How much money is locked in a protocol |
+| `check_crypto_price` | What a coin is worth |
+| `check_stock_price` | What a share is trading at |
+| `check_ssl_certificate` | Whether a site's certificate is real |
+| `check_weather` | The forecast somewhere |
+| `check_storm_alert` | Active storm or severe weather alerts |
+| `check_ip_location` | Where an IP address is |
+| `search_academic_papers` | Real published research on a topic |
+| `search_web` | Anything answerable from the live web |
+
+Every call is a real, paid request to a live miner, one cent each, two for the
+link check since it runs two.
 
 Run it once by hand to check it starts:
 
