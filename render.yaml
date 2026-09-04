@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: asklens
+    runtime: node
+    plan: free
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Render sets PORT itself and the app reads it, but naming it here
+      # keeps the config readable next to the other services.
+      - key: PORT
+        value: 3000
+      - key: TELEGRAPH_ENGINE_URL
+        value: https://devnode.telegraphprotocol.com/engine
+      - key: ASK_TIMEOUT_MS
+        value: 90000
+      # The wallet that pays for every request. TESTNET ONLY, Base Sepolia.
+      # Secret: set it in the Render dashboard, never commit it here.
+      - key: EVM_PRIVATE_KEY
+        sync: false
