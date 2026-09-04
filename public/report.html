@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AskLens — miner scoreboard</title>
+<link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Miner scoreboard</h1>
+    <p class="tag">Every question this app asked, who Telegraph's router sent it to, and how their answer compared to yours. <a href="/">Back to AskLens</a></p>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="totals" class="card"></section>
+  <h2>By question type</h2>
+  <div id="intents"></div>
+  <h2>Head to head</h2>
+  <p class="hint">Where the router chose someone else. Their answer on the left, yours on the right.</p>
+  <div id="pairs"></div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p class="powered">Quality labels are rough on purpose: <strong>answered</strong> means a usable reply, <strong>refused</strong> means the miner declined or said it had no data, <strong>terse</strong> means two words or fewer, <strong>unreadable</strong> means it returned no plain text. Nothing here judges whether an answer was factually true.</p>
+  </div>
+</footer>
+
+<script src="/report.js"></script>
+</body>
+</html>

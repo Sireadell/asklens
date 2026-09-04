@@ -1,0 +1,10 @@
+node_modules/
+*.log
+
+# The pay wallet's key lives here. Never commit it.
+.env
+
+# Running totals are per-install state, not evidence, and they churn on every
+# request. The recorded runs under data/ are kept deliberately: the routing
+# study cites them, and a reader should be able to check the numbers.
+data/stats.json

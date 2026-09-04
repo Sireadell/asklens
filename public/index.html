@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AskLens — plain answers from live Telegraph miners</title>
+<link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>AskLens</h1>
+    <p class="tag">Ask anything. A live Telegraph miner answers, and you see which one, why it was picked, and the on-chain record of the answer.</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <form id="ask-form" autocomplete="off">
+    <input id="question" name="question" type="text" maxlength="500"
+           placeholder="What is gas on Ethereum right now?" aria-label="Your question" />
+    <button id="submit" type="submit">Ask</button>
+  </form>
+  <p class="cost">Each answer is a real, paid request to the Telegraph network. No cached or mocked data.</p>
+
+  <div id="examples" class="examples" hidden></div>
+
+  <section id="status" class="status" hidden></section>
+
+  <section id="result" class="card" hidden>
+    <div class="verdict" id="verdict"></div>
+    <div class="meta" id="meta"></div>
+    <details id="raw-wrap" hidden>
+      <summary>Full response from the miner</summary>
+      <pre id="raw"></pre>
+    </details>
+    <div class="second" id="second-wrap" hidden>
+      <button id="second-btn" type="button">Ask our own miner the same thing</button>
+      <p class="hint">Costs another cent. Useful when you want a named miner's answer, not the router's pick.</p>
+    </div>
+    <div id="second-result" class="second-result" hidden></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="counter" id="counter"></div>
+    <p class="powered">
+      Powered by <a href="https://telegraphprotocol.com" rel="noopener">Telegraph Protocol</a>.
+      Our own miners on the network: <strong>TxLens</strong> (14 intents) and <strong>Telegraph Sentinel</strong> (fraud detection).
+      <a id="repo" href="https://github.com/" rel="noopener">Source on GitHub</a>
+    </p>
+  </div>
+</footer>
+
+<script src="/app.js"></script>
+</body>
+</html>
