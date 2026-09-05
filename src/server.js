@@ -1,6 +1,9 @@
 import express from "express";
+import { randomUUID } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
+import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 import { config } from "./config.js";
 import { initPayments, paymentReady, getPayerAddress, ask, askMiner, EngineError } from "./telegraph.js";
 import { extractAnswer, extractConfidence } from "./answer.js";
@@ -9,11 +12,60 @@ import { loadStats, getStats, recordAnswered } from "./stats.js";
 import { logAsk, readLog } from "./asklog.js";
 import { buildReport } from "./report.js";
 import { readComparisons } from "./compare.js";
+import { createAskLensServer } from "./mcp.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const app = express();
 app.use(express.json({ limit: "32kb" }));
 app.use(express.static(join(here, "..", "public")));
+
+// Claude's custom connectors speak MCP over normal HTTPS. Each visitor gets
+// an isolated session, while AskLens keeps the Telegraph payment details on
+// the server. Nobody connecting to this public endpoint needs a wallet.
+const mcpTransports = new Map();
+
+async function handleMcpPost(req, res) {
+  const sessionId = req.headers["mcp-session-id"];
+  let transport = sessionId ? mcpTransports.get(sessionId) : null;
+
+  if (!transport && !sessionId && isInitializeRequest(req.body)) {
+    transport = new StreamableHTTPServerTransport({
+      sessionIdGenerator: () => randomUUID(),
+      onsessioninitialized: (id) => mcpTransports.set(id, transport),
+    });
+    transport.onclose = () => {
+      if (transport.sessionId) mcpTransports.delete(transport.sessionId);
+    };
+    await createAskLensServer().connect(transport);
+  }
+
+  if (!transport) {
+    return res.status(400).json({
+      jsonrpc: "2.0",
+      error: { code: -32000, message: "No valid MCP session was provided." },
+      id: null,
+    });
+  }
+
+  await transport.handleRequest(req, res, req.body);
+}
+
+async function handleMcpSession(req, res) {
+  const sessionId = req.headers["mcp-session-id"];
+  const transport = sessionId ? mcpTransports.get(sessionId) : null;
+  if (!transport) {
+    return res.status(400).json({
+      jsonrpc: "2.0",
+      error: { code: -32000, message: "No valid MCP session was provided." },
+      id: null,
+    });
+  }
+  await transport.handleRequest(req, res);
+}
+
+app.post("/mcp", (req, res, next) => handleMcpPost(req, res).catch(next));
+app.get("/mcp", (req, res, next) => handleMcpSession(req, res).catch(next));
+app.delete("/mcp", (req, res, next) => handleMcpSession(req, res).catch(next));
 
 const MAX_QUESTION_CHARS = 500;
 

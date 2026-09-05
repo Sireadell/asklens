@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Add AskLens to Claude</title>
+<link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="header-row">
+      <h1>Add AskLens to Claude</h1>
+      <a class="connect-link" href="/">Back to AskLens</a>
+    </div>
+    <p class="tag">Check wallets, links, prices, balances, transactions, weather, and more inside your usual AI conversation.</p>
+  </div>
+</header>
+
+<main class="wrap connect-page">
+  <section class="notice">
+    <strong>One link. No wallet setup.</strong> Paste the AskLens connection link into Claude, then ask a question normally.
+  </section>
+
+  <section class="install-card">
+    <span class="step">1</span>
+    <h2>Copy the AskLens link</h2>
+    <pre><code>https://asklens-zoox.onrender.com/mcp</code></pre>
+    <button class="copy" type="button" data-copy="https://asklens-zoox.onrender.com/mcp">Copy AskLens link</button>
+  </section>
+
+  <section class="install-card">
+    <span class="step">2</span>
+    <h2>Add it in Claude</h2>
+    <p>Open Claude, choose <strong>Customize</strong>, then <strong>Connectors</strong>. Select <strong>Add custom connector</strong>, paste the AskLens link, and choose <strong>Add</strong>.</p>
+    <p class="small">You only need to do this once. Claude may ask you to approve the connection.</p>
+  </section>
+
+  <section class="install-card">
+    <span class="step">3</span>
+    <h2>Ask your first question</h2>
+    <pre><code>Check this Ethereum wallet before I approve a payment: 0x47666fab8bd0ac7003bce3f5c3585383f09486e2. What should I know?</code></pre>
+    <button class="copy" type="button" data-copy="Check this Ethereum wallet before I approve a payment: 0x47666fab8bd0ac7003bce3f5c3585383f09486e2. What should I know?">Copy question</button>
+  </section>
+
+  <section class="install-card">
+    <span class="step">4</span>
+    <h2>Use it naturally</h2>
+    <p>Try “What is Ethereum gas right now?”, “Check the balance of this wallet”, or “Is this link safe to open?” AskLens is available when the question needs it.</p>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p class="powered">Powered by <a href="https://telegraphprotocol.com" rel="noopener">Telegraph Protocol</a>. <a href="https://github.com/Sireadell/asklens" rel="noopener">View the source on GitHub</a>.</p>
+  </div>
+</footer>
+
+<script>
+  document.querySelectorAll("[data-copy]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      await navigator.clipboard.writeText(button.dataset.copy);
+      const original = button.textContent;
+      button.textContent = "Copied";
+      setTimeout(() => { button.textContent = original; }, 1600);
+    });
+  });
+</script>
+</body>
+</html>

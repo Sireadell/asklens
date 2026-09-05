@@ -105,8 +105,18 @@ answered directly rather than routed:
 | `search_academic_papers` | Real published research on a topic |
 | `search_web` | Anything answerable from the live web |
 
-Every call is a real, paid request to a live miner, one cent each, two for the
-link check since it runs two.
+### Add it to Claude with one link
+
+In Claude, open **Customize**, then **Connectors**, then **Add custom
+connector**. Paste this link and choose **Add**:
+
+```
+https://asklens-zoox.onrender.com/mcp
+```
+
+There is no wallet or payment setup for the person adding the connector.
+
+### Run it locally instead
 
 Run it once by hand to check it starts:
 

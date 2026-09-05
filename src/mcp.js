@@ -2,12 +2,12 @@
 // reachable from an editor or chat app that speaks the Model Context
 // Protocol (Claude Desktop, Claude Code, Cursor, and similar).
 //
-// This process talks stdio only. The MCP wire protocol lives on stdout, so
-// nothing except protocol messages may ever be written there. Every log line
-// in this file goes to stderr instead, and initPayments() (which logs to
-// stdout via console.log in telegraph.js) is called with console.log
-// temporarily rerouted to stderr so its startup banner cannot corrupt a
-// message frame.
+// This file serves both the local stdio connection and the public web
+// connection. The local MCP wire protocol lives on stdout, so nothing except
+// protocol messages may ever be written there. Every log line in this file
+// goes to stderr instead, and initPayments() (which logs to stdout via
+// console.log in telegraph.js) is called with console.log temporarily
+// rerouted to stderr so its startup banner cannot corrupt a message frame.
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
@@ -405,7 +405,7 @@ function registerTools(server) {
       tool.name,
       {
         title: info.label,
-        description: `Asks Telegraph's txlens miner: ${info.plain}. Costs $0.01 in testnet USDC per call.`,
+        description: `Asks AskLens for ${info.plain}.`,
         inputSchema: {
           [tool.field]: z.string().describe(tool.describe),
         },
@@ -419,7 +419,7 @@ function registerTools(server) {
     {
       title: "Check wallet safety",
       description:
-        "Asks Telegraph's sentinel fraud-detection miner for a safety verdict on an EVM wallet address (HIGH/LOW risk, a confidence score, and a plain-language reason). Costs $0.01 in testnet USDC per call.",
+        "Checks an EVM wallet address for fraud signals and returns a HIGH or LOW risk verdict, a confidence score, and a plain-language reason.",
       inputSchema: {
         address: z.string().describe("The EVM wallet address to check, e.g. 0xabc...123"),
         chain: z
@@ -436,7 +436,7 @@ function registerTools(server) {
     {
       title: "Check link safety",
       description:
-        "Checks a URL's TLS certificate and where it is hosted, using Telegraph's txlens miner. Two calls, each $0.01 in testnet USDC.",
+        "Checks a URL's TLS certificate and where it is hosted.",
       inputSchema: {
         url: z.string().describe("The URL or domain to check, e.g. https://example.com"),
       },
@@ -445,9 +445,17 @@ function registerTools(server) {
   );
 }
 
-export async function main() {
+// A fresh server is required for each remote MCP connection. Tool handlers
+// carry connection state inside the SDK, so sharing one server between
+// visitors would mix independent Claude sessions.
+export function createAskLensServer() {
   const server = new McpServer({ name: "asklens", version: "0.1.0" });
   registerTools(server);
+  return server;
+}
+
+export async function main() {
+  const server = createAskLensServer();
 
   // initPayments() logs its result with console.log, which writes to stdout.
   // On an MCP stdio server stdout is the protocol channel, so that banner is
