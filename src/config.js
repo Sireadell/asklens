@@ -16,15 +16,25 @@ function int(value, fallback) {
   return Number.isFinite(n) && n > 0 ? n : fallback;
 }
 
+function enabled(value) {
+  return String(value ?? "").trim().toLowerCase() === "true";
+}
+
 export const config = {
   port: int(process.env.PORT, 3000),
   engineBaseUrl: (process.env.TELEGRAPH_ENGINE_URL ?? "https://devnode.telegraphprotocol.com/engine").replace(/\/$/, ""),
   discoveryUrl: process.env.TELEGRAPH_DISCOVERY_URL ?? "https://devnode.telegraphprotocol.com/miner-dispatcher/integrations",
   askTimeoutMs: int(process.env.ASK_TIMEOUT_MS, 90000),
+  snapAskTimeoutMs: Math.min(int(process.env.SNAP_ASK_TIMEOUT_MS, 3000), 3000),
+  snapPublicDemoEnabled: enabled(process.env.SNAP_PUBLIC_DEMO_ENABLED),
   privateKey: process.env.EVM_PRIVATE_KEY?.trim() ?? "",
   statsFile: process.env.STATS_FILE ?? "data/stats.json",
   askLogFile: process.env.ASK_LOG_FILE ?? "data/asks.jsonl",
   compareFile: process.env.COMPARE_FILE ?? "data/comparisons.jsonl",
+  snapUsageFile: process.env.SNAP_USAGE_FILE ?? "data/snap-usage.json",
+  snapRateLimit: int(process.env.SNAP_RATE_LIMIT, 5),
+  snapRateWindowMs: int(process.env.SNAP_RATE_WINDOW_MS, 10 * 60 * 1000),
+  snapDailyPaidLimit: int(process.env.SNAP_DAILY_PAID_LIMIT, 100),
   // Our own miners, used for the "second opinion" panel and for labelling
   // answers that came from a miner this project also operates.
   ownMiners: {

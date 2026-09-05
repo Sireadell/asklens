@@ -13,9 +13,16 @@ import { logAsk, readLog } from "./asklog.js";
 import { buildReport } from "./report.js";
 import { readComparisons } from "./compare.js";
 import { createAskLensServer } from "./mcp.js";
+import { assessWalletForSnap } from "./snap-wallet.js";
+import { createSnapRequestGuard } from "./snap-guard.js";
+import { createSnapWalletSafetyHandler } from "./snap-route.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const app = express();
+// Render places exactly one trusted proxy in front of this service. Express
+// therefore uses only the address supplied by that final proxy and ignores
+// extra, user-supplied addresses farther to the left.
+app.set("trust proxy", 1);
 app.use(express.json({ limit: "32kb" }));
 app.use(express.static(join(here, "..", "public")));
 
@@ -163,6 +170,20 @@ app.get("/api/report", (_req, res) => {
   res.json(buildReport(readComparisons()));
 });
 
+// MetaMask transaction insights use this narrow endpoint. The server keeps
+// the Telegraph payment key private and returns only Sentinel's wallet verdict.
+const snapGuard = createSnapRequestGuard({
+  usageFile: config.snapUsageFile,
+  perClientLimit: config.snapRateLimit,
+  windowMs: config.snapRateWindowMs,
+  dailyPaidLimit: config.snapDailyPaidLimit,
+});
+app.post("/api/snap/wallet-safety", createSnapWalletSafetyHandler({
+  assessWallet: assessWalletForSnap,
+  guard: snapGuard,
+  enabled: config.snapPublicDemoEnabled,
+}));
+
 app.get("/api/health", (_req, res) => {
   res.json({
     ok: true,
@@ -170,6 +191,7 @@ app.get("/api/health", (_req, res) => {
     payer: getPayerAddress(),
     engine: config.engineBaseUrl,
     miners: config.ownMiners,
+    snapPublicDemoEnabled: config.snapPublicDemoEnabled,
   });
 });
 

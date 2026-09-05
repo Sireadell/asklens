@@ -1,0 +1,21 @@
+{
+  "version": "0.1.0",
+  "description": "Checks transaction recipients with Telegraph Sentinel before signing.",
+  "proposedName": "AskLens Safety",
+  "source": {
+    "shasum": "TqNwjxkXWq3hGM4ZZc4E3WfR07+cts6+Ta5qiu7lIbU=",
+    "location": {
+      "npm": {
+        "filePath": "dist/bundle.js",
+        "packageName": "@asklens/metamask-snap",
+        "registry": "https://registry.npmjs.org/"
+      }
+    }
+  },
+  "initialPermissions": {
+    "endowment:transaction-insight": {},
+    "endowment:network-access": {}
+  },
+  "platformVersion": "12.0.1",
+  "manifestVersion": "0.1"
+}

@@ -17,6 +17,12 @@ services:
         value: https://devnode.telegraphprotocol.com/engine
       - key: ASK_TIMEOUT_MS
         value: 90000
+      # Fail closed. Set true only while a supervised Flask demo is running.
+      - key: SNAP_PUBLIC_DEMO_ENABLED
+        value: "false"
+      # Must finish before the Snap's 3.5 second browser deadline.
+      - key: SNAP_ASK_TIMEOUT_MS
+        value: 3000
       # The wallet that pays for every request. TESTNET ONLY, Base Sepolia.
       # Secret: set it in the Render dashboard, never commit it here.
       - key: EVM_PRIVATE_KEY

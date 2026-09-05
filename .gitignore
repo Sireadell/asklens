@@ -8,3 +8,4 @@ node_modules/
 # request. The recorded runs under data/ are kept deliberately: the routing
 # study cites them, and a reader should be able to check the numbers.
 data/stats.json
+data/snap-usage.json

@@ -44,8 +44,8 @@ export class EngineError extends Error {
   }
 }
 
-async function postToEngine(path, body) {
-  if (!payFetch) {
+export async function postToEngine(path, body, { timeoutMs = config.askTimeoutMs, fetchFn = payFetch } = {}) {
+  if (!fetchFn) {
     throw new EngineError(
       "PAYMENT_NOT_CONFIGURED",
       "This app cannot pay Telegraph yet: no wallet key is configured. Each answer costs $0.01 in test USDC.",
@@ -54,11 +54,11 @@ async function postToEngine(path, body) {
   }
 
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), config.askTimeoutMs);
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   let res;
   try {
-    res = await payFetch(`${config.engineBaseUrl}${path}`, {
+    res = await fetchFn(`${config.engineBaseUrl}${path}`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify(body),
@@ -66,7 +66,7 @@ async function postToEngine(path, body) {
     });
   } catch (err) {
     if (err.name === "AbortError") {
-      throw new EngineError("ENGINE_TIMEOUT", `Telegraph took longer than ${config.askTimeoutMs}ms to answer.`, 504);
+      throw new EngineError("ENGINE_TIMEOUT", `Telegraph took longer than ${timeoutMs}ms to answer.`, 504);
     }
     throw new EngineError("ENGINE_NETWORK_ERROR", `Could not reach Telegraph: ${err.message}`);
   } finally {
@@ -118,6 +118,6 @@ export function ask(query, context) {
 
 // Direct ask: we name the miner ourselves. Used for the second-opinion panel,
 // where the point is to hear from a specific miner rather than the best one.
-export function askMiner(minerId, { method, endpoint, payload }) {
-  return postToEngine(`/v1/ask/${minerId}`, { method, endpoint, payload });
+export function askMiner(minerId, { method, endpoint, payload }, options) {
+  return postToEngine(`/v1/ask/${minerId}`, { method, endpoint, payload }, options);
 }
