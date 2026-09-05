@@ -4,7 +4,12 @@
 // gated by x402 and costs $0.01 in test USDC, so the signer key below is a
 // TESTNET key holding testnet USDC on Base Sepolia. Never put a mainnet key
 // with real funds here.
-import "dotenv/config";
+// Loaded by explicit path, not "dotenv/config", because that resolves .env
+// against process.cwd() — which is wrong when this file is imported by a
+// process launched from elsewhere (e.g. the MCP server, started by an editor
+// with its own working directory).
+import dotenv from "dotenv";
+dotenv.config({ path: new URL("../.env", import.meta.url) });
 
 function int(value, fallback) {
   const n = Number(value);

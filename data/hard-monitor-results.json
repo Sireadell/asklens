@@ -1,0 +1,169 @@
+{
+  "ranAt": "2026-09-04T17:07:56.547Z",
+  "rows": [
+    {
+      "n": 1,
+      "expected": "ONCHAIN_TX_LOOKUP",
+      "question": "0xbb3a336e7f6f0d9c9ef3c9e0f57a5f0c0d1234f8a1a1a1a1a1a1a1a1a1a1a1a1a — did the chain ever actually settle that one, or is it still floating?",
+      "routed": "ONCHAIN_TX_LOOKUP",
+      "miner": "DegenLens On-Chain Intelligence",
+      "ok": true,
+      "reasoning": "Intent: The query specifically names a transaction hash and asks about its status, which is a clear request for transaction details. ONCHAIN_TX_LOOKUP is the most appropriate intent for this query.\nMiner: The endpoint /transaction/lookup is designed to look up specific EVM transactions by their hash and provides details such as confirmation status, sender, recipient, and native value. The question directly asks about the status of a specific transaction, which aligns with the ONCHAIN_TX_LOOKUP intent.",
+      "ms": 1218,
+      "signalHash": "0x8c6c704dfce4535fe2c2379dcf7de63ab77129db30f5c415d187d2b18cdd848b",
+      "answer": "invalid_input"
+    },
+    {
+      "n": 2,
+      "expected": "GAS_PRICE",
+      "question": "If I submitted a swap on Arbitrum this second, what would it cost me to get it included?",
+      "routed": "GAS_PRICE",
+      "miner": "Kriterion-Pramagraph",
+      "ok": true,
+      "reasoning": "Intent: The query specifically asks about the cost of a transaction on Arbitrum, which is a direct request for gas price information.\nMiner: The endpoint /gas is specifically designed for structured network gas and transaction-fee lookup, which directly addresses the intent of determining the cost to get a transaction included on Arbitrum.",
+      "ms": 1270,
+      "signalHash": "0xbfeaa4bd3c23803a3999c056fccbc6b2bf338e197705772660badae6cfd405ef",
+      "answer": "Ethereum gas price: 0.122904603 gwei. Observed at: 2026-09-04T16:39:26.081951Z."
+    },
+    {
+      "n": 3,
+      "expected": "WALLET_BALANCE_CHECK",
+      "question": "Strip away everything else — just tell me the ether sitting in 0x28C6c06298d514Db089934071355E5743bf21d60 right now.",
+      "routed": "TOKEN_HOLDER_COUNT",
+      "miner": "ChainSight — On-Chain Intelligence Hub",
+      "ok": false,
+      "reasoning": "Intent: The query specifically asks for the number of tokens held by a particular address, which is a valid intent for the query.\nMiner: The endpoint /holders is specifically designed to provide the number of holders of a token contract, which matches the intent TOKEN_HOLDER_COUNT.",
+      "ms": 1396,
+      "signalHash": "0xa98c0484e8ba8afcdf82c1d3564de845251773ce5fba7817d6b253e8cf322064",
+      "answer": "The token contract 0x28C6c06298d514Db089934071355E5743bf21d60 on Ethereum has no indexed holder records; the number of distinct addresses holding it is 0."
+    },
+    {
+      "n": 4,
+      "expected": "TOKEN_HOLDER_COUNT",
+      "question": "Not the circulating supply — I want the count of unique wallets currently holding 0x6B175474E89094C44Da98b954EedeAC495271d0F.",
+      "routed": "TOKEN_HOLDER_COUNT",
+      "miner": "ChainSight — On-Chain Intelligence Hub",
+      "ok": true,
+      "reasoning": "Intent: The query specifically asks for the count of unique wallets holding a particular token, which is a valid intent for TOKEN_HOLDER_COUNT.\nMiner: The endpoint /holders is specifically designed to provide the number of holders of a token contract, which matches the intent TOKEN_HOLDER_COUNT.",
+      "ms": 733,
+      "signalHash": "0xafe6cc02bdc70caac254ba5cc7dea2da96c0b6b5d0950ea6140542b128f36228",
+      "answer": "The number of holders of DAI on Ethereum is 755087 (0.76 million)."
+    },
+    {
+      "n": 5,
+      "expected": "TVL_LOOKUP",
+      "question": "Across everything deposited into Curve today, what does that add up to in dollars?",
+      "routed": "FINANCIAL_DATA",
+      "miner": "Kriterion-Pramagraph",
+      "ok": false,
+      "reasoning": "Intent: The query asks for market data, specifically the total value of deposits into Curve in dollars, which is a typical request for financial data.\nMiner: The endpoint /financial/data is specifically designed to handle financial data operations, which aligns with the intent of providing financial information.",
+      "ms": 518,
+      "signalHash": "0x0b946312587f95ae20719ba3ffb2667de7a32f59add68b8b8fdde69522a3c3fa",
+      "answer": "unresolved: value"
+    },
+    {
+      "n": 6,
+      "expected": "CRYPTO_PRICE",
+      "question": "One SOL, right now, converted to dollars — what number are we looking at?",
+      "routed": "CRYPTO_PRICE",
+      "miner": "Telegraph Sentinel Risk Intelligence",
+      "ok": true,
+      "reasoning": "The endpoint description specifies that this endpoint is for live real-time cryptocurrency spot price and market intelligence, which matches the intent of CRYPTO_PRICE.",
+      "ms": 561,
+      "signalHash": "0xbd32421b9cbf872f643f24eafa10a804bec28dde5a7cb524e9af4f6df906ea1a",
+      "answer": "ETH price data temporarily unavailable from upstream sources."
+    },
+    {
+      "n": 7,
+      "expected": "STOCK_PRICE",
+      "question": "Pull up what a single share of Apple is changing hands for at this moment.",
+      "routed": "STOCK_PRICE",
+      "miner": "ChainSight — On-Chain Intelligence Hub",
+      "ok": true,
+      "reasoning": "The endpoint /stock is specifically designed to provide the current price of a stock ticker, which matches the intent of STOCK_PRICE.",
+      "ms": 497,
+      "signalHash": "0x958ff877ac14bd9b0d924389489438f02ad656e86b3b6ab1cb4082612235f6db",
+      "answer": "Apple Inc. (AAPL): $328.21 USD. Observed at: 2026-09-04T16:40:41.868398Z."
+    },
+    {
+      "n": 8,
+      "expected": "SSL_VERIFICATION",
+      "question": "Would a browser throw a warning if I opened revoked.badssl.com right now, and why?",
+      "routed": "TELEGRAPH_KNOWLEDGE",
+      "miner": "Telegraph Knowledge Chatbot",
+      "ok": false,
+      "reasoning": "The endpoint /chat is specifically designed to handle Telegraph knowledge queries, which aligns with the fixed intent TELEGRAPH_KNOWLEDGE.",
+      "ms": 8896,
+      "signalHash": "0x969da3930227e913e161813616851c74b9be315b20894dea86efd87d8faa6984",
+      "answer": "{\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"message\":{\"content\":\"Yes, if you attempt to open **revoked.badssl.com** in a modern web browser, it will most likely throw a warning—or even prevent you from accessing the site altogether. Here's why:\\n\\n---\\n\\n### 🔒 **Why the Browser Shows a Warning**\\n\\n#### 1. **Revoked Certificate**\\nThe core reason is that the SSL/TLS certificate for `revoked.badssl.com` has been **revoked**.\\n\\n- **Certificate Revocation**: Even if a certificate was issued by a trusted Certificate Authority (CA) and was valid when first created, it can later be revoked. This happens if:\\n  - The certificate is compromised.\\n  - The site owner intentionally revokes it (as is the case with BadSSL.com for educational purposes).\\n  - The certificate is expired or misissued.\\n\\n- **Revocation Checking**: Modern browsers automatically check the **Certificate Revocation List (CRL)** or use **OCSP (Online Certificate Status Protocol)** to verify if a certificate is still valid. If the certificate is found to be revoked, the browser blocks access and shows a warning.\\n\\n#### 2. **What the Warning Looks Like**\\nDepending on your browser, you’ll see something like:\\n\\n- **Chrome / Edge**:  \\n  > “Your connection is not private”  \\n  > “NET::ERR_CERT_REVOKED”\\n\\n- **Firefox**:  \\n  > “Secure Connection Failed”  \\n  > “The certificate from the website has been revoked.”\\n\\n- **Safari**:  \\n  > “Safari Can't Verify the Identity of the Website”\\n\\n#### 3. **BadSSL.com Purpose**\\nThe site `badssl.com` is **intentionally designed** to exhibit various SSL/TLS errors for **educational purposes**. The different subdomains simulate different types of security issues, including:\\n\\n| Subdomain             | Purpose                                               |\\n|-----------------------|-------------------------------------------------------|\\n| `revoked.badssl.com`  | Shows what happens when a certificate is revoked      |\\n| `expired.badssl.com`  | Shows an expired certificate                          |\\n| `self-signed.badssl.com` | Shows a self-signed certificate error              |\\n| `wrong.subdomain.badssl.com` | Shows a hostname mismatch            |\\n\\nSo when you visit `revoked.badssl.com`, you're intentionally seeing how browsers react to a revoked certificate.\\n\\n---\\n\\n### 🛠️ **What Happens Under the Hood**\\n\\n1. **Browser Checks Certificate**:\\n   - The browser retrieves the certificate from the server.\\n   - It checks if the certificate is signed by a trusted CA.\\n   - It checks if the certificate is **revoked** via CRL or OCSP.\\n\\n2. **Revocation Detected**:\\n   - The OCSP responder (usually run by the CA) says, “This certificate has been revoked.”\\n   - The browser considers this a **fatal error**—you cannot proceed without bypassing the warning.\\n\\n3. **User Prompted**:\\n   - The browser blocks the load and shows a security warning.\\n   - You can usually bypass it (for advanced users) by clicking “Advanced” > “Proceed to site (unsafe)”—but this is **not recommended** unless you're in a controlled test environment.\\n\\n---\\n\\n### ✅ **How to Test It Safely**\\n\\nIf you're testing this for learning purposes:\\n\\n- Use `revoked.badssl.com` in a **disconnected or VM environment**.\\n- Don’t navigate to it from a production machine or important browser session.\\n- Always ensure you understand the risks of bypassing browser warnings.\\n\\n---\\n\\n### 📌 Summary\\n\\n| Question                        | Answer                                                                 |\\n|----------------------------------|------------------------------------------------------------------------|\\n| Will a browser throw a warning for `revoked.badssl.com`? | **Yes** — because the certificate is revoked.                         |\\n| Why?                             | Browsers check certificate revocation status via CRL/OCSP. Revoked = unsafe. |\\n| Is it dangerous to visit?        | Not in general, but only do so in a safe, isolated environment.       |\\n\\n---\\n\\nIf you're exploring SSL/TLS for development or security testing, sites like `badssl.com` are excellent (and safe) resources—just always use caution when bypassing warnings.\",\"role\":\"assistant\"}}],\"created\":1788540064,\"id\":\"chatcmpl-c6467499\",\"model\":\"telegraph-assistant\",\"object\":\"chat.completion\",\"usage\":{\"completion_tokens\":953,\"prompt_tokens\":0,\"total_tokens\":953}}"
+    },
+    {
+      "n": 9,
+      "expected": "WEATHER_FORECAST",
+      "question": "Should someone in Cape Town plan around rain this weekend or not?",
+      "routed": "WEATHER_FORECAST",
+      "miner": "Verity Weather Forecast",
+      "ok": true,
+      "reasoning": "Intent: The query specifically asks about weather conditions in Cape Town for the weekend, which is a valid query for the WEATHER_FORECAST intent.\nMiner: The endpoint description specifies that it can read one to seven days of daily and hourly forecasts for coordinates or a place name, which matches the intent of providing weather forecasts.",
+      "ms": 2719,
+      "signalHash": "0xce0a7475ffe99557074afac9b3771f2514272b622e53d3453b47f794caf19872",
+      "answer": "7-day daily and 168-point hourly Open-Meteo forecast for Cape Town, South Africa."
+    },
+    {
+      "n": 10,
+      "expected": "STORM_ALERT",
+      "question": "Over the next two days, is Miami looking at anything a storm-watcher would call dangerous?",
+      "routed": "STORM_ALERT",
+      "miner": "LiveCert Operational Signals",
+      "ok": true,
+      "reasoning": "The endpoint description explicitly states it serves STORM_ALERT intents, and the question asks about severe weather in Miami over the next two days.",
+      "ms": 746,
+      "signalHash": "0x5d6d6499263d120f9a4f5bf971eccc4a67bccf97734349d43db0b00ad54948e2",
+      "answer": "low"
+    },
+    {
+      "n": 11,
+      "expected": "IP_GEOLOCATION",
+      "question": "1.1.1.1 — whose network is that on, and roughly where does it sit?",
+      "routed": "WEATHER_CHECK",
+      "miner": "WeatherAPI",
+      "ok": false,
+      "reasoning": "Intent: The query mentions a specific location (1.1.1.1) and asks about its current atmospheric conditions, which fits the WEATHER_CHECK intent. The secondary intent WEATHER_FORECAST is included as a fallback for future weather conditions, though the primary intent is more relevant for the current state.\nMiner: The endpoint /current is specifically designed to get current weather conditions for a location, which matches the intent WEATHER_CHECK.",
+      "ms": 596,
+      "signalHash": "0xd7d04b7f0de77062e85baf7a717a15941228d4cc160156e02132add8987551ad",
+      "answer": "{\"current\":{\"chance_of_rain\":4,\"chance_of_snow\":0,\"cloud\":5,\"condition\":{\"code\":1000,\"icon\":\"//cdn.weatherapi.com/weather/64x64/night/113.png\",\"text\":\"Clear\"},\"dewpoint_c\":8.6,\"dewpoint_f\":47.6,\"feelslike_c\":13,\"feelslike_f\":55.4,\"gust_kph\":18,\"gust_mph\":11.2,\"heatindex_c\":16.1,\"heatindex_f\":61.1,\"humidity\":61,\"is_day\":0,\"last_updated\":\"2026-09-05 02:30\",\"last_updated_epoch\":1788539400,\"precip_in\":0,\"precip_mm\":0,\"pressure_in\":30.05,\"pressure_mb\":1018,\"temp_c\":16.1,\"temp_f\":61.1,\"uv\":0,\"vis_km\":10,\"vis_miles\":6,\"wetbulb_c\":12,\"wetbulb_f\":53.6,\"will_it_rain\":0,\"will_it_snow\":0,\"wind_degree\":315,\"wind_dir\":\"NW\",\"wind_kph\":14.8,\"wind_mph\":9.2,\"windchill_c\":16.1,\"windchill_f\":61.1},\"location\":{\"country\":\"Australia\",\"lat\":-33.867,\"localtime\":\"2026-09-05 02:41\",\"localtime_epoch\":1788540107,\"lon\":151.225,\"name\":\"Potts Point\",\"region\":\"New South Wales\",\"tz_id\":\"Australia/Sydney\"}}"
+    },
+    {
+      "n": 12,
+      "expected": "ACADEMIC_SEARCH",
+      "question": "Point me to peer-reviewed literature, not blog posts, on perovskite solar cell degradation.",
+      "routed": "ACADEMIC_SEARCH",
+      "miner": "TxLens",
+      "ok": true,
+      "reasoning": "Intent: The query specifically asks for peer-reviewed literature, which is a characteristic of ACADEMIC_SEARCH. RESEARCH_QUERY is a secondary intent as it is a general research question.\nMiner: The endpoint description explicitly states that it serves the ACADEMIC_SEARCH intent, and the question asks for peer-reviewed literature on perovskite solar cell degradation.",
+      "ms": 2371,
+      "signalHash": "0xd4677ef81d36d71c61a00c400c6a38c9dde8a9b636c26be92443ef2118784558",
+      "answer": "Here are 5 peer-reviewed papers on perovskite solar cell degradation, out of 30,235 matching articles: 1) \"Organometal halide perovskite solar cells: degradation and stability\" (2015, Taame Abraha Berhe et al., Energy & Environmental Science, 1761 citations, https://doi.org/10.1039/c5ee02733k); 2) \"Fast oxygen diffusion and iodide defects mediate oxygen-induced degradation of perovskite solar cells\" (2017, Nicholas Aristidou et al., Nature Communications, 1295 citations, https://doi.org/10.1038/ncomms15218); 3) \"Stability of Perovskite Solar Cells: Degradation Mechanisms and Remedies\" (2021, Sayantan Mazumdar et al., Frontiers in Electronics, 212 citations, https://doi.org/10.3389/felec.2021.712785); 4) \"Not All That Glitters Is Gold: Metal-Migration-Induced Degradation in Perovskite Solar Cells\" (2016, Konrad Domanski et al., ACS Nano, 1242 citations, https://doi.org/10.1021/acsnano.6b02613); 5) \"In situ observation of heat-induced degradation of perovskite solar cells\" (2016, Giorgio Divitini et al., Nature Energy, 775 citations, https://doi.org/10.1038/nenergy.2015.12). The most cited of these is \"Organometal halide perovskite solar cells: degradation and stability\" at 1,761 citations. From the leading paper's abstract: What are the bottlenecks for organometal halide perovskite solar cells to achieve the stability required for commercialization? Results are peer-reviewed journal articles only, with preprints, theses and datasets excluded, read live from OpenAlex or Crossref at request time and listed in relevance order."
+    },
+    {
+      "n": 13,
+      "expected": "WEB_SEARCH",
+      "question": "As of today, who holds the title of UN Secretary-General?",
+      "routed": null,
+      "miner": null,
+      "ok": false,
+      "error": "Telegraph returned HTTP 500."
+    },
+    {
+      "n": 14,
+      "expected": "FRAUD_DETECTION",
+      "question": "0x722122dF12D4e14e13Ac3b6895a86e84145b6967 — does that wallet carry any sanctions or scam exposure?",
+      "routed": null,
+      "miner": null,
+      "ok": false,
+      "error": "Telegraph returned HTTP 500."
+    }
+  ],
+  "okCount": 8,
+  "total": 14
+}
