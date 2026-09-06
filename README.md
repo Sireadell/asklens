@@ -7,6 +7,54 @@ record of the answer.
 
 Built for Telegraph Season I, Track 3 (Applications).
 
+## Try it in under a minute
+
+**Live app:** [asklens-zoox.onrender.com](https://asklens-zoox.onrender.com)
+
+1. Open the live app.
+2. Ask a question such as `What is the current ETH price?` or `Is this wallet safe?`.
+3. Read the answer alongside the miner that supplied it, the route chosen by
+   Telegraph, the request cost, and the on-chain signal hash.
+
+The hosted app pays for the request. You do not need a wallet, account, or
+testnet funds to try it. The service has limits to prevent unexpected spending.
+
+## Run it yourself
+
+AskLens needs Node.js 20 or later.
+
+```bash
+npm ci
+cp .env.example .env
+# Add a Base Sepolia private key with testnet USDC to .env
+npm start
+```
+
+Open http://localhost:3000. On Windows PowerShell, use this instead of `cp`:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Run the automated checks at any time. They do not make paid Telegraph calls or
+need a private key:
+
+```bash
+npm test
+```
+
+## What a reviewer can verify
+
+- A real request goes through Telegraph's live testnet Engine. There are no
+  fake answers or local stand-ins.
+- Every completed answer shows its supplier, route, cost, elapsed time, and
+  `signal_hash`, so it can be checked later.
+- `data/` contains the recorded routing work behind the project claims.
+- `docs/ROUTING_STUDY.md` explains the method, results, and limits of that
+  field work.
+- The same service is also available as an MCP connector at
+  `https://asklens-zoox.onrender.com/mcp`.
+
 ## What it does
 
 You type a question. AskLens sends it to Telegraph's Engine, which reads the
@@ -164,3 +212,19 @@ message saying so rather than failing silently.
 - **Nothing is ever written to stdout except protocol messages.** An MCP server
   talks over stdout, so one stray print would corrupt it. All logging goes to
   stderr, including the payment client's startup line.
+
+## Project map
+
+| Location | Purpose |
+|---|---|
+| `src/server.js` | Web app, live Telegraph requests, and MCP endpoint |
+| `src/mcp.js` | Tools exposed to Claude and other MCP-compatible apps |
+| `src/telegraph.js` | Paid request and settlement connection to Telegraph |
+| `public/` | Browser interface |
+| `test/` | Automated checks |
+| `data/` | Recorded routing and comparison evidence |
+| `docs/` | Submission notes and field-study write-up |
+
+## License
+
+[MIT](LICENSE)
