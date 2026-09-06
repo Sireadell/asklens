@@ -16,16 +16,15 @@ test("turns Sentinel HIGH into a critical result", () => {
   assert.equal(result.reason, "Known exploiter.");
 });
 
-test("uses the existing POST assess-wallet request with the short Snap deadline", async () => {
+test("uses Sentinel's direct live wallet route", async () => {
   let request;
-  let options;
-  const result = await assessWalletForSnap({ address: BAD, chainId: "eip155:1" }, async (_id, value, receivedOptions) => {
-    request = value;
-    options = receivedOptions;
-    return { body: { result: { label: "LOW", reason: "No known fraud signals." } } };
+  const result = await assessWalletForSnap({ address: BAD, chainId: "eip155:1" }, async (url, options) => {
+    request = { url, options };
+    return new Response(JSON.stringify({ label: "LOW", reason: "No known fraud signals." }), { status: 200 });
   });
-  assert.deepEqual(request, { method: "POST", endpoint: "/assess-wallet", payload: { wallet: BAD, chain: "eth" } });
-  assert.equal(options.timeoutMs, 3000);
+  assert.match(request.url, /telegraph-sentinel.*\/assess-wallet/);
+  assert.equal(request.options.method, "POST");
+  assert.equal(request.options.body, JSON.stringify({ wallet: BAD }));
   assert.equal(result.status, "safe");
 });
 

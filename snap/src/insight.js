@@ -1,5 +1,16 @@
 export const ASKLENS_URL = "https://asklens-zoox.onrender.com/api/snap/wallet-safety";
-export const CHECK_TIMEOUT_MS = 3500;
+export const CHECK_TIMEOUT_MS = 12_000;
+const LOCAL_BLOCKLIST = new Map([
+  [
+    "0x098b716b8aaf21512996dc57eb0615e2383e2f96",
+    "Known sanctioned recipient. This address is linked to the Ronin Bridge exploit.",
+  ],
+]);
+
+export function localBlocklistResult(address) {
+  const reason = LOCAL_BLOCKLIST.get(address.toLowerCase());
+  return reason ? { status: "critical", reason } : null;
+}
 
 export function resultToView(result, address) {
   if (result?.status === "critical") {
@@ -39,10 +50,10 @@ export async function checkRecipient(address, chainId, fetchFn = fetch, timeoutM
       body: JSON.stringify({ address, chainId }),
       signal: controller.signal,
     });
-    if (!response.ok) return { status: "unavailable", message: "AskLens could not check this address right now." };
+    if (!response.ok) return localBlocklistResult(address) ?? { status: "unavailable", message: "AskLens could not check this address right now." };
     return await response.json();
   } catch {
-    return { status: "unavailable", message: "AskLens could not check this address right now." };
+    return localBlocklistResult(address) ?? { status: "unavailable", message: "AskLens could not check this address right now." };
   } finally {
     clearTimeout(timer);
   }

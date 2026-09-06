@@ -16,5 +16,6 @@ export const onTransaction: OnTransactionHandler = async ({ transaction, chainId
         <Text>{view.detail}</Text>
       </Box>
     ),
+    ...(view.title === "Critical wallet warning" ? { severity: "critical" as const } : {}),
   };
 };

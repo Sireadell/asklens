@@ -7,7 +7,7 @@
     "url": "git+https://github.com/Sireadell/asklens.git"
   },
   "source": {
-    "shasum": "vPZEenygOUj3KHUiuQp83STl+SwNHFjQXinvjwhDf6g=",
+    "shasum": "iEc97qhCh1encNcSu2w6PDPqpTKQQwnlcOBkEMtYVuc=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
