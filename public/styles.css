@@ -113,9 +113,11 @@ pre {
 .notice.ready { border-color: var(--good); color: var(--good); }
 .notice.error { border-color: var(--bad); color: var(--bad); }
 
-footer { border-top: 1px solid var(--line); padding: 26px 0 50px; color: var(--dim); font-size: 14px; }
-.counter { margin-bottom: 10px; }
+footer { border-top: 0.5px solid var(--line); padding: 28px 0 40px; color: var(--dimmer); font-size: 13px; }
+.footer-row { text-align: center; }
+.counter { margin-bottom: 12px; font-size: 13px; color: var(--dim); }
 .counter strong { color: var(--text); }
+.powered { max-width: 58ch; margin: 0 auto; line-height: 1.7; }
 a { color: var(--accent); }
 @media (max-width: 560px) {
   .header-row { align-items: flex-start; flex-direction: column; gap: 4px; }

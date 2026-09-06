@@ -77,7 +77,16 @@ function renderAnswer(data) {
 }
 
 function renderCounter(stats) {
+  // The counter resets to 0 whenever the server restarts (a redeploy, a
+  // free-tier sleep/wake cycle). Showing "0 real requests" on a page whose
+  // whole pitch is live, paid, real answers reads as broken, so it is left
+  // out until there is a real number to show, rather than shown at zero.
+  if (!stats.total) {
+    counterEl.hidden = true;
+    return;
+  }
   const intents = Object.keys(stats.byIntent ?? {}).length;
+  counterEl.hidden = false;
   counterEl.innerHTML =
     `<strong>${stats.total}</strong> real request${stats.total === 1 ? "" : "s"} sent to Telegraph miners ` +
     `across <strong>${intents}</strong> question type${intents === 1 ? "" : "s"}.`;
