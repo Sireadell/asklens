@@ -1,6 +1,6 @@
 {
   "name": "asklens-metamask-snap",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": false,
   "description": "AskLens transaction insights powered by Telegraph Sentinel.",
   "type": "module",
