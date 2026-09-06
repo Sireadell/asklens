@@ -4,19 +4,30 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>AskLens — plain answers from live Telegraph miners</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" />
 <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
-<header>
-  <div class="wrap">
-    <div class="header-row">
-      <h1>AskLens</h1>
-      <nav class="header-actions" aria-label="Add AskLens">
-        <a class="connect-link" href="/connect.html">Add to your AI</a>
-        <a class="connect-link" href="/metamask.html">Add to MetaMask</a>
-      </nav>
+<nav class="topnav">
+  <div class="wrap topnav-row">
+    <a class="brand" href="/"><i class="ti ti-shield-check" aria-hidden="true"></i>AskLens</a>
+    <div class="topnav-links">
+      <a href="#intents">Intents</a>
+      <a href="/connect.html">Docs</a>
+      <a href="https://github.com/Sireadell/asklens" rel="noopener">GitHub</a>
     </div>
-    <p class="tag">Ask anything. A live Telegraph miner answers, and you see which one, why it was picked, and the on-chain record of the answer.</p>
+    <div class="topnav-actions">
+      <a class="pill pill-primary" href="/connect.html">Add to your AI</a>
+      <a class="pill" href="/metamask.html">Add to MetaMask</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow"><i class="ti ti-plug" aria-hidden="true"></i>Live on Telegraph Protocol</span>
+    <h1>Ask before you sign.</h1>
+    <p class="tag">A live Telegraph miner answers, and you see which one, why it was picked, and the on-chain record of the answer. No cached or mocked data.</p>
   </div>
 </header>
 
@@ -44,6 +55,33 @@
       <p class="hint">Costs another cent. Useful when you want a named miner's answer, not the router's pick.</p>
     </div>
     <div id="second-result" class="second-result" hidden></div>
+  </section>
+
+  <section id="intents" class="intents-section">
+    <h2>14 intents, one connector</h2>
+    <p class="section-sub">Every one of these runs live against Telegraph, priced per question. Add AskLens once and any of them is a message away.</p>
+    <div class="intents-grid">
+      <div class="intent-card"><i class="ti ti-shield-exclamation" aria-hidden="true"></i><span>Fraud check</span></div>
+      <div class="intent-card"><i class="ti ti-lock" aria-hidden="true"></i><span>Site certificate</span></div>
+      <div class="intent-card"><i class="ti ti-receipt" aria-hidden="true"></i><span>Transaction lookup</span></div>
+      <div class="intent-card"><i class="ti ti-gas-station" aria-hidden="true"></i><span>Gas price</span></div>
+      <div class="intent-card"><i class="ti ti-wallet" aria-hidden="true"></i><span>Wallet balance</span></div>
+      <div class="intent-card"><i class="ti ti-coins" aria-hidden="true"></i><span>Token holders</span></div>
+      <div class="intent-card"><i class="ti ti-building-bank" aria-hidden="true"></i><span>Value locked</span></div>
+      <div class="intent-card"><i class="ti ti-currency-bitcoin" aria-hidden="true"></i><span>Crypto price</span></div>
+      <div class="intent-card"><i class="ti ti-chart-line" aria-hidden="true"></i><span>Stock price</span></div>
+      <div class="intent-card"><i class="ti ti-cloud" aria-hidden="true"></i><span>Weather</span></div>
+      <div class="intent-card"><i class="ti ti-cloud-storm" aria-hidden="true"></i><span>Storm risk</span></div>
+      <div class="intent-card"><i class="ti ti-map-pin" aria-hidden="true"></i><span>IP location</span></div>
+      <div class="intent-card"><i class="ti ti-book" aria-hidden="true"></i><span>Research papers</span></div>
+      <div class="intent-card"><i class="ti ti-message-question" aria-hidden="true"></i><span>Open question</span></div>
+    </div>
+  </section>
+
+  <section class="stats-row">
+    <div class="stat"><div class="stat-num">15</div><div class="stat-label">tools built</div></div>
+    <div class="stat"><div class="stat-num">#1</div><div class="stat-label">storm alert rank</div></div>
+    <div class="stat"><div class="stat-num">x402</div><div class="stat-label">pay per call</div></div>
   </section>
 </main>
 

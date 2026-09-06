@@ -4,15 +4,28 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>AskLens for MetaMask</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" />
 <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
-<header>
-  <div class="wrap">
-    <div class="header-row">
-      <h1>AskLens for MetaMask</h1>
-      <a class="connect-link" href="/">Back to AskLens</a>
+<nav class="topnav">
+  <div class="wrap topnav-row">
+    <a class="brand" href="/"><i class="ti ti-shield-check" aria-hidden="true"></i>AskLens</a>
+    <div class="topnav-links">
+      <a href="/#intents">Intents</a>
+      <a href="/connect.html">Docs</a>
+      <a href="https://github.com/Sireadell/asklens" rel="noopener">GitHub</a>
     </div>
+    <div class="topnav-actions">
+      <a class="pill" href="/">Back to AskLens</a>
+    </div>
+  </div>
+</nav>
+
+<header class="subhero">
+  <div class="wrap">
+    <span class="eyebrow"><i class="ti ti-plug-connected" aria-hidden="true"></i>MetaMask Snap</span>
+    <h1>AskLens for MetaMask</h1>
     <p class="tag">See a safety warning before signing a risky transaction.</p>
   </div>
 </header>
@@ -23,8 +36,8 @@
   </section>
 
   <div class="wallet-actions">
-    <button id="install-snap" type="button" disabled>Add to MetaMask</button>
-    <button id="test-warning" class="secondary-action" type="button" disabled>Test warning</button>
+    <button id="install-snap" class="pill pill-primary" type="button" disabled>Add to MetaMask</button>
+    <button id="test-warning" class="pill secondary-action" type="button" disabled>Test warning</button>
   </div>
 
   <section class="safety-note">
