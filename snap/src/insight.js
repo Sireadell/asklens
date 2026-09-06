@@ -7,7 +7,6 @@ export function resultToView(result, address) {
       title: "Critical wallet warning",
       message: `Do not sign unless you are certain. Telegraph Sentinel marked ${address} as high risk.`,
       detail: result.reason ?? "This address is linked to known fraud signals.",
-      severity: "critical",
     };
   }
 

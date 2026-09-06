@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AskLens for MetaMask</title>
+<link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="header-row">
+      <h1>AskLens for MetaMask</h1>
+      <a class="connect-link" href="/">Back to AskLens</a>
+    </div>
+    <p class="tag">See a safety warning before signing a risky transaction.</p>
+  </div>
+</header>
+
+<main class="wrap wallet-setup">
+  <section class="notice" id="wallet-status" aria-live="polite">
+    Looking for MetaMask...
+  </section>
+
+  <div class="wallet-actions">
+    <button id="install-snap" type="button" disabled>Add to MetaMask</button>
+    <button id="test-warning" class="secondary-action" type="button" disabled>Test warning</button>
+  </div>
+
+  <section class="safety-note">
+    <strong>The test sends 0 ETH.</strong> When MetaMask shows the AskLens warning,
+    cancel the transaction. Do not confirm it.
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p class="powered">Powered by <a href="https://telegraphprotocol.com" rel="noopener">Telegraph Protocol</a>.</p>
+  </div>
+</footer>
+
+<script src="/metamask.js"></script>
+</body>
+</html>

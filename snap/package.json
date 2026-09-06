@@ -1,10 +1,14 @@
 {
-  "name": "@asklens/metamask-snap",
+  "name": "asklens-metamask-snap",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
   "description": "AskLens transaction insights powered by Telegraph Sentinel.",
   "type": "module",
   "main": "dist/bundle.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sireadell/asklens.git"
+  },
   "files": [
     "dist",
     "snap.manifest.json"
@@ -15,7 +19,7 @@
     "test": "node --test test/*.test.js"
   },
   "dependencies": {
-    "@metamask/snaps-sdk": "^12.0.1"
+    "@metamask/snaps-sdk": "12.0.0"
   },
   "devDependencies": {
     "@metamask/snaps-cli": "^8.4.1"

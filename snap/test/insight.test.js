@@ -4,12 +4,14 @@ import { checkRecipient, resultToView } from "../src/insight.js";
 
 const BAD = "0x098B716B8Aaf21512996dC57EB0615e2383E2f96";
 
-test("known-bad recipient returns MetaMask critical severity", () => {
+test("known-bad recipient returns a clear risk warning", () => {
   const insight = resultToView({ status: "critical", reason: "Known exploiter." }, BAD);
-  assert.equal(insight.severity, "critical");
+  assert.equal(insight.title, "Critical wallet warning");
+  assert.match(insight.message, /Do not sign/);
+  assert.equal(insight.severity, undefined);
 });
 
-test("low risk is informational and does not set critical severity", () => {
+test("low risk remains informational", () => {
   const insight = resultToView({ status: "safe", reason: "No known fraud signals." }, BAD);
   assert.equal(insight.severity, undefined);
 });
