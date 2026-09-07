@@ -20,10 +20,12 @@
     "appId": "com.asklens.clipguard",
     "productName": "AskLens Clip Guard",
     "files": [
-      "desktop-main.cjs"
+      "desktop-main.cjs",
+      "icon.png"
     ],
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "icon": "icon-large.png"
     },
     "nsis": {
       "oneClick": true,

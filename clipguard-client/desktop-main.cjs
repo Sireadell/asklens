@@ -1,6 +1,20 @@
-const { app, clipboard, Menu, Notification, Tray } = require("electron");
+const { app, clipboard, Menu, Notification, Tray, nativeImage } = require("electron");
 const fs = require("fs");
 const path = require("path");
+
+const ICON_PATH = path.join(__dirname, "icon.png");
+
+function logToFile(message) {
+  try {
+    const logPath = path.join(app.getPath("userData"), "clipguard.log");
+    fs.appendFileSync(logPath, `[${new Date().toISOString()}] ${message}\n`);
+  } catch {
+    // If we can't even write a log, there's nothing left to do about it.
+  }
+}
+
+process.on("uncaughtException", (err) => logToFile(`uncaughtException: ${err.stack || err.message}`));
+process.on("unhandledRejection", (err) => logToFile(`unhandledRejection: ${err?.stack || err}`));
 
 const ASKLENS_URL = "https://asklens-zoox.onrender.com/api/clipguard/check-url";
 const POLL_MS = 800;
@@ -87,13 +101,23 @@ function startWatching() {
   }, POLL_MS);
 }
 
-app.whenReady().then(() => {
-  app.setAppUserModelId("com.asklens.clipguard");
-  app.setLoginItemSettings({ openAtLogin: startsWithWindows() });
-  tray = new Tray(process.execPath);
-  updateTray("Watching your clipboard");
-  startWatching();
-  showNotice("AskLens Clip Guard is on", "Copy a link and it will be checked before you paste it.");
-});
+const gotLock = app.requestSingleInstanceLock();
+if (!gotLock) {
+  app.quit();
+} else {
+  app.whenReady().then(() => {
+    try {
+      app.setAppUserModelId("com.asklens.clipguard");
+      app.setLoginItemSettings({ openAtLogin: startsWithWindows() });
+      const icon = nativeImage.createFromPath(ICON_PATH);
+      tray = new Tray(icon.isEmpty() ? nativeImage.createEmpty() : icon);
+      updateTray("Watching your clipboard");
+      startWatching();
+      showNotice("AskLens Clip Guard is on", "Copy a link and it will be checked before you paste it.");
+    } catch (err) {
+      logToFile(`startup failed: ${err.stack || err.message}`);
+    }
+  });
+}
 
 app.on("window-all-closed", (event) => event.preventDefault());
