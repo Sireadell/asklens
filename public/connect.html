@@ -3,25 +3,71 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Add AskLens to Claude</title>
+<title>Add AskLens to your AI</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" />
 <link rel="stylesheet" href="/styles.css" />
 </head>
 <body class="product-page">
 <nav class="topnav product-nav"><div class="product-wrap"><a class="brand" href="/"><i class="ti ti-shield-check" aria-hidden="true"></i>AskLens</a><a href="/" class="back-link">Back to AskLens</a></div></nav>
-<main class="product-main product-wrap">
+<main class="product-main product-wrap connect-main">
   <p class="product-kicker"><i class="ti ti-message" aria-hidden="true"></i>AskLens MCP</p>
-  <h1>Bring evidence into<br />your Claude answers.</h1>
-  <p class="product-lead">AskLens gives Claude live source-backed information when a question needs it.</p>
-  <button class="product-primary" type="button" data-copy="https://asklens-zoox.onrender.com/mcp">Add to Claude <i class="ti ti-plus" aria-hidden="true"></i></button>
-  <p class="product-note" id="copy-note">This copies the connection link. In Claude, open Settings, Connectors, then Add custom connector.</p>
-  <div class="product-facts"><span><i class="ti ti-link" aria-hidden="true"></i>One connection link</span><span><i class="ti ti-database-search" aria-hidden="true"></i>Live sources and clear reasons</span></div>
+  <h1>Bring evidence into<br />your AI answers.</h1>
+  <p class="product-lead">Add AskLens once, then ask for live source-backed information inside the AI you already use.</p>
+
+  <div class="client-picker" role="tablist" aria-label="Choose an AI app">
+    <button class="client-choice is-active" type="button" data-client="claude" role="tab" aria-selected="true">Claude</button>
+    <button class="client-choice" type="button" data-client="cursor" role="tab" aria-selected="false">Cursor</button>
+    <button class="client-choice" type="button" data-client="chatgpt" role="tab" aria-selected="false">ChatGPT</button>
+  </div>
+
+  <section class="client-instructions" id="client-claude" role="tabpanel">
+    <h2>Add AskLens to Claude</h2>
+    <ol><li>Copy the AskLens connection link.</li><li>In Claude, open <strong>Settings</strong>, then <strong>Connectors</strong>.</li><li>Choose <strong>Add custom connector</strong>, paste the link, then approve the connection.</li></ol>
+    <button class="product-primary copy-connection" type="button">Copy connection link <i class="ti ti-copy" aria-hidden="true"></i></button>
+  </section>
+
+  <section class="client-instructions" id="client-cursor" role="tabpanel" hidden>
+    <h2>Add AskLens to Cursor</h2>
+    <ol><li>Open Cursor's MCP settings, then choose to add a global MCP server.</li><li>In the file that opens, add the AskLens configuration below.</li><li>Save the file, then return to Cursor and use AskLens in chat.</li></ol>
+    <pre class="mcp-config"><code>{
+  "mcpServers": {
+    "asklens": {
+      "url": "https://asklens-zoox.onrender.com/mcp"
+    }
+  }
+}</code></pre>
+    <button class="product-primary copy-config" type="button">Copy Cursor configuration <i class="ti ti-copy" aria-hidden="true"></i></button>
+  </section>
+
+  <section class="client-instructions" id="client-chatgpt" role="tabpanel" hidden>
+    <h2>Add AskLens to ChatGPT</h2>
+    <ol><li>In ChatGPT on the web, open <strong>Settings</strong>, then <strong>Apps</strong>.</li><li>Turn on <strong>Developer mode</strong>, then choose <strong>Create</strong>.</li><li>Paste the AskLens connection link, scan the available tools, then choose <strong>Create</strong>.</li></ol>
+    <button class="product-primary copy-connection" type="button">Copy connection link <i class="ti ti-copy" aria-hidden="true"></i></button>
+    <p class="client-warning"><i class="ti ti-info-circle" aria-hidden="true"></i>ChatGPT custom MCP connections need developer mode and a plan that supports custom apps.</p>
+  </section>
+
+  <p class="connection-note" id="copy-note">The connection link is <code>https://asklens-zoox.onrender.com/mcp</code></p>
 </main>
 <script>
-  document.querySelector("[data-copy]").addEventListener("click", async (event) => {
-    await navigator.clipboard.writeText(event.currentTarget.dataset.copy);
-    event.currentTarget.firstChild.textContent = "Connection link copied ";
-    document.getElementById("copy-note").textContent = "Now open Claude, then Settings, Connectors, and Add custom connector. Paste the link there.";
+  const connectionUrl = "https://asklens-zoox.onrender.com/mcp";
+  const cursorConfig = '{"mcpServers":{"asklens":{"url":"https://asklens-zoox.onrender.com/mcp"}}}';
+  const note = document.getElementById("copy-note");
+  document.querySelectorAll(".client-choice").forEach((choice) => {
+    choice.addEventListener("click", () => {
+      document.querySelectorAll(".client-choice").forEach((button) => {
+        button.classList.toggle("is-active", button === choice);
+        button.setAttribute("aria-selected", String(button === choice));
+      });
+      document.querySelectorAll(".client-instructions").forEach((panel) => {
+        panel.hidden = panel.id !== `client-${choice.dataset.client}`;
+      });
+    });
+  });
+  document.querySelectorAll(".copy-connection, .copy-config").forEach((button) => {
+    button.addEventListener("click", async () => {
+      await navigator.clipboard.writeText(button.classList.contains("copy-config") ? cursorConfig : connectionUrl);
+      note.textContent = "Copied. Paste it into the setup step above.";
+    });
   });
 </script>
 </body>

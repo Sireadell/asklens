@@ -486,3 +486,25 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
   .product-facts { grid-template-columns: 1fr; margin-top: 52px; }
   .product-facts span + span { border-top: 1px solid #34404d; border-left: 0; }
 }
+
+.connect-main { padding-bottom: 72px; }
+.client-picker { display: flex; max-width: 650px; margin-top: 42px; border: 1px solid #34404d; }
+.client-choice { flex: 1; padding: 14px 16px; border: 0; border-left: 1px solid #34404d; border-radius: 0; background: transparent; color: #c1cad5; font-size: 16px; font-weight: 600; }
+.client-choice:first-child { border-left: 0; }
+.client-choice:hover { color: #fff; }
+.client-choice.is-active { background: #fff; color: #05080c; }
+.client-instructions { max-width: 760px; margin-top: 28px; padding: 27px 30px 30px; border: 1px solid #34404d; }
+.client-instructions h2 { margin: 0; color: #fff; font-size: 24px; }
+.client-instructions ol { margin: 18px 0 0; padding-left: 24px; color: #c1cad5; }
+.client-instructions li + li { margin-top: 9px; }
+.client-instructions .product-primary { margin-top: 24px; }
+.mcp-config { max-width: 560px; margin: 22px 0 0; padding: 16px; overflow-x: auto; background: #080c12; border: 1px solid #34404d; border-radius: 0; color: #e7ebf0; font-size: 13px; line-height: 1.45; }
+.client-warning { display: flex; gap: 9px; max-width: 610px; margin: 20px 0 0; color: #c1cad5; font-size: 14px; }
+.client-warning i { flex: 0 0 auto; color: #2583ff; font-size: 18px; }
+.connection-note { margin: 18px 0 0; color: #c1cad5; font-size: 14px; }
+.connection-note code { overflow-wrap: anywhere; color: #fff; }
+@media (max-width: 650px) {
+  .client-picker { margin-top: 32px; }
+  .client-choice { padding: 12px 8px; font-size: 14px; }
+  .client-instructions { padding: 22px 18px; }
+}
