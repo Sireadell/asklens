@@ -3,148 +3,25 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Add AskLens to your AI</title>
+<title>Add AskLens to Claude</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" />
 <link rel="stylesheet" href="/styles.css" />
 </head>
-<body>
-<nav class="topnav">
-  <div class="wrap topnav-row">
-    <a class="brand" href="/"><i class="ti ti-shield-check" aria-hidden="true"></i>AskLens</a>
-    <div class="topnav-links">
-      <a href="/#intents">Intents</a>
-      <a href="/connect.html">Docs</a>
-      <a href="https://github.com/Sireadell/asklens" rel="noopener">GitHub</a>
-    </div>
-    <div class="topnav-actions">
-      <a class="pill" href="/metamask.html">Add to MetaMask</a>
-      <a class="pill" href="/pc.html">Add to PC</a>
-      <a class="pill" href="/">Back to AskLens</a>
-    </div>
-  </div>
-</nav>
-
-<header class="subhero">
-  <div class="wrap">
-    <span class="eyebrow"><i class="ti ti-plug" aria-hidden="true"></i>MCP connector</span>
-    <h1>Add AskLens to your AI</h1>
-    <p class="tag">Check wallets, links, prices, balances, transactions, weather, and more inside your usual AI conversation.</p>
-  </div>
-</header>
-
-<main class="wrap connect-page">
-  <div class="client-tabs" role="tablist" aria-label="Choose your AI tool">
-    <button class="client-tab is-active" type="button" data-tab="claude" role="tab" aria-selected="true">Claude</button>
-    <button class="client-tab" type="button" data-tab="cursor" role="tab" aria-selected="false">Cursor</button>
-    <button class="client-tab" type="button" data-tab="metamask" role="tab" aria-selected="false">MetaMask</button>
-  </div>
-
-  <div id="panel-claude" class="client-panel">
-    <section class="notice">
-      <strong>One link. No wallet setup.</strong> Paste the AskLens connection link into Claude, then ask a question normally.
-    </section>
-
-    <section class="install-card">
-      <span class="step">1</span>
-      <h2>Copy the AskLens link</h2>
-      <pre><code>https://asklens-zoox.onrender.com/mcp</code></pre>
-      <button class="copy" type="button" data-copy="https://asklens-zoox.onrender.com/mcp">Copy AskLens link</button>
-    </section>
-
-    <section class="install-card">
-      <span class="step">2</span>
-      <h2>Add it in Claude</h2>
-      <p>Open Claude, choose <strong>Settings</strong>, then <strong>Connectors</strong>. Select <strong>Add custom connector</strong>, paste the AskLens link, and choose <strong>Add</strong>.</p>
-      <p class="small">You only need to do this once. Claude may ask you to approve the connection.</p>
-    </section>
-
-    <section class="install-card">
-      <span class="step">3</span>
-      <h2>Ask your first question</h2>
-      <pre><code>Check this Ethereum wallet before I approve a payment: 0x47666fab8bd0ac7003bce3f5c3585383f09486e2. What should I know?</code></pre>
-      <button class="copy" type="button" data-copy="Check this Ethereum wallet before I approve a payment: 0x47666fab8bd0ac7003bce3f5c3585383f09486e2. What should I know?">Copy question</button>
-    </section>
-
-    <section class="install-card">
-      <span class="step">4</span>
-      <h2>Use it naturally</h2>
-      <p>Try “What is Ethereum gas right now?”, “Check the balance of this wallet”, or “Is this link safe to open?” AskLens is available when the question needs it.</p>
-    </section>
-  </div>
-
-  <div id="panel-cursor" class="client-panel" hidden>
-    <section class="notice">
-      <strong>Same URL, different file.</strong> Cursor reads remote MCP servers straight out of a config file, no install step.
-    </section>
-
-    <section class="install-card">
-      <span class="step">1</span>
-      <h2>Open (or create) your MCP config</h2>
-      <p>In your project, create <code>.cursor/mcp.json</code>. To make AskLens available in every project instead, use <code>~/.cursor/mcp.json</code> in your home folder.</p>
-    </section>
-
-    <section class="install-card">
-      <span class="step">2</span>
-      <h2>Add this block</h2>
-      <pre><code>{
-  "mcpServers": {
-    "asklens": {
-      "url": "https://asklens-zoox.onrender.com/mcp"
-    }
-  }
-}</code></pre>
-      <button class="copy" type="button" data-copy='{"mcpServers":{"asklens":{"url":"https://asklens-zoox.onrender.com/mcp"}}}'>Copy config block</button>
-      <p class="small">If the file already has other servers listed, add <code>"asklens"</code> alongside them, don't replace the file.</p>
-    </section>
-
-    <section class="install-card">
-      <span class="step">3</span>
-      <h2>Reload Cursor</h2>
-      <p>Cursor picks up the new server on the next reload. Check <strong>Settings → MCP</strong> to confirm AskLens shows as connected, then ask it a question in chat.</p>
-    </section>
-  </div>
-
-  <div id="panel-metamask" class="client-panel" hidden>
-    <section class="notice">
-      <strong>This one is not MCP.</strong> MetaMask can't hold a chat conversation, so AskLens works differently there: it's a Snap that checks a transaction the moment before you sign it, and warns you if it looks unsafe.
-    </section>
-    <section class="install-card">
-      <span class="step">1</span>
-      <h2>Open the MetaMask setup page</h2>
-      <p>It walks through installing the Snap and sending a harmless test transaction to see the warning fire.</p>
-      <a class="pill pill-primary" href="/metamask.html">Go to MetaMask setup</a>
-    </section>
-  </div>
+<body class="product-page">
+<nav class="topnav product-nav"><div class="product-wrap"><a class="brand" href="/"><i class="ti ti-shield-check" aria-hidden="true"></i>AskLens</a><a href="/" class="back-link">Back to AskLens</a></div></nav>
+<main class="product-main product-wrap">
+  <p class="product-kicker"><i class="ti ti-message" aria-hidden="true"></i>AskLens MCP</p>
+  <h1>Bring evidence into<br />your Claude answers.</h1>
+  <p class="product-lead">AskLens gives Claude live source-backed information when a question needs it.</p>
+  <button class="product-primary" type="button" data-copy="https://asklens-zoox.onrender.com/mcp">Add to Claude <i class="ti ti-plus" aria-hidden="true"></i></button>
+  <p class="product-note" id="copy-note">This copies the connection link. In Claude, open Settings, Connectors, then Add custom connector.</p>
+  <div class="product-facts"><span><i class="ti ti-link" aria-hidden="true"></i>One connection link</span><span><i class="ti ti-database-search" aria-hidden="true"></i>Live sources and clear reasons</span></div>
 </main>
-
-<footer>
-  <div class="wrap">
-    <p class="powered">Powered by <a href="https://telegraphprotocol.com" rel="noopener">Telegraph Protocol</a>. <a href="https://github.com/Sireadell/asklens" rel="noopener">View the source on GitHub</a>.</p>
-  </div>
-</footer>
-
 <script>
-  document.querySelectorAll("[data-copy]").forEach((button) => {
-    button.addEventListener("click", async () => {
-      await navigator.clipboard.writeText(button.dataset.copy);
-      const original = button.textContent;
-      button.textContent = "Copied";
-      setTimeout(() => { button.textContent = original; }, 1600);
-    });
-  });
-
-  document.querySelectorAll(".client-tab").forEach((tab) => {
-    tab.addEventListener("click", () => {
-      document.querySelectorAll(".client-tab").forEach((t) => {
-        t.classList.remove("is-active");
-        t.setAttribute("aria-selected", "false");
-      });
-      tab.classList.add("is-active");
-      tab.setAttribute("aria-selected", "true");
-      document.querySelectorAll(".client-panel").forEach((panel) => {
-        panel.hidden = panel.id !== `panel-${tab.dataset.tab}`;
-      });
-    });
+  document.querySelector("[data-copy]").addEventListener("click", async (event) => {
+    await navigator.clipboard.writeText(event.currentTarget.dataset.copy);
+    event.currentTarget.firstChild.textContent = "Connection link copied ";
+    document.getElementById("copy-note").textContent = "Now open Claude, then Settings, Connectors, and Add custom connector. Paste the link there.";
   });
 </script>
 </body>

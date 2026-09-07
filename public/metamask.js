@@ -9,7 +9,7 @@ let flaskProvider = null;
 
 function setStatus(message, kind = "") {
   status.textContent = message;
-  status.className = `notice ${kind}`.trim();
+  status.className = `product-status ${kind}`.trim();
 }
 
 async function refreshInstalledState() {
