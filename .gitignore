@@ -6,9 +6,19 @@ clipguard-client/release/
 # The pay wallet's key lives here. Never commit it.
 .env
 
-# Running totals are per-install state, not evidence, and they churn on every
-# request. The recorded runs under data/ are kept deliberately: the routing
-# study cites them, and a reader should be able to check the numbers.
-data/stats.json
-data/snap-usage.json
-data/clipguard-usage.json
+# Everything under data/ is per-install state: running totals, request logs,
+# and the output of local research runs. The app creates what it needs on
+# first run, so none of it belongs in the repo.
+data/
+
+# Internal research and monitoring tools. Kept locally, not part of the app.
+scripts/benchmark.mjs
+scripts/push-traffic.mjs
+scripts/standings.mjs
+scripts/hard-monitor.mjs
+scripts/retry-hard-monitor.mjs
+scripts/telegraph-100.mjs
+scripts/telegraph-hard-router.mjs
+scripts/audit-telegraph-hard-router.mjs
+scripts/probe-miners.mjs
+scripts/route-monitor.mjs

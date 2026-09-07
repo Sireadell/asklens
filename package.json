@@ -10,9 +10,7 @@
     "start": "node src/server.js",
     "mcp": "node src/mcp.js",
     "test": "node --test \"test/**/*.test.js\"",
-    "watch": "node scripts/watch.mjs",
-    "probe": "node scripts/probe-miners.mjs",
-    "standings": "node scripts/standings.mjs"
+    "watch": "node scripts/watch.mjs"
   },
   "keywords": [],
   "author": "",
