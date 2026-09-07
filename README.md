@@ -49,8 +49,6 @@ npm test
   fake answers or local stand-ins.
 - Every completed answer shows its supplier, route, cost, elapsed time, and
   `signal_hash`, so it can be checked later.
-- `docs/ROUTING_STUDY.md` explains the method, results, and limits of the
-  routing field work behind the project claims.
 - The same service is also available as an MCP connector at
   `https://asklens-zoox.onrender.com/mcp`.
 
@@ -221,7 +219,6 @@ message saying so rather than failing silently.
 | `src/telegraph.js` | Paid request and settlement connection to Telegraph |
 | `public/` | Browser interface |
 | `test/` | Automated checks |
-| `docs/` | Field-study write-up of the routing work |
 
 ## License
 
