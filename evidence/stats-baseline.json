@@ -1,0 +1,29 @@
+{
+  "note": "Verified floor for the live request counter. Every request counted here has a published signal hash in HASHES.md. The host wipes its disk on deploy, so the counter seeds from this instead of restarting at zero.",
+  "total": 426,
+  "byIntent": {
+    "URL_SCAN": 180,
+    "FRAUD_DETECTION": 49,
+    "WALLET_BALANCE_CHECK": 25,
+    "CRYPTO_PRICE": 24,
+    "STOCK_PRICE": 24,
+    "SSL_VERIFICATION": 20,
+    "WEATHER_FORECAST": 20,
+    "STORM_ALERT": 19,
+    "IP_GEOLOCATION": 15,
+    "TVL_LOOKUP": 15,
+    "TOKEN_HOLDER_COUNT": 12,
+    "ACADEMIC_SEARCH": 12,
+    "ONCHAIN_TX_LOOKUP": 6,
+    "GAS_PRICE": 5
+  },
+  "byMiner": {
+    "TxLens": 197,
+    "NetWire URL Scan": 60,
+    "URL Sentinel": 60,
+    "PREFLIGHT Infrastructure Signals": 60,
+    "Telegraph Sentinel": 49
+  },
+  "startedAt": "2026-09-07T21:59:30.824Z",
+  "verifiedAt": "2026-09-07T22:14:09.182Z"
+}

@@ -89,7 +89,8 @@ function renderCounter(stats) {
   counterEl.hidden = false;
   counterEl.innerHTML =
     `<strong>${stats.total}</strong> real request${stats.total === 1 ? "" : "s"} sent to Telegraph miners ` +
-    `across <strong>${intents}</strong> question type${intents === 1 ? "" : "s"}.`;
+    `across <strong>${intents}</strong> question type${intents === 1 ? "" : "s"}. ` +
+    `<a href="https://github.com/Sireadell/asklens/blob/main/HASHES.md" rel="noopener">Check every signal hash</a>.`;
 }
 
 async function post(url, body) {
