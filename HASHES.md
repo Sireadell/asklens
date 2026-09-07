@@ -6,40 +6,40 @@ resolvable at the Engine by anyone, and the on-chain transaction that settled
 the x402 payment for it. Nothing here is generated, replayed, or estimated:
 if a call failed, it is not in this file.
 
-**426 signals** across 14 intents and 5 miners.
+**720 signals** across 14 intents and 5 miners.
 
-- Collected: 2026-09-07T21:59:30.824Z to 2026-09-07T22:13:47.458Z
+- Collected: 2026-09-07T21:59:30.824Z to 2026-09-07T22:20:52.435Z
 - Paid by: `0xA8Ae7deF7692C81a0Cb8Cd8eD55B60a56e417076` (Base Sepolia test USDC)
-- Settled on-chain: 426 of 426
-- Spent: $4.26 in test USDC
+- Settled on-chain: 720 of 720
+- Spent: $7.20 in test USDC
 
 ## Per intent
 
 | Intent | Signals |
 |---|---|
-| URL_SCAN | 180 |
+| URL_SCAN | 342 |
 | FRAUD_DETECTION | 49 |
+| CRYPTO_PRICE | 41 |
+| STOCK_PRICE | 41 |
+| WEATHER_FORECAST | 40 |
+| STORM_ALERT | 39 |
+| SSL_VERIFICATION | 35 |
+| IP_GEOLOCATION | 27 |
+| TVL_LOOKUP | 26 |
 | WALLET_BALANCE_CHECK | 25 |
-| CRYPTO_PRICE | 24 |
-| STOCK_PRICE | 24 |
-| SSL_VERIFICATION | 20 |
-| WEATHER_FORECAST | 20 |
-| STORM_ALERT | 19 |
-| IP_GEOLOCATION | 15 |
-| TVL_LOOKUP | 15 |
-| TOKEN_HOLDER_COUNT | 12 |
-| ACADEMIC_SEARCH | 12 |
+| TOKEN_HOLDER_COUNT | 20 |
+| ACADEMIC_SEARCH | 20 |
+| GAS_PRICE | 9 |
 | ONCHAIN_TX_LOOKUP | 6 |
-| GAS_PRICE | 5 |
 
 ## Per miner
 
 | Miner | Signals |
 |---|---|
-| TxLens | 197 |
-| NetWire URL Scan | 60 |
-| URL Sentinel | 60 |
-| PREFLIGHT Infrastructure Signals | 60 |
+| TxLens | 329 |
+| NetWire URL Scan | 114 |
+| URL Sentinel | 114 |
+| PREFLIGHT Infrastructure Signals | 114 |
 | Telegraph Sentinel | 49 |
 
 Two of these miners, TxLens and Telegraph Sentinel, are ours. The rest are
@@ -476,3 +476,297 @@ on purpose, because one source agreeing with itself is not corroboration.
 | 424 | FRAUD_DETECTION | Telegraph Sentinel | `0x0681d8Db095565FE8A346fA0277bFfdE9C0eDBBF ...` | `0x429529636f79c11903d41d781dea8a9a9255afbd62f8a1affaacbd79b07d5f01` | `0xd5ab13a7c81fa677...` |
 | 425 | FRAUD_DETECTION | Telegraph Sentinel | `0xfE9e8709d3215310075d67E3ed32A380CCf451C8 ...` | `0x9d0fdae0d46a1dba7bbd270a780e28a307bf14b86d157d30ecbaea12c67a52b2` | `0x57a7aac7a1ac910f...` |
 | 426 | FRAUD_DETECTION | Telegraph Sentinel | `0xfE9e8709d3215310075d67E3ed32A380CCf451C8 ...` | `0x2a6121fc207939ab349a134132a6f068d8d7cf8bca6a7181f53350ff290b5c8b` | `0x30745dd109bd8079...` |
+| 427 | URL_SCAN | URL Sentinel | `https://sourceforge.net` | `0xe6b29a7b136766ebe0b1413e4d3452cb10f87535d4601e2dbae9d65ef5f03996` | `0xedb664310f74e502...` |
+| 428 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://sourceforge.net` | `0x2105c8da0bbeb6559f185b18677fd38251bd0809ca179907303a0995fdcd277d` | `0x74a1700449ec72df...` |
+| 429 | URL_SCAN | URL Sentinel | `https://gnu.org` | `0x15d202014be1435582bbd5b9d462bd2dbfd963be2fceec5147c1bec1b2786530` | `0x71453d6332a04396...` |
+| 430 | URL_SCAN | NetWire URL Scan | `https://sourceforge.net` | `0xfa25830496c264597af7170d6e025efdaa98ee95f79ceee1ba4158d01561c1b5` | `0x4967b0e9eb6d207d...` |
+| 431 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://gnu.org` | `0xb0febeb4a9372c2037c50888b96c4c28a35a5c17ec5bf7e39caff55cdf3d939c` | `0x37bc48df8aba84d3...` |
+| 432 | URL_SCAN | NetWire URL Scan | `https://freebsd.org` | `0xea4d99d8c79410e8efff0945212245449b4b8cd3da3e709ea86cc22f545ced41` | `0xc3fef04659054c6d...` |
+| 433 | URL_SCAN | URL Sentinel | `https://freebsd.org` | `0x3a15fa7da05a4c6638364f2d26e2613190f57f0389d157da74de12778f46db21` | `0x16e5f78e1fe81833...` |
+| 434 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://freebsd.org` | `0x8ac712a1a81c4f64af3d7a71d01106500069c38d7ecaee30e98ddb4ae56b6b87` | `0xc0b6795abc92413a...` |
+| 435 | URL_SCAN | NetWire URL Scan | `https://gnu.org` | `0xf299a7b5195afea0c87684e396e5b9950f82ab36a3b0ebc36103da197e3a9abe` | `0xb2a46543175343e9...` |
+| 436 | URL_SCAN | URL Sentinel | `https://openbsd.org` | `0x52d865c8d499e670aeceb28c4ca7c7b3086e8fdcc78e0adba1b7851003f67fdc` | `0xcd00afb07150aa33...` |
+| 437 | URL_SCAN | NetWire URL Scan | `https://openbsd.org` | `0xc8d9fad1158be90bc66c0f43468ea6f54850a708e52fe9cfe61c3479975b70dd` | `0x75d039aeccc1426b...` |
+| 438 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://openbsd.org` | `0xce7cdd8ce7bedcd8582b8f9f453080caf18c3debf98d084519d1da88642d2c10` | `0x5ad24fc52484fe1e...` |
+| 439 | URL_SCAN | NetWire URL Scan | `https://vim.org` | `0xa85d5cb9b8c29cdcfa5df47dd0a912fcd1052dca890f65f73f77cbdb6162cf87` | `0xa9776332cfebcb43...` |
+| 440 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://vim.org` | `0x0f6ef8ff71845c39ff0d05225ed273d44b1d9b1ade5362bf6fc3487312687d61` | `0xfa0d2c1cdc3f9df9...` |
+| 441 | URL_SCAN | NetWire URL Scan | `https://gnome.org` | `0x6c03096bdbc2cdec8e81b189f4c582cb9b9b321b75dcf56accdbbb805f7a1248` | `0x765d1d68cb88bc8e...` |
+| 442 | URL_SCAN | URL Sentinel | `https://vim.org` | `0x12036d4e949b1b2640e9eb4a3e9cdd8234666437e6397888b8fd8debccf1d32b` | `0x4e44f93757ab70ed...` |
+| 443 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://gnome.org` | `0x204d60b1a00a19f0f068e0b0641e9294542e08f12b371fa13750b5b24e6860fd` | `0xb9f66d210aa3f7ea...` |
+| 444 | URL_SCAN | NetWire URL Scan | `https://kde.org` | `0xe76958557378ae076099f726865dc38bbed5164ef60f3f57b54365e4bd64f33c` | `0xbea76e2b074cde62...` |
+| 445 | URL_SCAN | URL Sentinel | `https://kde.org` | `0xfb62f50cb8ea532fe57d856db014b67d7a7286977bd87c77d60a1d676080c75a` | `0x23112d273e46e50b...` |
+| 446 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://kde.org` | `0x44d8642e16be86eb12a8a0d7539a3aa7de7dc69daf7d12954b2153863d62978b` | `0x0374cc4d559fafc7...` |
+| 447 | URL_SCAN | URL Sentinel | `https://gnome.org` | `0xcb2b1f28d1ebaf7ad0abe1381575c6f812911dbc4dac2a93afb04c23699097e0` | `0x2606b3404c9b1029...` |
+| 448 | URL_SCAN | NetWire URL Scan | `https://blender.org` | `0x47addd0c5fcec13cc0a1525e6ee691cd5c60f36fd95da06551005925fe50f13d` | `0x8b2b7155a66bc94e...` |
+| 449 | URL_SCAN | URL Sentinel | `https://blender.org` | `0xfa886bcca686dbeec67a1f2feebfa910cc6dafddb71220d35dae5ebeccc331a3` | `0xbbaa4774fa9dec84...` |
+| 450 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://blender.org` | `0xe7837e882d314863af7f47ebb7890e663f692fe2552f536d5756435f0271f7ec` | `0x971331998b556d82...` |
+| 451 | URL_SCAN | NetWire URL Scan | `https://inkscape.org` | `0x127afab6a0fba0202f26d91b7f319f0b832f7bf0348ca171a67b36629e42db9f` | `0x678d23b44911fe48...` |
+| 452 | URL_SCAN | URL Sentinel | `https://inkscape.org` | `0xedd587737ec4fce66a86009455afec56202d93512ea904ed7d723dcc4eeda714` | `0x9cf0b898c36ef144...` |
+| 453 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://inkscape.org` | `0x2d4f3b1a43acab72c798d07eaf1416e33b32e8048d6784602fab55cb237ce887` | `0xedff7fde4fa755c0...` |
+| 454 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://gimp.org` | `0x4cf8d9efdf66e60241ab8f5e6e3d95a1772819a8b667fb5a9f76ab75fa99acab` | `0x4ae828d73f521cf5...` |
+| 455 | URL_SCAN | NetWire URL Scan | `https://gimp.org` | `0xe26f8d5cf09236bc32d2d2cbdd00df70d479706785468e3bbe4225fd2a9cf157` | `0x0164eda79f95b49c...` |
+| 456 | URL_SCAN | URL Sentinel | `https://gimp.org` | `0xf1a355755e1f7a74f366b948d5e22cb0ec07d8237edf24c1cf00adbfcefa2587` | `0xecbcadccc90be565...` |
+| 457 | URL_SCAN | NetWire URL Scan | `https://libreoffice.org` | `0x808a39af73b7d7c942d331e4d2b4b14bc89c1c9035740bfcd45b1cb77b979d7d` | `0x100ac538fc72f9dc...` |
+| 458 | URL_SCAN | URL Sentinel | `https://libreoffice.org` | `0x24e2016a2e633525baff60170a930890b5be7b3b5cb9aac1a2434489d7186920` | `0x2fe36a367252ee7b...` |
+| 459 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://libreoffice.org` | `0x54c281eef7843bce4138939cd6225c39abe17e173ac1f18cdb48dae27249870e` | `0xa701715d80ecbfb5...` |
+| 460 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://videolan.org` | `0xda12c3d0e020ac805401213e3ff4bbc7454a47892fceba2a6df7c76478c651f3` | `0xe3d0cb314f59aff8...` |
+| 461 | URL_SCAN | URL Sentinel | `https://videolan.org` | `0xe8e02f581b635be5f60a7e99c5d9ab31f0ab5f9e3b3f08181884784eee36b438` | `0xaf659deb3346fa2c...` |
+| 462 | URL_SCAN | NetWire URL Scan | `https://ffmpeg.org` | `0xf854989c253c073fbd33d9864356413e6374c741ad8ea74769d0af357d880904` | `0x50d9580939b15ea8...` |
+| 463 | URL_SCAN | URL Sentinel | `https://ffmpeg.org` | `0x2248ccaad86760fec9b454cd10518eff39d78d647956eb91cda6ead1320d9069` | `0x41a0772c0db7b17b...` |
+| 464 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://ffmpeg.org` | `0xe70496d7c1ea9dc48330465b34f7d9e787c214b1a16422414dc19c91acdb35b2` | `0x782ce2c5397e7009...` |
+| 465 | URL_SCAN | NetWire URL Scan | `https://curl.se` | `0x146cb53ad877db88720dbd90ded3f4c56b393b881b690982fca0a9a06a777708` | `0x8a66139dd2f22715...` |
+| 466 | URL_SCAN | URL Sentinel | `https://curl.se` | `0xd67bb4aaf00b12ce8ce18cb36decb6c5402af719beb95beb0929de104dcbdbc8` | `0x13b7c9183f704f16...` |
+| 467 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://curl.se` | `0x3a7ed130f81b84e46dc1065d175e06c4d812285ff70e2cada7dce39da5e1db26` | `0x493194a318921182...` |
+| 468 | URL_SCAN | NetWire URL Scan | `https://videolan.org` | `0x3a1b604f8455dc265f7484d435eeb306ccd344fad58b6438b3bf6d38d50115f2` | `0x57b87c046a2d301d...` |
+| 469 | URL_SCAN | URL Sentinel | `https://openssh.com` | `0x58ba68d3238b654a9000b2206f5ef8dadded72633e93b8fc828f7e352da7db12` | `0x70ca248ad70b8f60...` |
+| 470 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://openssh.com` | `0x013c0563553ccf4f798aa43d4aa07c6a627e7da5f0910671649d6d299afeebec` | `0x930d8f63707e8aa9...` |
+| 471 | URL_SCAN | NetWire URL Scan | `https://haproxy.org` | `0x4553b76a0db6c59ca8a59f1e1ce7cce015ad9dba7b6d8ccd1b2ba1058b8ff80e` | `0x01ce040d2a18341b...` |
+| 472 | URL_SCAN | URL Sentinel | `https://haproxy.org` | `0x578d2a6a862183e5f945da41d7e0c653cebca841c3774d0b2662403094178bd8` | `0x6824f280f91e1ceb...` |
+| 473 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://haproxy.org` | `0x0483ce400b4d105602647549aea3a1f5745df7bb01568787d8edfcc6426d55bc` | `0x91a0774b57c18e05...` |
+| 474 | URL_SCAN | NetWire URL Scan | `https://varnish-cache.org` | `0x39e968c9db2ba83646aaaa0138d6032d661fc96bfb4ae88a1682b0e088b10798` | `0x7707a8fbcf7b7e23...` |
+| 475 | URL_SCAN | NetWire URL Scan | `https://openssh.com` | `0x5367bca94af202946c786a7aa61e0c2f84dc4c83c944afbc4aa635117f07d677` | `0x734b755bdbd38f9b...` |
+| 476 | URL_SCAN | URL Sentinel | `https://varnish-cache.org` | `0x9f1836c94a50844ad0c8d9dc33f3c29c6f1aaae5ba96024a1654d29b2c5bf3a3` | `0x245904f2ae11da80...` |
+| 477 | URL_SCAN | NetWire URL Scan | `https://rabbitmq.com` | `0x0b88a491d3665ad1452b521371de59d23b98476d4e261055c9f96810af5cbf95` | `0xa6c1e82e54ca7291...` |
+| 478 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://varnish-cache.org` | `0x256f06d6321bbc256103f92526032cbb73a20191ebdfd6cd19a2f98a6258c5a1` | `0xcc1b26a37399dc4e...` |
+| 479 | URL_SCAN | URL Sentinel | `https://rabbitmq.com` | `0xf8722783979d79d3eaba70bd34f5928b2034350124cb829ef9a98dcc99392db9` | `0x3a6bda9f2252cb33...` |
+| 480 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://rabbitmq.com` | `0xf87fcd69eb7f5ff8cf840db5bb4e24caa21ef2902428c35eb8043b22b7ce6703` | `0x3cb775fb4159ae10...` |
+| 481 | URL_SCAN | URL Sentinel | `https://kafka.apache.org` | `0x5a3a35145d790dad50f5d5c1e3744999d156162d19563f94dcfdd1cf6f2d7f38` | `0x262bff130388b7a5...` |
+| 482 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://kafka.apache.org` | `0xf705dda48130eaf05a73bb8a58df8900ce1a6a645030072677167861908623e2` | `0x0b45d4e18167e6af...` |
+| 483 | URL_SCAN | URL Sentinel | `https://cassandra.apache.org` | `0xfccae4f23fa66422892b7604ab3539f79b7ddaa4371581901fbc1b55a3c4b573` | `0x04a01f45367abe9f...` |
+| 484 | URL_SCAN | NetWire URL Scan | `https://kafka.apache.org` | `0x83717f252bea99f8535402c243cb7dd4b465d4e1317f55fdfa83cae378c60feb` | `0x5975e8788856aca6...` |
+| 485 | URL_SCAN | NetWire URL Scan | `https://cassandra.apache.org` | `0xf7cbe000ecc3df9b582fce12c357e714812d071bca738beda172cb8a38482689` | `0xb2fb621def86a641...` |
+| 486 | URL_SCAN | URL Sentinel | `https://spark.apache.org` | `0x0ac9c6c945472056e19408dc70211f562a3313a39db334e88f33a28afbbc1810` | `0xabf35e77f3213387...` |
+| 487 | URL_SCAN | NetWire URL Scan | `https://spark.apache.org` | `0x9ea07f271fa2b77a85562990cc344400a2536c9236ec7560b9dda34d6a180899` | `0xa56a1c19c59b3136...` |
+| 488 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://cassandra.apache.org` | `0xe49311a65e1fdd1aa3d5ea7847a6a9fe11dc7eedd3125566126beae94ebd0a17` | `0x006eb61f66408e74...` |
+| 489 | URL_SCAN | NetWire URL Scan | `https://hadoop.apache.org` | `0xbc9becfce3c16ca28390953d6bcdd3797d9c3128ff55f5b8960d29cf92165dbc` | `0xfdb1b9da961d25b0...` |
+| 490 | URL_SCAN | URL Sentinel | `https://hadoop.apache.org` | `0x22f764f29286200d82b7423e352650ace83ee59abbbfb3763fbddb634d9a4b57` | `0x4d4c57b53e1e736e...` |
+| 491 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://hadoop.apache.org` | `0x16b9c7e6b166ceb0dce6e26a0044376bdf21f7f8cc2a6ce693a1cf419c312626` | `0x281070074c76fd39...` |
+| 492 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://spark.apache.org` | `0x9745ce8e070c4c759effb35f7779594027efa0425bf17216662021cbd1be1b17` | `0x35f04cbe94ff6eb3...` |
+| 493 | URL_SCAN | NetWire URL Scan | `https://airflow.apache.org` | `0x3854dc48c5226aa74d2648ed1ac698711b0a296a84d43ca84fdf7cdae6573ce7` | `0xee567c454307310e...` |
+| 494 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://airflow.apache.org` | `0xa9bb151d99455161cf4d4bcbfc1083d037365427bd90ceb3a9a6620059951ff4` | `0x483b7ae0b9552642...` |
+| 495 | URL_SCAN | NetWire URL Scan | `https://gradle.org` | `0xb457582bc2a894c3a0c90b1a5c9552b53a15f5767bfaa50b2c772ce71912f2c3` | `0x1d4ee705b308ea2f...` |
+| 496 | URL_SCAN | URL Sentinel | `https://gradle.org` | `0x40bc972dd513bc3843abb30ec14e60b0aa132815925cb6dc3b316eb12cfa193c` | `0xb6e1032abbf1acf1...` |
+| 497 | URL_SCAN | URL Sentinel | `https://airflow.apache.org` | `0x1cec943d9f2c16d5090684c25a192402b4b5c1adcc9f3ebb251985ed14075fba` | `0x598d9928120ca568...` |
+| 498 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://gradle.org` | `0xf3dd3164355d59536164b29e4d8c87dba1bb32c76939b9074d05ba89f1fc5be5` | `0xfc10b801e7a150de...` |
+| 499 | URL_SCAN | NetWire URL Scan | `https://maven.apache.org` | `0x9b1c7c50632fc74ce0423e2337fabf7fa01b723e757fb2f072122b47c001b3ea` | `0x1ba9864dbee26cf9...` |
+| 500 | URL_SCAN | URL Sentinel | `https://maven.apache.org` | `0x4d789e3826d24f0cc8701019eb150bbd89c259e13500ceb7b820e40efc163557` | `0x3cfa0971a745dc54...` |
+| 501 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://maven.apache.org` | `0x50cb9a85e5e63922c79d26b3300f4cb44470e7e99be9981705ab1f998cc2aa45` | `0xe1475cdb8f0c966b...` |
+| 502 | URL_SCAN | NetWire URL Scan | `https://scala-lang.org` | `0x808b27f43a3e221160c977af49efb340192f7c666bf5faac168f278b1effeaef` | `0xb9913c74dee7686a...` |
+| 503 | URL_SCAN | URL Sentinel | `https://scala-lang.org` | `0x13b747c03ff06533a056ed43630a87255786656b039ef619172ccdb06c8706ef` | `0xd7be0587745525af...` |
+| 504 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://scala-lang.org` | `0xfbc3ff85d374026d1d3d65a93304237dded9300c670aa983dc76d5187eefcc44` | `0x4b6de4402e14e91f...` |
+| 505 | URL_SCAN | NetWire URL Scan | `https://swift.org` | `0xfb2cccc4aa0b388615283ee474a6dc3d1f67477e523abbcff633bcf962144e89` | `0xe2eac5d1e644d700...` |
+| 506 | URL_SCAN | URL Sentinel | `https://kotlinlang.org` | `0xc40c5853ec0691006344591e7d1282cb5bbaeceb82cf532df27fa55d18d33d37` | `0x065c8787da1d62f7...` |
+| 507 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://swift.org` | `0x515aa931f43c7973b5f74826223d1476d7b6ed50bc873ef8fd59ba8cc24b41b9` | `0x71da5d2deb8b0163...` |
+| 508 | URL_SCAN | NetWire URL Scan | `https://kotlinlang.org` | `0xc7098b790a7a97cbdf5e9fb1f6964f1a50904e07f974344fbcddcb1066589d3a` | `0x860c2b1110ac1e2a...` |
+| 509 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://kotlinlang.org` | `0x4fe749b55d7369e10453e983b3df9391586f66d35b309d22828834494a1b0366` | `0x692925532e61b995...` |
+| 510 | URL_SCAN | NetWire URL Scan | `https://ruby-lang.org` | `0x138d42b220b6fa7f690167f73f5d8ebe95fc9a36183bc0509b00b9e814b720cf` | `0x900e0c0c3231deb4...` |
+| 511 | URL_SCAN | URL Sentinel | `https://ruby-lang.org` | `0x7a120d34f59c0718fed60e12f9ce51676467ce49f34cd505c0a62572be41f255` | `0xd2ac816f3a23ecc9...` |
+| 512 | URL_SCAN | URL Sentinel | `https://swift.org` | `0xca1291502a5705f9174d696e664db1b75944dd7936f7923781d7450917e595a5` | `0xc63eb0a996cde10e...` |
+| 513 | URL_SCAN | URL Sentinel | `https://php.net` | `0xa0e996397435302dd18d440bd037db689ad12cad3e6c7cf34e12fb258096ac45` | `0x7898a0ca65f48fb8...` |
+| 514 | URL_SCAN | NetWire URL Scan | `https://php.net` | `0xfd56bff456b7ad3f0af44914df145732f193e8b749d881b6842dcf9552b25549` | `0x080210a5a14eaad6...` |
+| 515 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://php.net` | `0xffad7a265add7d6ff37b4cadfd9d6c9890670aa58cba95711494decd54a4cc63` | `0x1562549a2e9af0ed...` |
+| 516 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://ruby-lang.org` | `0xc842c11cdb38b51588706efbfe10ed5cf99676a342a7f5f6fdb38eb9ebc8d206` | `0xc7a9edbbe0719860...` |
+| 517 | URL_SCAN | NetWire URL Scan | `https://perl.org` | `0xc16324e4df55d3c2b3ce9c3d37e4b695cfa57b0d0f38cbec1e9658d2d6bb5397` | `0x16b1017925aa3be1...` |
+| 518 | URL_SCAN | URL Sentinel | `https://perl.org` | `0xb9c7531e03c4e1630808f025aa1929e4923bb3836b72cd7e6e2cc1dcbb70dcfb` | `0xeb0234ced3187e8d...` |
+| 519 | URL_SCAN | NetWire URL Scan | `https://haskell.org` | `0x50f437ddb463160eb7eeabf8ed57a9280fac320ad3522f33afe1c116afad7cff` | `0x99caf8db5e4288e5...` |
+| 520 | URL_SCAN | URL Sentinel | `https://haskell.org` | `0x9d28c0758712555b6f95ba0e0662de8bdf33d13950e9270bb6194352c9ffe6b2` | `0xd70a9af6d0441955...` |
+| 521 | URL_SCAN | NetWire URL Scan | `https://elixir-lang.org` | `0x9ee995eb6ac7276608bfe1af2737259242a173ae63efa53bb29a40a6a9cee6d1` | `0x025322f56dbfb1de...` |
+| 522 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://perl.org` | `0xf02771ba163efd49e2c25b70b4f4d132b2defa0cbcce2e19cb41e679a3b85d2b` | `0xfee6862b24607bc6...` |
+| 523 | URL_SCAN | URL Sentinel | `https://elixir-lang.org` | `0x36d4c44acc6f7ae558988bceff7abdb6300455cf63a84fd8e362c0d0a3eb33f4` | `0x2cf9e97b2bbc6257...` |
+| 524 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://haskell.org` | `0x0fdb8be05a22bb728925518233f4f4c3f7f0c248ad03ce59878360684b608263` | `0xd6fd1fc422bfdb14...` |
+| 525 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://elixir-lang.org` | `0x7d7e01b2e26cf319c5a7d4a5bfc06a820fa77473394816f27aca6e0055261129` | `0xe841bbf998f77a53...` |
+| 526 | URL_SCAN | NetWire URL Scan | `https://erlang.org` | `0x2f28a513cdf2b11487793d266bdabbee0facba25ef61f4b7a417d8ae295923a6` | `0xc1b3ce100e702f86...` |
+| 527 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://erlang.org` | `0x76b8d0f2e6dbf162f11e8308fcb530da34be87e24544bdc785a49735379eefc4` | `0xef3f859be89726a2...` |
+| 528 | URL_SCAN | URL Sentinel | `https://clojure.org` | `0x2908c5b5fbae310f70e6fe674935737e0bb1e9db85c16a26fed8aa251fe9540b` | `0xbdff41788b248fdf...` |
+| 529 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://clojure.org` | `0xf9e2c57d4a6b009b9ff29a09bdacc73b2e592f9de3b5429ee17c47474e2c9630` | `0xefb6cb113ac860e6...` |
+| 530 | URL_SCAN | URL Sentinel | `https://erlang.org` | `0xbfcfddca383857ccf9dc8bbab47cf755e46904c7735c0cdba2e9790c4f3c865a` | `0xa406ce9af3bd2a8e...` |
+| 531 | URL_SCAN | NetWire URL Scan | `https://clojure.org` | `0xd60026694c9a91b020986b2f665a239936c8169bc6db9ef190e0d6e5c5db100c` | `0x24b3333d155776c7...` |
+| 532 | URL_SCAN | NetWire URL Scan | `https://julialang.org` | `0xeec9523ed4d754210fd9aaba3aab00a0f727f18d890334cda16fc91ab22d6f03` | `0xfb6a6fe8bc94df56...` |
+| 533 | URL_SCAN | URL Sentinel | `https://julialang.org` | `0xe6a6abaa713eb2b875436c48508f98eb0e36d9097d17f754aa06dc60f3b58fcf` | `0xb22b6f38483f8733...` |
+| 534 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://julialang.org` | `0xa641b63387a7c44dbdc697d6f3e9dfe4085a4b3941676b9092da19db25156fa8` | `0xfd801a3bdcdeeee9...` |
+| 535 | URL_SCAN | NetWire URL Scan | `https://r-project.org` | `0xd95e26011ffe9694384465b2ddd869d4f3110700596ac408e6d63e9e0a4b5266` | `0x1bf0e8c266606dc9...` |
+| 536 | URL_SCAN | NetWire URL Scan | `https://tensorflow.org` | `0xc55ec60ccb42b7824ffa5d20432e9e8e76073557251f97c2c4c5b190484f19e7` | `0xbe3d4231ddbe66e6...` |
+| 537 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://r-project.org` | `0x5fb3586c1f41fd14e0ea3e3d4104807fa9a65c1b0c0848c45ddcd2f626df8705` | `0xe11043713bc23b3b...` |
+| 538 | URL_SCAN | NetWire URL Scan | `https://pytorch.org` | `0x7d550c3cb11e0a3e3a1534c440128ec701519f6a095b302c93e145dfa5fc6ad6` | `0x023ab7156deaea2b...` |
+| 539 | URL_SCAN | URL Sentinel | `https://r-project.org` | `0x625a9d4dc7dd15db573233455b89ab3e8dd2087a21b0dc66fb6d93f2c2eebaa3` | `0x741eedb9df118031...` |
+| 540 | URL_SCAN | URL Sentinel | `https://pytorch.org` | `0x98d962596f6927a9a80395fad43da6c60ed9bad594d213d63b3e99fd5df3ec5f` | `0x07079aab14ace83b...` |
+| 541 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://pytorch.org` | `0x837a57c8cbe0e2a55e21056814c36b485fe9816e6b985d996e7d2c8c12f71e85` | `0x31856dc661cfe91d...` |
+| 542 | URL_SCAN | NetWire URL Scan | `https://scikit-learn.org` | `0x81b92492dfd870ee79908f87cb9c8e31faf010142ef67fd556ef28569e9632d0` | `0xbe0ebd59f8b6b094...` |
+| 543 | URL_SCAN | URL Sentinel | `https://scikit-learn.org` | `0xf03366ff150fe4f5ba7dd1709042517b207789637ccbb1b28a05a018905c301d` | `0x1407475956a5b57c...` |
+| 544 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://scikit-learn.org` | `0xede4a63ee1b6df8121fd5df77ce987799198ba10c376c922366d369180746b14` | `0xdb6ec8b55d01d333...` |
+| 545 | URL_SCAN | URL Sentinel | `https://tensorflow.org` | `0xa0ac5c98c64ed81c257b7c11753ee7dd3f37070c72a375790ff615b7ca797549` | `0x58c5732f475d1774...` |
+| 546 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://tensorflow.org` | `0xf17d6ae612e2c4416045e4dc44b913c3795ba074aa8b7880ab286ded6331449d` | `0xf79823dbbf51dfae...` |
+| 547 | URL_SCAN | NetWire URL Scan | `https://numpy.org` | `0x1f1622267fa86ac951be3cfeca922a1866b0a9af69ea7b61eec141b9a22f66e5` | `0xb274a6a4685caed1...` |
+| 548 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://numpy.org` | `0x9e8a8a9cc005a0d61a47142138216c105d85465057c89150603b53b83cc2f5d1` | `0xd03948ee66fefc02...` |
+| 549 | URL_SCAN | NetWire URL Scan | `https://pandas.pydata.org` | `0xe1b9b735782f055257f3c88fb78899774f6bbd5feeb57f600378ce59fad41649` | `0xfdb8a827ff64b27c...` |
+| 550 | URL_SCAN | URL Sentinel | `https://pandas.pydata.org` | `0xc44fc792051bfad4dfc6f35a7ec88a63b92ffe2b0f4f7775cc14c2e8b3733ad4` | `0xa29b5c491d966d1d...` |
+| 551 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://pandas.pydata.org` | `0x8ebdd8cfc15552ccc23bbbbb936c6e51f6ddb16e0e64e78c2b48d610ad5fdc1b` | `0xa18d5a846dc24e6c...` |
+| 552 | URL_SCAN | URL Sentinel | `https://numpy.org` | `0xcda45e171bb5f3b5542f536d59d977cb1e3e5c54a5ab65ab8a04ba5b8120b225` | `0xff756db714800b55...` |
+| 553 | URL_SCAN | NetWire URL Scan | `https://jupyter.org` | `0x2d028c689d0cadb2ba0aa1a49cf0aba6fb64d52ebed21bdb5c77964e893e4333` | `0x55097e0be0b901a3...` |
+| 554 | URL_SCAN | URL Sentinel | `https://jupyter.org` | `0x7a8ec514fa8cd3449a57707646aeb3ea93b727f4d9408285b59a5e24b4100189` | `0x8b855070ba734b1a...` |
+| 555 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://jupyter.org` | `0x7c5552caeed65f74d76ca2880562f5d8a1f42b0b75259059d7769be207df0541` | `0x03723a535df4bd16...` |
+| 556 | URL_SCAN | NetWire URL Scan | `https://anaconda.com` | `0x0adc771951c41d1da017ed658c7031c21f5b37d952d31bd38a89cf62d4ed5513` | `0xa3e554860aba5d3b...` |
+| 557 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://anaconda.com` | `0x2dad2608f195709147f3acada57dcccc74ce425dba54a25246ff877851f62f8e` | `0xe0b920bb73ae0451...` |
+| 558 | URL_SCAN | NetWire URL Scan | `https://huggingface.co` | `0x43412b01912580464bf27f2368b57d2066a17beb6fe980419c9bc31bd9ef1739` | `0x014e4b0a0f631b86...` |
+| 559 | URL_SCAN | URL Sentinel | `https://huggingface.co` | `0xd887e2b0625a078573f89536d9074633cf14de459eccd0f24803da0b93ed2043` | `0x92e492394e20f1a7...` |
+| 560 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://huggingface.co` | `0xc87c545e7a8decc441b93081037d50a1ac75ee1142e36f33ae5a9a95315c3d71` | `0x4f3344fce5df36ff...` |
+| 561 | URL_SCAN | URL Sentinel | `https://anaconda.com` | `0xcb4749334a999d56726f2ae8c2ce41ae64425f0ebc38c14af926f08bb1528ed1` | `0x3b1a38d3a8c8191a...` |
+| 562 | URL_SCAN | NetWire URL Scan | `https://openai.com` | `0x6c8653008c01a013955d75c036750b9ddb54466701ed64d1a17cbdca0a986ecc` | `0xda26de3d9ae25b7f...` |
+| 563 | URL_SCAN | URL Sentinel | `https://openai.com` | `0x733dc1f2788d2cf2c07cc41ade335cffc6171fe014d9c81ccfec3eb9abe4f718` | `0x24aca201c3336922...` |
+| 564 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://openai.com` | `0xa346bb7a590afd302bc57977ad41ac113d7479d217fa6a5598fda446847a4aaf` | `0x9c356bedb1a5aa7a...` |
+| 565 | URL_SCAN | NetWire URL Scan | `https://anthropic.com` | `0x5c631b0a05a994753d1e04909a464098963e343eeaeb5cb4e7014ec9784d5116` | `0xd32fe227ff7bbc7e...` |
+| 566 | URL_SCAN | URL Sentinel | `https://anthropic.com` | `0x4414067ce0855050a32bd00cef09d652a35e15f33ebe256bb1e176df2b55e242` | `0x0733d1725b8f643d...` |
+| 567 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://anthropic.com` | `0x15ccfffcc0f765ddfb51b80df2a2d959e5b678cf7fc2fa06a471d25c3200da1b` | `0xcd0cd6afa2ae3777...` |
+| 568 | URL_SCAN | NetWire URL Scan | `https://deepmind.com` | `0x9444186b3c236153e225ea722c1ea07ff86fa27af44c260ea67b2a35abab6678` | `0x3cfa8cfd3cda2ee7...` |
+| 569 | URL_SCAN | URL Sentinel | `https://deepmind.com` | `0x014bb7ab6140f498dcf9e1f52400f9831be781f059c6c51b64b69e13de6e43ac` | `0x40366f6d3a0cc9cf...` |
+| 570 | URL_SCAN | NetWire URL Scan | `https://mit.edu` | `0x0fae82d3d4f2e78931fddea34d842bfe70d380b2f31c14b8fc218dab78b926fb` | `0xad010f67324fdde5...` |
+| 571 | URL_SCAN | URL Sentinel | `https://mit.edu` | `0x2ef29fc4c0cbe3e4c3cb45916cde61de59be441483972f77d11298c69c84b034` | `0x35c68da19fc7184a...` |
+| 572 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://mit.edu` | `0x74462212aaf81b7b240629acae427421e5d91ff55b8eba0c3d9f5de6ecc40f51` | `0xd4ef025cc56878bb...` |
+| 573 | URL_SCAN | NetWire URL Scan | `https://stanford.edu` | `0xd6aa554a49be946f1e6690df43b3c057158de4dec95f81e42b97fbd722f4d439` | `0xbbb09a662d5b5b20...` |
+| 574 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://deepmind.com` | `0x1da876e7fcd9f8041c56c3d56be7c628acbb1f7fc2089098e1ddafe0b4326547` | `0xda6280b686e0a614...` |
+| 575 | URL_SCAN | URL Sentinel | `https://stanford.edu` | `0xff90d31ae0102e17480bac01f5f5f503a9321039051256b3fad9f9533475964c` | `0xc8488744abbc0556...` |
+| 576 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://stanford.edu` | `0xaea449dfa998ebff676b90290a35e989c3142631c5d60870557123e51a0e36e0` | `0x3cbf4b4def7008e6...` |
+| 577 | URL_SCAN | NetWire URL Scan | `https://harvard.edu` | `0xedb454cd4192b4735c28dfc2e50f2d950fefb719c70259ef8c153a60266a94cd` | `0xc27be13f09b447a0...` |
+| 578 | URL_SCAN | URL Sentinel | `https://harvard.edu` | `0x5caf6e667eb95888fde3b7dafbf0af5e7ee444cbdfe8e99d37335f8f055d05f4` | `0x35661a0b8f69f024...` |
+| 579 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://harvard.edu` | `0xa88eff7cfa4e542a9d8c4e2abd49729eff7f02404594e26aee55249ac14ac41d` | `0xa2f76ed374a648c4...` |
+| 580 | URL_SCAN | URL Sentinel | `https://ox.ac.uk` | `0xe8d0326a92fb1631ad2e2e63d3439bbe831e4cd21d7695c85295026e8df8cacb` | `0x6d8f999ac4464ce9...` |
+| 581 | URL_SCAN | NetWire URL Scan | `https://ox.ac.uk` | `0xbeb3a8c3729d46f6259245a39b45beea05490129998dd5cf10bc7ead630460f5` | `0x521027e83b8e2936...` |
+| 582 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://ox.ac.uk` | `0xcbac5befe228c6f277831555625f9f6f7e473b75fa9daec5eff27410957fb3db` | `0xf516b305a1d0e1f7...` |
+| 583 | URL_SCAN | NetWire URL Scan | `https://cam.ac.uk` | `0xdf6df334756d674eed9051fd6295a83c729d597aecba417951217079c874222d` | `0x91d0a4f21fa9b915...` |
+| 584 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://cam.ac.uk` | `0x0dee6f305511bd7bae68600408916f9b772551f77fdb6a05a6ff69eb5e609671` | `0x14f5893bed628792...` |
+| 585 | URL_SCAN | URL Sentinel | `https://cam.ac.uk` | `0x73f7035dd87a6a80972a3e68fd52d9f11ce93638a4579faab6748d50c82f90f1` | `0x05b665f13f02f4a9...` |
+| 586 | URL_SCAN | NetWire URL Scan | `https://ethz.ch` | `0xf2284a74a3435f203b9888a2f18c079080230c052216ecad9014edd7d58ad133` | `0x3813447f9ab1ec90...` |
+| 587 | CRYPTO_PRICE | TxLens | `tether` | `0xc06214e255cbce1c0b1467764871628c7ff381170ad5f157a4ac3c42996744a3` | `0xbd07bc918f8ebfce...` |
+| 588 | CRYPTO_PRICE | TxLens | `binancecoin` | `0x742b61652cbee5f58c571f2f1f7f8dc5245237e9086c1475bd9d859eaa4ed951` | `0x333e85a8d6b8d9b7...` |
+| 589 | CRYPTO_PRICE | TxLens | `ripple` | `0x6bf27803d979d1d888f56d248d2c6892e1efb0dfcc3e2f2df1efe924711287ef` | `0xa5f14fc04013f823...` |
+| 590 | URL_SCAN | URL Sentinel | `https://ethz.ch` | `0x05937d72dd7686ee0c273864f9516b3f9103bafb0c4265c25983e31b523ab425` | `0x0181fafcb24c719a...` |
+| 591 | URL_SCAN | PREFLIGHT Infrastructure Signals | `https://ethz.ch` | `0x2510e037cdc620b132ea43d0e9af8cbafa3205a723a398f5530dc12ac5a9fb59` | `0x43e8ca777bebc30e...` |
+| 592 | CRYPTO_PRICE | TxLens | `tron` | `0x8c0ef2e63b7f473b9452f82ddb584d25d119f1404ffa1be8f373e43ac54c7438` | `0x1c2089df9723985b...` |
+| 593 | CRYPTO_PRICE | TxLens | `toncoin` | `0x741c042cca16b13a9ae56824b33320d2c69d0fafb0b78ae059f1fd6a26b549fd` | `0x06404cb3df54603c...` |
+| 594 | CRYPTO_PRICE | TxLens | `theta-token` | `0x1f7b6218961f88b346be658622ce652c20beb21f875b4186e08299cbc6233bb3` | `0xbcfea1ed6911b1ff...` |
+| 595 | CRYPTO_PRICE | TxLens | `vechain` | `0xaefc0b9aa2dc4bdd7407985b3a8a3b75a225d4d8f1fc90aee21754d7bdbc528d` | `0xe1867387baaa4662...` |
+| 596 | CRYPTO_PRICE | TxLens | `hedera-hashgraph` | `0xfc6082e7f86ee67fc9bbd458d11afa2adb66a2e657e35fa351a71a40ade7a050` | `0x648e73b4f8f0eaeb...` |
+| 597 | CRYPTO_PRICE | TxLens | `elrond-erd-2` | `0x15f0f8f93789a1d8062537ee26961c185a93bc4dffd247600571265e82f04483` | `0xfd97636a68e20971...` |
+| 598 | CRYPTO_PRICE | TxLens | `flow` | `0x6a236b1b03b8a9cdc802eae5e0a26a08ad35c60d92e3462bcb062a0d9df0ab35` | `0xb59b5e3b46286e3f...` |
+| 599 | CRYPTO_PRICE | TxLens | `kava` | `0xc79918b3a236a65a5cb58fd0a3e5b83f786b038e539d8dca200bf96c5e01c19b` | `0x7712119809662a6f...` |
+| 600 | CRYPTO_PRICE | TxLens | `zilliqa` | `0xfec3f917951248abfe214a6c3457c17baa1f60bd6507455ff5d4e2fdb24a7081` | `0x5eccae4e232c4f00...` |
+| 601 | CRYPTO_PRICE | TxLens | `decentraland` | `0xee05affceb50d3be3dc75250e51aad7ff61b4f725cfd105e22941885807b7421` | `0x7ddedd5743fd9623...` |
+| 602 | CRYPTO_PRICE | TxLens | `axie-infinity` | `0x7a4c5bbbb453d542a9a0e2a1d14c119145630c61f28f2fd1209e7840d2030611` | `0xa922edc267346dc9...` |
+| 603 | CRYPTO_PRICE | TxLens | `chiliz` | `0xff3e6dac8a0e4bb7315d6f7f5cb53bdb14da3ac22d370e1082a78f4e28bc41fb` | `0xdf91b4da9fa86024...` |
+| 604 | CRYPTO_PRICE | TxLens | `enjincoin` | `0x7e30ada021ffc3c74e21a131b81f4fb70c928c6f264c929d2e564f385a2af3e4` | `0x6092b395e783a84e...` |
+| 605 | CRYPTO_PRICE | TxLens | `the-sandbox` | `0x3e4ae773d55715de46d5df4dd8b0b4165ec09ea604ffbf534fb601365f5df1d8` | `0xcd1c5f92c0fafdbb...` |
+| 606 | STOCK_PRICE | TxLens | `JPM` | `0x3419080cb4a5e0adca74f40fede69bb1c697d8887f128d7c536d009c4d70eb88` | `0x5dbcd91c4b2e37de...` |
+| 607 | STOCK_PRICE | TxLens | `BAC` | `0xadfa7abb8b2754b4527c641f0be5f35cb511f04de89593da770e93ee36fb8ca3` | `0x13e4bd5f4f1ded58...` |
+| 608 | STOCK_PRICE | TxLens | `WFC` | `0xcc3ed4c8072020df22c3c5b72d4e15536dbb8df00491158cc17c99e805093f54` | `0x206874c55750c965...` |
+| 609 | STOCK_PRICE | TxLens | `MS` | `0x738c2f74560fe4e7e11e22317bca7103eb5c3c0605ce7a2aabeff1be5787905c` | `0x0df68bb580f355fc...` |
+| 610 | STOCK_PRICE | TxLens | `GS` | `0xe0552aeed948777fec2d904f066c6eac8e54903166290927575a1c454d134d54` | `0x783549b33b8c379e...` |
+| 611 | STOCK_PRICE | TxLens | `V` | `0xbbd93f4dda59f1cc0ecd87db98b04e23f2134bd2d9fa01fdc4738d76f83fc985` | `0x13fd6e9773b10aa5...` |
+| 612 | STOCK_PRICE | TxLens | `MA` | `0xff8ef011b8793475e958261f6ac0356bf14cf26857bf46680ed15c06c793053b` | `0x51b579be09a92576...` |
+| 613 | STOCK_PRICE | TxLens | `AXP` | `0xba3ad0e799ae785a7c0bce8079b99f07e32878b9d2c7f712d4abb05ef91da2ee` | `0x6e039285b99f2292...` |
+| 614 | STOCK_PRICE | TxLens | `MRK` | `0x2e8bc2e2df92060060e064bb41277fecdb50ff4ca294a72f31cd41952b18f623` | `0xedee714b6d2ee341...` |
+| 615 | STOCK_PRICE | TxLens | `ABBV` | `0x8d18cf4d507a54e42d02f026b94f4e857b699f4b9c2db4b495bab484c05c449b` | `0x444180a9746a7097...` |
+| 616 | STOCK_PRICE | TxLens | `PFE` | `0xd02cf90a78ee1381ff6bddef4de358f8d5d4635447b233e490079cfb522b1418` | `0x2259c585e1f2a836...` |
+| 617 | STOCK_PRICE | TxLens | `UNH` | `0x6049c02e3b9c93e94abde1b5f594e16774fdccca28a8ea7e0afcd2bd04242dc3` | `0x920df6231c4e1196...` |
+| 618 | STOCK_PRICE | TxLens | `LLY` | `0x906817efeff0187f9855f60851c146dc0ff7bfc9f65eabd59b8eca5064d40d07` | `0x3500a2d65e31153e...` |
+| 619 | STOCK_PRICE | TxLens | `CVS` | `0x74b78e3fae420d47b2fe97c054530e564a757781735b2a515e02c91a87228e14` | `0x73a288024916b8a7...` |
+| 620 | STOCK_PRICE | TxLens | `XOM` | `0xab9f5796b0827de57065309bdfee0c6a850113b9d383783e27b93de959649eb3` | `0x6628196ab6f04d46...` |
+| 621 | STOCK_PRICE | TxLens | `CVX` | `0xfa4fb6bb7c3e32f376d1b19720cd4db745c62288d6767c9664f6dc80e1d3287e` | `0xa5357c44f4c4eba2...` |
+| 622 | STOCK_PRICE | TxLens | `BP` | `0x6da09521c58349eb995e32165c6f492323a61e673d226658cfe10debc4db154c` | `0xe2302b7a312677d9...` |
+| 623 | SSL_VERIFICATION | TxLens | `gnu.org` | `0x6625147728f826442bc52c0344d865cc5cb7502e981bd050e486abf093a8b1db` | `0x0f45212f395f80e1...` |
+| 624 | SSL_VERIFICATION | TxLens | `curl.se` | `0x91fc70f4de54a6230dc98994f296fb9f90d61315eafe1caec612fa02888c3f20` | `0x756b23727d4e37cd...` |
+| 625 | SSL_VERIFICATION | TxLens | `kernel.org` | `0xab497d65899976fd732b5a60e9d98592a9fec0fa8e3ed99405c6fa3e6e362530` | `0xbecaf33648483fa8...` |
+| 626 | SSL_VERIFICATION | TxLens | `openssh.com` | `0x727d95301107edb2ba227c682613df62cb529150f1431f4cd1879b456ecea7d3` | `0xf5c1fc3c0ab729db...` |
+| 627 | SSL_VERIFICATION | TxLens | `redhat.com` | `0x9f2bb288f94123319249ac9f179520e2b29290e3ab791d2cc5025c73ccc3f7c9` | `0x2fcbdcb3488c330e...` |
+| 628 | SSL_VERIFICATION | TxLens | `suse.com` | `0xed8b22b5642699e7b4e8409c729ab8fe16163f0bc570c1ef658c27cb75c38588` | `0xf873e9bf4c965595...` |
+| 629 | SSL_VERIFICATION | TxLens | `ubuntu.com` | `0x568297bb446639c8f1dd584e8708876c0d5dc80eecac657948c25a7a25ed3358` | `0xacf65cbeedbc5c32...` |
+| 630 | SSL_VERIFICATION | TxLens | `debian.org` | `0x8491b14308fe7a43fb85fae2fb31de4fb30870046ad33e4d6bcf0fb112084a13` | `0x2615f60da207e80c...` |
+| 631 | SSL_VERIFICATION | TxLens | `archlinux.org` | `0xd1772331f9da05f8dd64f4d332ce73a17addca7006215c1692377b1f65df787b` | `0x745b4181a3314516...` |
+| 632 | SSL_VERIFICATION | TxLens | `gentoo.org` | `0x93e7ff6a165bd56305610661328d2c5af61458e4625e81ab1aeac4c5e246fd4b` | `0xc3b77c0d9170b653...` |
+| 633 | SSL_VERIFICATION | TxLens | `tensorflow.org` | `0x1e3e897d4e5a97a27590ee2b022b0b50f4a2467f847492cd9bdc39a8df98f547` | `0xe2ddce55ef09e735...` |
+| 634 | SSL_VERIFICATION | TxLens | `huggingface.co` | `0xe59aeba3fae5095277068ba3abb9b8f779bdd877b53639f6ae7432ad7b59e424` | `0xddcc6ed779920ec9...` |
+| 635 | SSL_VERIFICATION | TxLens | `mit.edu` | `0xc1d6498829dd9ea31ef6d199e0b8f6395c449a1502f33f0132be499e809bfdcd` | `0xe4f8fd1f772ee8ad...` |
+| 636 | SSL_VERIFICATION | TxLens | `pytorch.org` | `0x7999374ee64d01158d684363e6f0f19f8999b245a3acbfac270a31be8531d933` | `0xd772ecc4818735cd...` |
+| 637 | SSL_VERIFICATION | TxLens | `stanford.edu` | `0xce17156786371fd0de363b23056a74405ebc22367428db423f249dee61ef3ee9` | `0xb41bcbf9f25b6180...` |
+| 638 | WEATHER_FORECAST | TxLens | `Abuja, Nigeria` | `0x2358b3604653895accf8a02f24406519100aeb01e1f94545e6e6bbb1e63d6034` | `0xbc4de05ed37ff363...` |
+| 639 | WEATHER_FORECAST | TxLens | `Kampala, Uganda` | `0xc77eabfd268960b7f5655ad233db789483b55f9b3fc22adc30a299cefe732386` | `0x8819e7d600cc5114...` |
+| 640 | WEATHER_FORECAST | TxLens | `Dakar, Senegal` | `0x4473bfc571555aebb1101bb98e431309e0ba382b8ad52f07d2e7cb641c0dfb1d` | `0x971bddd14db6ad06...` |
+| 641 | WEATHER_FORECAST | TxLens | `Accra, Ghana` | `0x28b3844f0f361bdbfcc2bf57f2828a9cc1daaa3c9f4d65817e7395520500de48` | `0x59170192271c875e...` |
+| 642 | WEATHER_FORECAST | TxLens | `Addis Ababa, Ethiopia` | `0x9176bf76d2c7e15046c4811e93a677970bb1b856126b324b003a644182850c9e` | `0x30628e60a09feb91...` |
+| 643 | WEATHER_FORECAST | TxLens | `Dar es Salaam, Tanzania` | `0xe16ac8ffabd01a5d0f7b085aefdd5de9961f42fd3e4c35699da417a3b2fc13f1` | `0xed9a7ed0371564a3...` |
+| 644 | WEATHER_FORECAST | TxLens | `Casablanca, Morocco` | `0xf0c20e6790ea4797e398f9d3565a9dd2ae914c495ae0f94efc8ba6cc50cee42e` | `0x5e9c45e5e19b1910...` |
+| 645 | WEATHER_FORECAST | TxLens | `Lisbon, Portugal` | `0x7c39b2bf99f08f41fc88c6d6d69d105240ae86ae162c09b6691b2942c8288daf` | `0x8d77b6706ef685a4...` |
+| 646 | WEATHER_FORECAST | TxLens | `Dublin, Ireland` | `0xdd68770a89364167e28341263655b422982052002777cad65810913aebb58365` | `0x6db69ba45d535fa4...` |
+| 647 | WEATHER_FORECAST | TxLens | `Oslo, Norway` | `0xd0c035ea21d876c6396076defa0e32d205a148479f355f976e241fef0e2b6609` | `0x50f3f9154bda6622...` |
+| 648 | WEATHER_FORECAST | TxLens | `Helsinki, Finland` | `0x1636713a580a5e82a79910fa38c6f86cad319d811b693d134308e87d05ca0f67` | `0x12e5d6bdd320744c...` |
+| 649 | WEATHER_FORECAST | TxLens | `Prague, Czechia` | `0xaba93530962cad76faafe1852f155c33e7e0204eb461e6ced98f39bd0779c26e` | `0xbfdff0a7c3e62758...` |
+| 650 | WEATHER_FORECAST | TxLens | `Warsaw, Poland` | `0x0d496bbaff4759633f571ad1b176c579a8a9d8e0b43d0f1ef4f0d5acef0666db` | `0x7eea923b643df24a...` |
+| 651 | WEATHER_FORECAST | TxLens | `Vienna, Austria` | `0xb6ee00771d33555d886ee59676c85edbd51c6a28fe1c03d3362811403529bbd8` | `0x851e0d54e3c70e06...` |
+| 652 | WEATHER_FORECAST | TxLens | `Zurich, Switzerland` | `0x4b8814ca43675fe3e53ec9718b4618fe61df19416010886cf55296cfce3f9b63` | `0xfca71c21d547582c...` |
+| 653 | WEATHER_FORECAST | TxLens | `Bangkok, Thailand` | `0xfcaf047feb66a77fad775850e0ac95c255fa0dd79bf34493ad785ddf92d2d4dd` | `0xa5ed0e054011371e...` |
+| 654 | WEATHER_FORECAST | TxLens | `Manila, Philippines` | `0x63410a70230d2ecfae7f4ea8ed11fd64033c3aa5d428289c5980278b043d23ad` | `0x6619109e7aed82d9...` |
+| 655 | WEATHER_FORECAST | TxLens | `Kuala Lumpur, Malaysia` | `0x3ce14297a08f8c6fd5b34a60967b64d64619cb366734929b617dd5191abba96d` | `0x49bd2c891587d976...` |
+| 656 | WEATHER_FORECAST | TxLens | `Jakarta, Indonesia` | `0xce4181a9779aac62ecc3454788d2ee2ea2bb628c2ad42b24d2b2452b8c2f3fce` | `0x7272bff7d03b9fdb...` |
+| 657 | STORM_ALERT | TxLens | `Abuja, Nigeria` | `0x2223927c9eaa53065a2cce51fd95a83e1c1d074bb0f1f509427897c69e1885c0` | `0x532c44699f3147b3...` |
+| 658 | WEATHER_FORECAST | TxLens | `Hanoi, Vietnam` | `0x28050e46983b33b6526f4ff2152b6e3bdaade40fb0d8c25ac765962f1e2b1ef7` | `0x0c6d1cd08619c370...` |
+| 659 | STORM_ALERT | TxLens | `Kampala, Uganda` | `0x4c9a44a8ee1a36e402dcba3c56504c66070521f1b29cfc1bb672892d45a47a89` | `0x2f700c4770ade604...` |
+| 660 | STORM_ALERT | TxLens | `Dakar, Senegal` | `0x4fb26c010b453039d001decdada79a5886865c0e828c64539033e5691bbfb5ef` | `0x210f5ae7ac0c9029...` |
+| 661 | STORM_ALERT | TxLens | `Accra, Ghana` | `0xbb1fd42608ddec820df5fd478e72b6e29cde33400be87f23e13a96835613cf8b` | `0xd667a14322f0cb17...` |
+| 662 | STORM_ALERT | TxLens | `Casablanca, Morocco` | `0x0cab3cb0dab50c6c611045887b069dd99eca06217bbfac17b1893e70f799104e` | `0x057c9a0dbdc2fe67...` |
+| 663 | STORM_ALERT | TxLens | `Addis Ababa, Ethiopia` | `0x815e794f5c55a041b63ea4ae5fca810f6f7af86bc3d5066d5d86f8db9dd27785` | `0x3c272e9f04d0dbfe...` |
+| 664 | STORM_ALERT | TxLens | `Dar es Salaam, Tanzania` | `0x7435d9901a1cd8e3587680908fd76b77050d835062d473178170f1669833ab0d` | `0x7e31d430180a211f...` |
+| 665 | STORM_ALERT | TxLens | `Dublin, Ireland` | `0x7390981ef30d5721077b55ee408f9e12d281746b7f6acabfe90b0d077a32eb8a` | `0xcc967c844ccfab2a...` |
+| 666 | STORM_ALERT | TxLens | `Lisbon, Portugal` | `0x4058b972164408f26b9653fe2b92dc836860da54d8d5052aa223e0c4b5e0dddf` | `0xb648dfa046027a30...` |
+| 667 | STORM_ALERT | TxLens | `Oslo, Norway` | `0x74f15043bb86ac5a6fdb4e065771b790159735da4be9388c371b3883d7d9790f` | `0x40892bccf34097d5...` |
+| 668 | STORM_ALERT | TxLens | `Helsinki, Finland` | `0x3cf99c0f6e33c125fd8a949875229a0d176dce239eaee08bac2599d05d413cd5` | `0x5859241092c746ff...` |
+| 669 | STORM_ALERT | TxLens | `Warsaw, Poland` | `0x92182a321865a239e30227982875ab9d2edaa42de3142cc236e147c05ead50f6` | `0xaff23e4063a970d0...` |
+| 670 | STORM_ALERT | TxLens | `Vienna, Austria` | `0xc64f83184377c0902d7e63a9d55c0a127595823f2c1400ab168e5d72a480c183` | `0x00e703adb79e1ccd...` |
+| 671 | STORM_ALERT | TxLens | `Zurich, Switzerland` | `0x026d7184c72f9c2e721a697b540831461e7df02e081629c3cfde4c6f56f1f575` | `0xc7fc924cd07b5c15...` |
+| 672 | STORM_ALERT | TxLens | `Bangkok, Thailand` | `0x4fb951e27e07b877bc59967cdfc36c27456f1d0187f833dd7dbdb15d1e1727f2` | `0x6d2f0dee5f14d527...` |
+| 673 | STORM_ALERT | TxLens | `Prague, Czechia` | `0xb965c98ed771145f07ce0d6f9c470688a6f7c676030ca06badc53aabc9ed84e6` | `0x8e338f509d708d5e...` |
+| 674 | STORM_ALERT | TxLens | `Jakarta, Indonesia` | `0xfc6dd2398494b0e48127c94f4c74666bbf64f5a928b962c39c070d9dc7cf33a3` | `0xb706d2ca614de787...` |
+| 675 | STORM_ALERT | TxLens | `Manila, Philippines` | `0x06d89a01c887adba4fee14121e5596d414267dd8af06ef1ad9d5df71000010e8` | `0xbc642b1af5f0e1eb...` |
+| 676 | STORM_ALERT | TxLens | `Hanoi, Vietnam` | `0xa5b32bae9f0a2683dc873e5eb5774a4470113d6af5fd55861485e94e2070c1f3` | `0x1aa44c75b5ced223...` |
+| 677 | IP_GEOLOCATION | TxLens | `208.67.222.123` | `0x87d0abfe7901f6792b0701ce6c68bb1f47db9782fed2e1d95d87253b8dddca22` | `0x00dadf67d2934e50...` |
+| 678 | STORM_ALERT | TxLens | `Kuala Lumpur, Malaysia` | `0x9cca8772d8a28a1cae162c94f989b508fa5e8b9987026f95540ce68e19cce42f` | `0x68c57e579e4e02d5...` |
+| 679 | IP_GEOLOCATION | TxLens | `156.154.70.1` | `0xf154ef4d4f99d57657b19e6ebe6b142fa60376b8b87e8b4c58968727c51aacf7` | `0x3c9f8b25301b8a66...` |
+| 680 | IP_GEOLOCATION | TxLens | `8.26.56.26` | `0x5e4d86a1e6c073dbe5b61fd54dd03636d8b77f1b75408cecfd8a88db1957a700` | `0xd8771b720bc75d21...` |
+| 681 | IP_GEOLOCATION | TxLens | `199.85.126.10` | `0x8c9921aaacd3a27b236bc43b0de2fb1af46730de79802304c667c16ce3f046e3` | `0x1709944c747b826b...` |
+| 682 | IP_GEOLOCATION | TxLens | `199.85.127.10` | `0x4ef840f8aac9ecae349727f940e4b419b8f6e4dcaf46fbc222e85900556af0d9` | `0xf315c67ec790383c...` |
+| 683 | IP_GEOLOCATION | TxLens | `156.154.71.1` | `0x49c3a4ba511a2b5b19b56fe3232dbd47234851dc0d85b1e9bdece6da8589e5c4` | `0x0b683a18e41cd334...` |
+| 684 | IP_GEOLOCATION | TxLens | `8.20.247.20` | `0x7a006b2391edc7c398e8a3be10cd581f5758f078b1df6e109df870bf7d957324` | `0x0060ce9eeade08a3...` |
+| 685 | IP_GEOLOCATION | TxLens | `195.46.39.39` | `0x85bbf435b0a31ee365d8ee40482290d13a75e9031b35e8948c733574b4196065` | `0x13da5f69f1263df3...` |
+| 686 | IP_GEOLOCATION | TxLens | `195.46.39.40` | `0x24e694468c55177f97807028e9b78879d49a7933356e32ae730827f466c27a67` | `0xbbceb62cf269f0be...` |
+| 687 | IP_GEOLOCATION | TxLens | `216.146.35.35` | `0x3356cd11f4dc033fcaa999e725ece6e2d338fc9c4faa1ed1a6a65ec1f0f13c2a` | `0x424b9be1f5e24f2b...` |
+| 688 | IP_GEOLOCATION | TxLens | `45.90.28.0` | `0x5181dbfb255dbf02e236f0fdf5b1cdcef368d39837851de283d1c743e8f7a6cf` | `0xfadd31cb6c111ca4...` |
+| 689 | TVL_LOOKUP | TxLens | `spark` | `0xa889dd2a03feefa467d44bdd477eb8a61dbe0b8ca82e4e5826525431e01f3688` | `0xf7bb1751bfcfb344...` |
+| 690 | TVL_LOOKUP | TxLens | `pendle` | `0x2254d740298965ae521ae848ae7291ba2670e72cf8e46269ace6841765a5dbb0` | `0x91afc26bb61e895d...` |
+| 691 | IP_GEOLOCATION | TxLens | `216.146.36.36` | `0x312abbbd5bf9b103b99012ddb6e6567ef4b1582cd06a7420cf578df2dd1f06ef` | `0x5005a066c0f98dab...` |
+| 692 | TVL_LOOKUP | TxLens | `eigenlayer` | `0x007155df81702e99f46ae5d1911b5c889e9215796a9278e850a38ac42d0b2057` | `0xa13fa469b602b3c8...` |
+| 693 | TVL_LOOKUP | TxLens | `ethena` | `0xec541f17eea9823d4e829ec7856ea9edf8e7affbac3ecfcf71477982a8617824` | `0x25db6cea4d9089d5...` |
+| 694 | TVL_LOOKUP | TxLens | `morpho` | `0x711a449b98d3bcc41401f5799e961b33f80bfd421e8c26fa4eec18c002796a1f` | `0xc649979765fc308d...` |
+| 695 | TVL_LOOKUP | TxLens | `jito` | `0x03546bb593bcfa78072c9a20de1c9b4f2ae532c833381fcd552b3aa1c5e1eccb` | `0xb08f553b8a1b3862...` |
+| 696 | TVL_LOOKUP | TxLens | `orca` | `0x87e17394572c24202a51e9d312bad2be15d9841ab52bdef3d793803133d6568f` | `0x9c1586159a43afee...` |
+| 697 | TVL_LOOKUP | TxLens | `marinade-finance` | `0xcf9ce911543a00d19f4e45c2b661859c8cecd05fd564d2b346399deb4f0aa1ce` | `0x25534e76f1f29442...` |
+| 698 | TVL_LOOKUP | TxLens | `benqi` | `0xfda435d1f049aa4ebd81d04ee40bc2fd096698fef26f19a1258231a7bc00fbda` | `0x0f50c8cc51411413...` |
+| 699 | TVL_LOOKUP | TxLens | `raydium` | `0x9e6a9b3692feb166b6f6e2e017ef2a246ab6d732936ab91a6e5e601166e1be4e` | `0x0f50c8cc51411413...` |
+| 700 | TVL_LOOKUP | TxLens | `trader-joe` | `0xe16aa1ffc19f812d71b448bd9c3e129257d32349a956bffc5c06bd0c8be79f3f` | `0x1024ec9986a6d6d2...` |
+| 701 | TOKEN_HOLDER_COUNT | TxLens | `LDO` | `0xa99031b5abca4976bb519f1a1bc6ded3acf7289c6ff23361cd8d784499cf3ba9` | `0xfe3addc402cfea2e...` |
+| 702 | TOKEN_HOLDER_COUNT | TxLens | `ARB` | `0x24976ad65a50241af552d79c04838e5ca5b22d7a2e13b4a12162bceb6bd8b26b` | `0xbae9d62693798f4b...` |
+| 703 | TOKEN_HOLDER_COUNT | TxLens | `SNX` | `0xdc4f2f6ffd2322372ffc0c7f0d43dedefe63f462901df11afc02f11fac69173a` | `0x1bfb4bf1514ff844...` |
+| 704 | TOKEN_HOLDER_COUNT | TxLens | `COMP` | `0x1a78c95c6a877eea5f6144e94d420fd1a8b41f7b93a0f7a8e7e48dc17f3fe36f` | `0x10550ad43bfa7097...` |
+| 705 | TOKEN_HOLDER_COUNT | TxLens | `GRT` | `0x53d44cf03a16b8319a30c55aca6210951953b704dd9e9468184ba4cf8b5288d8` | `0x9275ff88a9f71bf5...` |
+| 706 | TOKEN_HOLDER_COUNT | TxLens | `CRV` | `0x8ad243be999d9140dac217876ce3d43a0664adf214ef5516271ed53303737ca4` | `0x2afa808fe48b921a...` |
+| 707 | TOKEN_HOLDER_COUNT | TxLens | `SAND` | `0x36e68eaf88b21a4c21d41c1b8ece4c6d63a81773e8ed9bc8fc7a0ee1d02d8716` | `0x74b9b95811cf8e3a...` |
+| 708 | TOKEN_HOLDER_COUNT | TxLens | `OP` | `0xb9678b33a426caec50d884126d73521222c86fc79c02ea99c0315bd74601ec56` | `0x1a5ebd7521aa558a...` |
+| 709 | ACADEMIC_SEARCH | TxLens | `graph neural networks` | `0xd8b3bad26d19701d1dc7b4b6d568dfd6b278956cd41e53d404a0f2b880edebc0` | `0x211acb572945cfc8...` |
+| 710 | ACADEMIC_SEARCH | TxLens | `reinforcement learning from human feedback` | `0xb5823785e07defce941a126c4e6db05e5497a5aebfdb71cb62822a7464907eff` | `0x1b59b38e015c762c...` |
+| 711 | ACADEMIC_SEARCH | TxLens | `topological insulators` | `0xf1ffcdb75cd33dfe8083db7033d2baaa55e554bf4dc1337236617d9bdf232a0e` | `0x7c0ec36dc95f24bc...` |
+| 712 | ACADEMIC_SEARCH | TxLens | `antibiotic resistance mechanisms` | `0xa18c103c18ee6e0b777612cd411172df8783364b05d34163f561aed572285c45` | `0x3bf774689c5d8277...` |
+| 713 | ACADEMIC_SEARCH | TxLens | `exoplanet atmospheric spectroscopy` | `0xcc9fb0ec78d9f416e24db24b633f3ddb32477e58db171c49a7d2ec0150e57c1c` | `0x498831634865f907...` |
+| 714 | ACADEMIC_SEARCH | TxLens | `gut microbiome and immunity` | `0x15e7cc17b75bde74de6f9811a7cf97e8e51017c82d26a2149519edbca790f34c` | `0x0ddc138238bbfc53...` |
+| 715 | ACADEMIC_SEARCH | TxLens | `lithium sulfur batteries` | `0x2e01eca94174b501d36ea8f3439567de2f50b250317d6a9ea6d0ef33b85e923b` | `0x0dbb852f4e9000a1...` |
+| 716 | ACADEMIC_SEARCH | TxLens | `photonic integrated circuits` | `0xcbf6dc2139c3d10795731bd31a27fe32db60afd2e90e37d323e2d15e3e5547b9` | `0x805d3cbf7ae07976...` |
+| 717 | GAS_PRICE | TxLens | `bsc` | `0x73f5bd84fe88bffa65b6e0d4b9059e7260e81938e97a53ee56aedfe72b338c4c` | `0xf44c4dc5ce463553...` |
+| 718 | GAS_PRICE | TxLens | `avalanche` | `0x4b056f4ec7e9ed87cfc8904486b922d3c0714a23f7ce7acb3ff71e0b171ae9dd` | `0x709c45dc0967ba67...` |
+| 719 | GAS_PRICE | TxLens | `fantom` | `0xf90c2b131aab39fca9d3bcb82c81b9b44240c84bde471eed455efc1a5d393311` | `0x4962b0b0bc732347...` |
+| 720 | GAS_PRICE | TxLens | `celo` | `0xd6edf27a41c99c345e88922a2e4f343a7b6d8bdd23e89314fa74363c368581e5` | `0xeb8ae94b61243bf2...` |
