@@ -1,25 +1,69 @@
 # AskLens
 
-Ask any question in plain English. A live miner on the
-[Telegraph Protocol](https://telegraphprotocol.com) network answers it, and you
-see which miner answered, why it was picked, what it cost, and the on-chain
-record of the answer.
+> **Live safety intelligence at the moment you act.**
 
-Built for Telegraph Season I, Track 3 (Applications).
+You copy a web link. You copy a wallet address. You ask an AI for an answer you
+need to rely on. AskLens brings live Telegraph intelligence to those moments,
+so you can see what is worth trusting without leaving the workflow you are in.
 
-## Try it in under a minute
+| Start here | Link |
+|---|---|
+| ClipGuard for Windows | [Open ClipGuard](https://asklens-zoox.onrender.com/pc.html) |
+| Wallet safety in MetaMask | [Open the Snap guide](https://asklens-zoox.onrender.com/metamask.html) |
+| Use from Claude or Cursor | [Open the MCP setup guide](https://asklens-zoox.onrender.com/connect.html) |
+| Source code | [github.com/Sireadell/asklens](https://github.com/Sireadell/asklens) |
+| Hackathon | Telegraph Season I, Track 3 Applications |
 
-**Live app:** [asklens-zoox.onrender.com](https://asklens-zoox.onrender.com)
+**AskLens is not another search website.** It puts live Telegraph intelligence
+in the clipboard, wallet, and AI tools where people already decide what to
+trust.
 
-1. Open the live app.
-2. Ask a question such as `What is the current ETH price?` or `Is this wallet safe?`.
-3. Read the answer alongside the miner that supplied it, the route chosen by
-   Telegraph, the request cost, and the on-chain signal hash.
+## The dangerous moment is the copy
 
-The hosted app pays for the request. You do not need a wallet, account, or
-testnet funds to try it. The service has limits to prevent unexpected spending.
+Copying an address is often the last pause before money moves. Clipboard
+hijacking can replace a copied address, and address-poisoning scams use a
+lookalike address to tempt someone into copying the wrong one. A copied link
+has the same problem: by the time a person thinks to check it, they may already
+have opened it.
 
-## Run it yourself
+ClipGuard checks a complete copied web link or `0x` wallet address and sends a
+Windows notification when the result is ready.
+
+## One link, three live opinions
+
+For a copied web link, ClipGuard asks **NetWire, URL Sentinel, and Preflight**
+through Telegraph. Their answers become one result, and ClipGuard shows which
+miners answered. Disagreement is visible. It is not hidden behind a single
+confident label.
+
+A copied wallet address gets a live fraud request through Telegraph. Telegraph
+routes it, and AskLens shows the returned result and reason.
+
+Only an item that is exactly a web link or `0x` wallet address is sent for
+checking. Other copied text is ignored and never sent anywhere.
+
+## Three places, one intelligence layer
+
+| Where you are | What AskLens does |
+|---|---|
+| Windows clipboard | ClipGuard checks a copied link or wallet address. |
+| Claude, Cursor, or another MCP tool | AskLens brings live, source-backed information into the answer. |
+| MetaMask | The AskLens Snap shows a live wallet-risk warning before approval. |
+
+The person still decides what to do. AskLens supplies the live signal and its
+reason.
+
+## What a reviewer can verify
+
+- ClipGuard fans a copied web link out to three live Telegraph URL-scan miners.
+- ClipGuard sends a copied `0x` wallet address to Telegraph for a live fraud
+  result, routed by the network.
+- AskLens ships a Windows client, MetaMask Snap, and MCP setup flow.
+- We run two Telegraph miners: TxLens (ID 9002) and Telegraph Sentinel
+  (ID 94217603).
+- The repository test suite passes with `npm test`.
+
+## Run it locally
 
 AskLens needs Node.js 20 or later.
 
@@ -30,195 +74,46 @@ cp .env.example .env
 npm start
 ```
 
-Open http://localhost:3000. On Windows PowerShell, use this instead of `cp`:
+On Windows PowerShell, use `Copy-Item .env.example .env` instead of `cp`.
 
-```powershell
-Copy-Item .env.example .env
-```
-
-Run the automated checks at any time. They do not make paid Telegraph calls or
-need a private key:
+Run the tests with:
 
 ```bash
 npm test
 ```
 
-## What a reviewer can verify
-
-- A real request goes through Telegraph's live testnet Engine. There are no
-  fake answers or local stand-ins.
-- Every completed answer shows its supplier, route, cost, elapsed time, and
-  `signal_hash`, so it can be checked later.
-- The same service is also available as an MCP connector at
-  `https://asklens-zoox.onrender.com/mcp`.
-
-## What it does
-
-You type a question. AskLens sends it to Telegraph's Engine, which reads the
-question, classifies it into one of the network's intents, picks a miner that
-serves that intent, and returns that miner's answer. Nothing is cached and
-nothing is mocked: every answer on the page is a fresh, paid request to a real
-miner, at $0.01 per call in testnet USDC on Base Sepolia.
-
-The page shows, for every answer:
-
-| Shown | Why it is there |
-|---|---|
-| The answer | The point of the app |
-| Which miner answered | So you know who to credit or blame |
-| Which intent it was classified as | Shows how the router read your question |
-| The router's reasoning | Telegraph explains its own routing choice |
-| Cost and time taken | Real numbers, not estimates |
-| `signal_hash` | The on-chain record the answer was filed under |
-
-## Second opinion
-
-When the router sends a question somewhere else, you can put the same question
-directly to one of the miners this project runs, by name rather than by
-routing. That costs another cent and is a separate, clearly labelled request.
-
-Our miners on the network:
-
-| Miner | ID | Covers |
-|---|---|---|
-| TxLens | 9002 | 13 intents: transactions, gas, balances, holders, TVL, crypto and stock prices, SSL, weather, storms, IP location, academic and web search |
-| Telegraph Sentinel | 94217603 | FRAUD_DETECTION |
-
-## Running it
+To run ClipGuard from source:
 
 ```bash
+cd clipguard-client
 npm install
-cp .env.example .env   # then put a Base Sepolia key with testnet USDC in it
-npm start
+npm run watch
 ```
 
-Open http://localhost:3000.
+## Next: Solana token checks for traders
 
-The wallet named in `.env` pays for each request. It is a testnet-only wallet
-and needs testnet USDC from [Circle's faucet](https://faucet.circle.com); it
-does not need testnet ETH, because x402 payments are signed offline and
-submitted by Telegraph's facilitator.
+Traders often copy a Solana token address just before buying. The next
+ClipGuard check will recognise that address and ask Telegraph for live
+token-risk signals before the trade: rug-risk indicators, mint or freeze
+authority, and holder concentration where a specialist miner can provide it.
 
-```bash
-npm test
-```
+The goal is simple: make the easiest safety check happen at the exact moment a
+trader is deciding whether to buy.
+
+## Network
+
+AskLens uses Base Sepolia and testnet USDC, the Telegraph Season I test
+environment. It does not move real money.
 
 ## Honest limits
 
-- **Testnet only.** Payments settle in Base Sepolia USDC. Nothing here moves
-  real money.
-- **Answer quality is the miners', not ours.** AskLens routes, pays, and
-  presents. If a miner answers badly, you see the bad answer, its confidence,
-  and its name.
-- **Not every response is plain text.** Miners define their own output shapes.
-  When there is no readable sentence in the response, the app says so and shows
-  the raw JSON rather than guessing at a summary.
-- **The request counter counts what actually happened.** It increments only
-  after Telegraph answered and payment settled, never on a failed or refused
-  call, and it is shown on the page rather than kept private.
-
-## Using it from Claude, Cursor, or any MCP app
-
-AskLens also runs as an MCP server, so the same live miners answer from inside
-an editor or chat app instead of from the web page. There's no separate
-dashboard to open for any of this, it's all reachable from wherever you
-already work.
-
-Two verdict tools, which return a judgment with evidence, not just a number:
-
-| Tool | What you get |
-|---|---|
-| `check_wallet_safety` | A safety verdict on an EVM wallet: risk level, risk percentage, the reason in plain English, the signals behind it, and which miner answered |
-| `check_link_safety` | Whether a link's certificate is valid and where the site is hosted, merged into one answer |
-
-And thirteen plain lookups, one per intent our own miner serves, each
-answered directly rather than routed:
-
-| Tool | What it answers |
-|---|---|
-| `check_transaction` | Did this transaction go through, and what happened |
-| `check_gas_price` | What a transaction costs right now |
-| `check_wallet_balance` | How much a wallet holds |
-| `check_token_holders` | How many wallets hold a token |
-| `check_tvl` | How much money is locked in a protocol |
-| `check_crypto_price` | What a coin is worth |
-| `check_stock_price` | What a share is trading at |
-| `check_ssl_certificate` | Whether a site's certificate is real |
-| `check_weather` | The forecast somewhere |
-| `check_storm_alert` | Active storm or severe weather alerts |
-| `check_ip_location` | Where an IP address is |
-| `search_academic_papers` | Real published research on a topic |
-| `search_web` | Anything answerable from the live web |
-
-### Add it to Claude with one link
-
-In Claude, open **Customize**, then **Connectors**, then **Add custom
-connector**. Paste this link and choose **Add**:
-
-```
-https://asklens-zoox.onrender.com/mcp
-```
-
-There is no wallet or payment setup for the person adding the connector.
-
-### Run it locally instead
-
-Run it once by hand to check it starts:
-
-```bash
-npm run mcp
-```
-
-It should print a ready line and then sit there waiting. That is correct: it
-talks over stdin and stdout, not to a terminal. Press Ctrl+C to stop it.
-
-**Claude Code**
-
-```bash
-claude mcp add asklens -- node /absolute/path/to/asklens/src/mcp.js
-```
-
-**Claude Desktop, Cursor, Windsurf, and others** take the same JSON. Add this
-to the app's MCP config file:
-
-```json
-{
-  "mcpServers": {
-    "asklens": {
-      "command": "node",
-      "args": ["/absolute/path/to/asklens/src/mcp.js"]
-    }
-  }
-}
-```
-
-Use a full path, not a relative one, since the app starts the server from its
-own working directory. On Windows, escape the backslashes:
-`"C:\Users\you\asklens\src\mcp.js"`.
-
-The server reads the same `.env` as the web app, so the wallet that pays for
-web requests pays for these too. If no key is set, the tools return a clear
-message saying so rather than failing silently.
-
-### Two notes for anyone reading the code
-
-- **The wallet check posts, it does not get.** Sentinel offers both, but
-  Telegraph delivers the request as a body, which only the POST route reads.
-  Over GET the wallet never arrives and the engine returns a 500. There is a
-  test pinning this so it cannot be changed back by accident.
-- **Nothing is ever written to stdout except protocol messages.** An MCP server
-  talks over stdout, so one stray print would corrupt it. All logging goes to
-  stderr, including the payment client's startup line.
-
-## Project map
-
-| Location | Purpose |
-|---|---|
-| `src/server.js` | Web app, live Telegraph requests, and MCP endpoint |
-| `src/mcp.js` | Tools exposed to Claude and other MCP-compatible apps |
-| `src/telegraph.js` | Paid request and settlement connection to Telegraph |
-| `public/` | Browser interface |
-| `test/` | Automated checks |
+- **AskLens informs decisions.** It does not block a browser, wallet, or AI
+  action on its own.
+- **Telegraph is the intelligence layer.** AskLens presents the live result
+  returned by Telegraph, together with the supporting reason. It does not add
+  certainty beyond the network response.
+- **The Windows prototype is not code-signed yet.** Windows may warn about it,
+  and Smart App Control can block it.
 
 ## License
 
