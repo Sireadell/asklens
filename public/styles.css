@@ -119,6 +119,10 @@ footer { border-top: 0.5px solid var(--line); padding: 28px 0 40px; color: var(-
 .counter strong { color: var(--text); }
 .powered { max-width: 58ch; margin: 0 auto; line-height: 1.7; }
 a { color: var(--accent); }
+a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visible {
+  outline: 3px solid var(--text);
+  outline-offset: 3px;
+}
 @media (max-width: 560px) {
   .header-row { align-items: flex-start; flex-direction: column; gap: 4px; }
   .header-actions { justify-content: flex-start; }
@@ -179,6 +183,47 @@ a { color: var(--accent); }
 .subhero .tag { margin: 0; max-width: 60ch; }
 .secondary-action.pill { background: transparent; color: var(--text); }
 .pill:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Clip Guard download page */
+.source-link { color: var(--dim); font-size: 13px; text-decoration: none; }
+.source-link:hover { color: var(--text); }
+.clip-hero {
+  padding: 56px 0 44px; border-bottom: 0.5px solid var(--line);
+  background-image: linear-gradient(#171717 1px, transparent 1px), linear-gradient(90deg, #171717 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+.clip-hero h1 { max-width: 18ch; margin: 0 0 12px; font-size: clamp(32px, 6vw, 46px); line-height: 1.08; letter-spacing: -1px; }
+.clip-hero .tag { max-width: 54ch; font-size: 17px; }
+.clip-action { margin: 24px 0 10px; }
+.clip-action .pill { display: inline-block; padding: 11px 17px; font-size: 15px; font-weight: 650; }
+.clip-page { padding-top: 34px; padding-bottom: 64px; }
+.clip-page h2 { margin: 0; font-size: 23px; line-height: 1.2; }
+.clip-page p { margin: 8px 0 0; color: var(--dim); }
+.clip-privacy {
+  display: flex; gap: 14px; align-items: flex-start; padding: 20px;
+  border: 1px solid #27543a; border-radius: 12px; background: #0d1610;
+}
+.clip-section-icon {
+  display: grid; flex: 0 0 auto; place-items: center; width: 32px; height: 32px;
+  border-radius: 50%; color: var(--good); background: #132a19;
+}
+.clip-privacy h2 { font-size: 18px; }
+.clip-flow { margin-top: 48px; }
+.section-kicker { margin: 0 0 8px !important; color: var(--dimmer) !important; font-size: 12px; font-weight: 650; letter-spacing: .08em; text-transform: uppercase; }
+.clip-flow ol { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin: 22px 0 0; padding: 1px; list-style: none; background: var(--line); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.clip-flow li { display: flex; gap: 12px; min-width: 0; padding: 20px; background: var(--panel); }
+.clip-flow .step { position: static; flex: 0 0 auto; width: 26px; height: 26px; font-size: 13px; }
+.clip-flow h3 { margin: 1px 0 0; font-size: 16px; line-height: 1.25; }
+.clip-flow li p { font-size: 14px; }
+.clip-proof { margin-top: 48px; padding: 26px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+.clip-proof > p:not(.section-kicker) { max-width: 65ch; }
+.proof-note { display: flex; gap: 8px; align-items: flex-start; padding-top: 16px; margin-top: 18px !important; border-top: 1px solid var(--line); font-size: 14px; }
+.proof-note i { flex: 0 0 auto; margin-top: 3px; color: var(--accent); }
+@media (max-width: 720px) {
+  .clip-hero { padding: 42px 0 36px; }
+  .clip-flow ol { grid-template-columns: 1fr; }
+  .clip-page { padding-top: 24px; }
+}
 
 .client-tabs { display: flex; gap: 1px; background: var(--line); border: 0.5px solid var(--line); border-radius: 8px; overflow: hidden; margin-top: 30px; }
 .client-tab { flex: 1; background: var(--panel); color: var(--dim); border: 0; padding: 12px; font-size: 13.5px; font-weight: 500; cursor: pointer; }

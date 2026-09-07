@@ -11,76 +11,60 @@
 <nav class="topnav">
   <div class="wrap topnav-row">
     <a class="brand" href="/"><i class="ti ti-shield-check" aria-hidden="true"></i>AskLens</a>
-    <div class="topnav-links">
-      <a href="/#intents">Intents</a>
-      <a href="/connect.html">Docs</a>
-      <a href="https://github.com/Sireadell/asklens" rel="noopener">GitHub</a>
-    </div>
-    <div class="topnav-actions">
-      <a class="pill" href="/connect.html">Add to your AI</a>
-      <a class="pill" href="/metamask.html">Add to MetaMask</a>
-      <a class="pill" href="/">Back to AskLens</a>
-    </div>
+    <a class="source-link" href="https://github.com/Sireadell/asklens" rel="noopener">View source</a>
   </div>
 </nav>
 
-<header class="subhero">
+<header class="clip-hero">
   <div class="wrap">
     <span class="eyebrow"><i class="ti ti-clipboard-check" aria-hidden="true"></i>Clip Guard for Windows</span>
-    <h1>Every copied link gets a second opinion.</h1>
-    <p class="tag">Someone sends you a link. You copy it. Before you paste or open it, Clip Guard checks it and tells you if something looks wrong.</p>
-    <p><a class="pill" href="https://github.com/Sireadell/asklens/releases/download/v0.1.0-clipguard/AskLens.Clip.Guard.Setup.1.0.0.exe">Download Clip Guard for Windows</a></p>
-    <p class="small">Install it once. It then runs quietly in the background.</p>
+    <h1>Copied a link? Check it before you trust it.</h1>
+    <p class="tag">Clip Guard checks complete web links you copy and shows a Windows notification when a result is ready.</p>
+    <p class="clip-action"><a class="pill pill-primary" href="https://github.com/Sireadell/asklens/releases/download/v0.1.0-clipguard/AskLens.Clip.Guard.Setup.1.0.0.exe">Download for Windows</a></p>
+    <p class="small">A one-time install. It runs from the notification area near the clock.</p>
   </div>
 </header>
 
-<main class="wrap connect-page">
-  <section class="notice">
-    <strong>Built for people without a security team watching their back.</strong> Freelancers, remote workers, crypto users, and community moderators get sent links constantly. Clip Guard uses the moment you copy one to give you a second opinion before a quick click becomes a bad decision.
+<main class="wrap clip-page">
+  <section class="clip-privacy" aria-labelledby="privacy-heading">
+    <div class="clip-section-icon" aria-hidden="true"><i class="ti ti-lock"></i></div>
+    <div>
+      <h2 id="privacy-heading">Your clipboard stays private.</h2>
+      <p>Clip Guard looks for copied text that is exactly a web link. Only that link is sent for a check. Copied messages, passwords, documents, and other text are not uploaded.</p>
+    </div>
   </section>
 
-  <section class="install-card">
-    <span class="step">1</span>
-    <h2>Install once</h2>
-    <p>Download it and double-click the setup file. No code, terminal, account, browser extension, or new routine.</p>
+  <section class="clip-flow" aria-labelledby="how-it-works">
+    <p class="section-kicker">How it works</p>
+    <h2 id="how-it-works">It fits into what you already do.</h2>
+    <ol>
+      <li>
+        <span class="step">1</span>
+        <div><h3>Install it once</h3><p>Download the setup file and open it. No account or browser extension.</p></div>
+      </li>
+      <li>
+        <span class="step">2</span>
+        <div><h3>Copy a complete web link</h3><p>Copy a link from an email, chat, or website as you normally would.</p></div>
+      </li>
+      <li>
+        <span class="step">3</span>
+        <div><h3>See the result</h3><p>When the check is ready, Clip Guard shows a Windows notification.</p></div>
+      </li>
+    </ol>
   </section>
 
-  <section class="install-card">
-    <span class="step">2</span>
-    <h2>Copy as usual</h2>
-    <p>It starts quietly when you sign in to Windows. You keep working normally. Copy a link from an email, DM, group chat, or website.</p>
-  </section>
-
-  <section class="install-card">
-    <span class="step">3</span>
-    <h2>Get a second opinion</h2>
-    <p>Within a few seconds, a Windows notification tells you whether the link looks safe, suspicious, or dangerous. If the checks disagree, it tells you that too instead of pretending to be certain.</p>
-  </section>
-
-  <section class="safety-note">
-    <strong>Your clipboard stays private.</strong> Clip Guard only acts when what you copied is a complete web link. It sends that link for a check. It does not upload copied messages, passwords, documents, or other text.
-  </section>
-
-  <section class="safety-note">
-    <strong>Independent live intelligence from Telegraph Protocol.</strong> Clip Guard asks three separately built Telegraph security services that use different threat sources, including live website checks, known-threat lists, and certificate validation. If they disagree, you see that instead of a false promise that any one check is always right.
+  <section class="clip-proof" aria-labelledby="proof-heading">
+    <p class="section-kicker">Why check it?</p>
+    <h2 id="proof-heading">Live intelligence from Telegraph Protocol.</h2>
+    <p>Clip Guard asks three independently built Telegraph security services. They use different sources, including live website checks, known-threat lists, and certificate validation.</p>
+    <p class="proof-note"><i class="ti ti-scale" aria-hidden="true"></i> If the checks disagree, Clip Guard shows that. It does not pretend one answer is always right.</p>
   </section>
 </main>
 
 <footer>
   <div class="wrap">
-    <p class="powered">Powered by <a href="https://telegraphprotocol.com" rel="noopener">Telegraph Protocol</a>. <a href="https://github.com/Sireadell/asklens" rel="noopener">View the source on GitHub</a>.</p>
+    <p class="powered">Powered by Telegraph Protocol.</p>
   </div>
 </footer>
-
-<script>
-  document.querySelectorAll("[data-copy]").forEach((button) => {
-    button.addEventListener("click", async () => {
-      await navigator.clipboard.writeText(button.dataset.copy);
-      const original = button.textContent;
-      button.textContent = "Copied";
-      setTimeout(() => { button.textContent = original; }, 1600);
-    });
-  });
-</script>
 </body>
 </html>
