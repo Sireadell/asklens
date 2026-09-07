@@ -250,3 +250,92 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .pair-a { font-size: 14px; line-height: 1.5; }
 .hashes { margin-top: 12px; font-size: 11px; color: var(--dim); overflow-wrap: anywhere; }
 @media (max-width: 640px) { .pair-grid { grid-template-columns: 1fr; } }
+
+/* AskLens product home */
+.home-page { background: #05080c; }
+.home-wrap { width: min(100% - 64px, 1360px); margin: 0 auto; }
+.home-nav { border-color: #25303b; }
+.home-nav .topnav-row { padding: 16px 0; }
+.home-nav .brand { font-size: 22px; letter-spacing: 0; }
+.home-nav .brand i { color: var(--text); font-size: 28px; }
+.home-nav .topnav-links { gap: 46px; font-size: 15px; }
+.home-nav .topnav-links a { color: var(--text); }
+.home-nav-cta { min-width: 150px; padding: 12px 18px; text-align: center; border-color: var(--accent); color: var(--accent); font-size: 15px; }
+.home-hero { border-bottom: 1px solid #25303b; overflow: hidden; }
+.home-hero-grid { min-height: 500px; display: grid; grid-template-columns: .92fr 1.08fr; gap: 48px; align-items: center; }
+.home-copy { padding: 56px 0; }
+.home-kicker { margin: 0 0 18px; color: #2583ff; font-size: 14px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.home-copy h1 { margin: 0; font-size: clamp(48px, 5.2vw, 76px); line-height: 1.06; letter-spacing: 0; }
+.home-copy > p:not(.home-kicker) { max-width: 530px; margin: 24px 0 0; color: #c0c8d2; font-size: 20px; line-height: 1.55; }
+.hero-actions { display: flex; align-items: center; gap: 38px; margin-top: 30px; }
+.home-primary { display: inline-flex; justify-content: center; align-items: center; min-width: 240px; padding: 18px 22px; background: #1d70f7; color: white; font-size: 18px; font-weight: 650; text-decoration: none; border-radius: 6px; }
+.home-primary:hover { background: #3180ff; }
+.home-secondary { display: inline-flex; align-items: center; gap: 8px; color: #2583ff; text-decoration: none; font-size: 17px; font-weight: 600; }
+.safety-flow { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); min-height: 405px; align-items: start; padding-top: 50px; }
+.flow-line { position: absolute; top: 230px; left: 0; right: -6%; height: 1px; background: #1d70f7; box-shadow: 0 0 13px #1d70f799; }
+.flow-product { position: relative; min-height: 350px; padding: 0 22px; text-align: center; border-left: 1px solid #25303b; z-index: 1; }
+.flow-product:first-of-type { border-left: 0; }
+.flow-icon { display: block; color: #2583ff; font-size: 48px; margin-bottom: 13px; }
+.flow-product h2 { min-height: 53px; margin: 0; font-size: 22px; line-height: 1.18; }
+.flow-node { width: 100px; height: 100px; margin: 45px auto 46px; display: grid; place-items: center; border: 2px solid #2583ff; border-radius: 50%; background: #07101a; box-shadow: 0 0 22px #1d70f773; }
+.flow-node i { color: #fff; font-size: 40px; }
+.flow-product p { margin: 0; color: #e5e9ef; font-size: 16px; line-height: 1.45; }
+.flow-product p > i { margin-right: 8px; color: #46d17c; }
+.flow-risk { color: #e9e9eb !important; }
+.flow-risk > i, .flow-risk strong { color: #ff4e57 !important; }
+.flow-risk strong { text-transform: uppercase; letter-spacing: .04em; }
+.home-products { padding: 30px 0 20px; }
+.home-products h2 { margin: 0; padding: 0 0 13px; font-size: 28px; border-bottom: 1px solid #34404d; }
+.product-row { display: grid; grid-template-columns: 1.05fr 1.7fr 32px; gap: 18px; align-items: center; min-height: 63px; color: #e9edf3; border-bottom: 1px solid #34404d; text-decoration: none; font-size: 18px; }
+.product-row:hover { background: #0a1018; }
+.product-row > i { color: #2583ff; font-size: 28px; text-align: right; }
+.product-name { display: inline-flex; align-items: center; gap: 16px; font-weight: 650; }
+.product-name i { color: #2583ff; font-size: 29px; }
+.home-trust { border-top: 1px solid #25303b; border-bottom: 1px solid #25303b; margin-top: 0; }
+.trust-row { display: flex; gap: 28px; align-items: center; padding: 33px 0; }
+.trust-row > i { color: #2583ff; font-size: 68px; }
+.trust-row > div { padding-left: 28px; border-left: 1px solid #34404d; }
+.trust-row h2 { margin: 0 0 6px; font-size: 27px; }
+.trust-row p { margin: 0; color: #b8c0ca; font-size: 17px; }
+.home-live { padding-top: 56px; padding-bottom: 30px; }
+.home-live > h2 { margin: 0; font-size: 31px; }
+.home-live-intro { max-width: 670px; margin: 10px 0 24px; color: var(--dim); }
+.home-live #ask-form { max-width: 720px; margin: 0; }
+.home-live .cost { max-width: 720px; text-align: left; }
+.home-live .intents-section { margin-top: 42px; }
+.home-live .stats-row { padding-bottom: 20px; }
+.home-page footer { margin-top: 20px; }
+@media (max-width: 900px) {
+  .home-wrap { width: min(100% - 40px, 1360px); }
+  .home-hero-grid { grid-template-columns: 1fr; gap: 0; }
+  .home-copy { padding-bottom: 22px; }
+  .safety-flow { max-width: 720px; width: 100%; margin: 0 auto; }
+}
+@media (max-width: 620px) {
+  .home-wrap { width: min(100% - 32px, 1360px); }
+  .home-nav .topnav-links { display: none; }
+  .home-nav .brand { font-size: 19px; }
+  .home-nav-cta { min-width: auto; padding: 9px 12px; font-size: 14px; }
+  .home-copy { padding-top: 42px; }
+  .home-copy h1 { font-size: 46px; }
+  .home-copy > p:not(.home-kicker) { font-size: 17px; }
+  .hero-actions { flex-direction: column; align-items: flex-start; gap: 18px; }
+  .home-primary { width: 100%; }
+  .safety-flow { min-height: auto; grid-template-columns: 1fr; padding: 0 0 18px; }
+  .flow-line { display: none; }
+  .flow-product { min-height: auto; padding: 22px 0; display: grid; grid-template-columns: 44px 1fr auto; align-items: center; gap: 14px; text-align: left; border-left: 0; border-top: 1px solid #25303b; }
+  .flow-icon { margin: 0; font-size: 33px; }
+  .flow-product h2 { min-height: auto; font-size: 18px; }
+  .flow-node { display: none; }
+  .flow-product p { font-size: 13px; text-align: right; }
+  .home-products h2 { font-size: 24px; }
+  .product-row { grid-template-columns: 1fr 26px; padding: 14px 0; font-size: 14px; }
+  .product-row > span:nth-child(2) { grid-column: 1; color: var(--dim); }
+  .product-row > i { grid-column: 2; grid-row: 1 / span 2; }
+  .product-name { font-size: 17px; }
+  .trust-row { align-items: flex-start; gap: 16px; }
+  .trust-row > i { font-size: 40px; }
+  .trust-row > div { padding-left: 16px; }
+  .trust-row h2 { font-size: 21px; }
+  .trust-row p { font-size: 15px; }
+}

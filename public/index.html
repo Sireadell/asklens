@@ -3,36 +3,88 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>AskLens — plain answers from live Telegraph miners</title>
+<title>AskLens | Know what is safe before you act</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" />
 <link rel="stylesheet" href="/styles.css" />
 </head>
-<body>
-<nav class="topnav">
-  <div class="wrap topnav-row">
+<body class="home-page">
+<nav class="topnav home-nav">
+  <div class="home-wrap topnav-row">
     <a class="brand" href="/"><i class="ti ti-shield-check" aria-hidden="true"></i>AskLens</a>
     <div class="topnav-links">
-      <a href="#intents">Intents</a>
-      <a href="/connect.html">Docs</a>
-      <a href="https://github.com/Sireadell/asklens" rel="noopener">GitHub</a>
+      <a href="#products">Products</a>
+      <a href="#how-it-works">How it works</a>
+      <a href="#security">Security</a>
     </div>
     <div class="topnav-actions">
-      <a class="pill pill-primary" href="/connect.html">Add to your AI</a>
-      <a class="pill" href="/metamask.html">Add to MetaMask</a>
-      <a class="pill" href="/pc.html">Add to PC</a>
+      <a class="pill home-nav-cta" href="#products">Try AskLens</a>
     </div>
   </div>
 </nav>
 
-<header class="hero">
-  <div class="wrap">
-    <span class="eyebrow"><i class="ti ti-plug" aria-hidden="true"></i>Live on Telegraph Protocol</span>
-    <h1>Ask before you sign.</h1>
-    <p class="tag">A live Telegraph miner answers, and you see which one, why it was picked, and the on-chain record of the answer. No cached or mocked data.</p>
+<header class="home-hero">
+  <div class="home-wrap home-hero-grid">
+    <div class="home-copy">
+      <p class="home-kicker">Safety intelligence for every decision</p>
+      <h1>Know what is safe<br />before you act.</h1>
+      <p>AskLens brings clear, evidence-based risk intelligence to the links you open, the AI answers you trust, and the wallet transactions you approve.</p>
+      <div class="hero-actions">
+        <a class="home-primary" href="#products">Explore AskLens</a>
+        <a class="home-secondary" href="#how-it-works"><i class="ti ti-player-play-filled" aria-hidden="true"></i>Watch the live demo</a>
+      </div>
+    </div>
+    <div class="safety-flow" aria-label="AskLens protection products">
+      <div class="flow-line" aria-hidden="true"></div>
+      <article class="flow-product">
+        <i class="ti ti-world flow-icon" aria-hidden="true"></i>
+        <h2>ClipGuard</h2>
+        <span class="flow-node"><i class="ti ti-link" aria-hidden="true"></i></span>
+        <p><i class="ti ti-circle-check" aria-hidden="true"></i>Suspicious link<br />detected</p>
+      </article>
+      <article class="flow-product">
+        <i class="ti ti-brain flow-icon" aria-hidden="true"></i>
+        <h2>AskLens MCP</h2>
+        <span class="flow-node"><i class="ti ti-message" aria-hidden="true"></i></span>
+        <p><i class="ti ti-circle-check" aria-hidden="true"></i>Evidence checked<br />before answer</p>
+      </article>
+      <article class="flow-product">
+        <i class="ti ti-wallet flow-icon" aria-hidden="true"></i>
+        <h2>AskLens for<br />MetaMask</h2>
+        <span class="flow-node"><i class="ti ti-shield-check" aria-hidden="true"></i></span>
+        <p class="flow-risk"><i class="ti ti-alert-triangle" aria-hidden="true"></i><strong>High risk:</strong><br />sanctioned recipient</p>
+      </article>
+    </div>
   </div>
 </header>
 
-<main class="wrap">
+<main>
+  <section class="home-products home-wrap" id="products">
+    <h2>Protection where decisions happen.</h2>
+    <a class="product-row" href="/pc.html">
+      <span class="product-name"><i class="ti ti-world" aria-hidden="true"></i>ClipGuard</span>
+      <span>Check a link before you open it</span><i class="ti ti-arrow-right" aria-hidden="true"></i>
+    </a>
+    <a class="product-row" href="/connect.html">
+      <span class="product-name"><i class="ti ti-brain" aria-hidden="true"></i>AskLens MCP</span>
+      <span>Verify an AI answer before you rely on it</span><i class="ti ti-arrow-right" aria-hidden="true"></i>
+    </a>
+    <a class="product-row" href="/metamask.html">
+      <span class="product-name"><i class="ti ti-wallet" aria-hidden="true"></i>AskLens for MetaMask</span>
+      <span>See wallet risk before you sign</span><i class="ti ti-arrow-right" aria-hidden="true"></i>
+    </a>
+  </section>
+
+  <section class="home-trust" id="security">
+    <div class="home-wrap trust-row">
+      <i class="ti ti-shield-check" aria-hidden="true"></i>
+      <div><h2>One safety layer. Three moments that matter.</h2><p>Powered by live risk intelligence, including <a href="https://telegraphprotocol.com" rel="noopener">Telegraph Sentinel</a> for wallet safety.</p></div>
+    </div>
+  </section>
+
+  <section class="home-live home-wrap" id="how-it-works">
+    <p class="home-kicker">Live AskLens MCP</p>
+    <h2>Ask a question. See the evidence behind the answer.</h2>
+    <p class="home-live-intro">Every request is sent live to the Telegraph network. AskLens shows the source, reason, and on-chain record.</p>
   <form id="ask-form" autocomplete="off">
     <input id="question" name="question" type="text" maxlength="500"
            placeholder="What is gas on Ethereum right now?" aria-label="Your question" />
@@ -84,14 +136,15 @@
     <div class="stat"><div class="stat-num">#1</div><div class="stat-label">storm alert rank</div></div>
     <div class="stat"><div class="stat-num">x402</div><div class="stat-label">pay per call</div></div>
   </section>
+</section>
 </main>
 
 <footer>
-  <div class="wrap footer-row">
+  <div class="home-wrap footer-row">
     <div class="counter" id="counter" hidden></div>
     <p class="powered">
       Powered by <a href="https://telegraphprotocol.com" rel="noopener">Telegraph Protocol</a>.
-      Our own miners on the network: <strong>TxLens</strong> (14 intents) and <strong>Telegraph Sentinel</strong> (fraud detection).
+      AskLens uses live intelligence from <strong>TxLens</strong> and <strong>Telegraph Sentinel</strong> to help people make safer decisions.
       <a id="repo" href="https://github.com/Sireadell/asklens" rel="noopener">Source on GitHub</a>
     </p>
   </div>
