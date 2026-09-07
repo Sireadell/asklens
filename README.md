@@ -1,10 +1,10 @@
 # AskLens
 
-> **Live safety intelligence at the moment you act.**
+> **Live safety checks where you act.**
 
-You copy a web link. You copy a wallet address. You ask an AI for an answer you
-need to rely on. AskLens brings live Telegraph intelligence to those moments,
-so you can see what is worth trusting without leaving the workflow you are in.
+Live safety checks for the copied link, copied wallet address, or AI answer
+you're about to trust. AskLens brings live Telegraph intelligence to those
+moments without making you leave the workflow you are in.
 
 | Start here | Link |
 |---|---|
@@ -41,6 +41,17 @@ routes it, and AskLens shows the returned result and reason.
 
 Only an item that is exactly a web link or `0x` wallet address is sent for
 checking. Other copied text is ignored and never sent anywhere.
+
+## Telegraph team feedback
+
+Before shipping ClipGuard, we asked the Telegraph team how a multi-miner URL
+safety check should use the network. Their guidance was to keep miner selection
+organic, rather than hardcoding a script to keep calling the same miners. The
+screenshots below are the original conversation.
+
+![Telegraph team feedback on ClipGuard, part one](evidence/telegraph-team-confirmation-1.png)
+
+![Telegraph team feedback on ClipGuard, part two](evidence/telegraph-team-confirmation-2.png)
 
 ## Three places, one intelligence layer
 
