@@ -23,6 +23,12 @@ function enabled(value) {
 export const config = {
   port: int(process.env.PORT, 3000),
   engineBaseUrl: (process.env.TELEGRAPH_ENGINE_URL ?? "https://devnode.telegraphprotocol.com/engine").replace(/\/$/, ""),
+  // Used only to tell a contract address from a wallet address (eth_getCode).
+  // A free public endpoint is enough for that single read; no key needed.
+  rpcUrls: {
+    eth: process.env.RPC_URL_ETH ?? "https://ethereum-rpc.publicnode.com",
+    base: process.env.RPC_URL_BASE ?? "https://base-rpc.publicnode.com",
+  },
   discoveryUrl: process.env.TELEGRAPH_DISCOVERY_URL ?? "https://devnode.telegraphprotocol.com/miner-dispatcher/integrations",
   sentinelDirectUrl: (process.env.SENTINEL_DIRECT_URL ?? "https://telegraph-sentinel-40vp.onrender.com").replace(/\/$/, ""),
   askTimeoutMs: int(process.env.ASK_TIMEOUT_MS, 90000),

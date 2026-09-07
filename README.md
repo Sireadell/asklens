@@ -36,11 +36,24 @@ through Telegraph. Their answers become one result, and ClipGuard shows which
 miners answered. Disagreement is visible. It is not hidden behind a single
 confident label.
 
-A copied wallet address gets a live fraud request through Telegraph. Telegraph
-routes it, and AskLens shows the returned result and reason.
+## The right check for a copied address
 
-Only an item that is exactly a web link or `0x` wallet address is sent for
-checking. Other copied text is ignored and never sent anywhere.
+A copied `0x` address gets checked one of two ways, chosen automatically. A
+wallet address and a token contract address are the same text shape, so
+ClipGuard asks the chain itself which one it is (a free, instant
+`eth_getCode` read, not a Telegraph call) before deciding what to do with it:
+
+- **Wallet** gets a live Telegraph fraud check for sanctions, scam clusters,
+  and funding patterns.
+- **Token contract** gets a different question: is there a real, distributed
+  token here, or a shell nobody holds. ClipGuard combines a live holder-count
+  check with a fraud signal into one SAFE / CAUTION / DANGEROUS verdict. Zero
+  holders is treated as dangerous outright, a healthy holder count with a
+  clean fraud signal is safe, and anything thin or partially unreadable is
+  caution rather than a false safe.
+
+Only an item that is exactly a web link or `0x` address is sent for checking.
+Other copied text is ignored and never sent anywhere.
 
 ## Telegraph team feedback
 
@@ -67,9 +80,13 @@ reason.
 ## What a reviewer can verify
 
 - ClipGuard fans a copied web link out to three live Telegraph URL-scan miners.
-- ClipGuard sends a copied `0x` wallet address to Telegraph for a live fraud
-  result, routed by the network.
+- ClipGuard tells a copied `0x` wallet address from a token contract address
+  with a direct on-chain read, then sends it to Telegraph for the matching
+  check: a fraud request for a wallet, or a holder-count and fraud check for
+  a contract.
 - AskLens ships a Windows client, MetaMask Snap, and MCP setup flow.
+- The same three checks (link, wallet, token contract) are also MCP tools:
+  `check_link_safety`, `check_wallet_safety`, `check_token_safety`.
 - We run two Telegraph miners: TxLens (ID 9002) and Telegraph Sentinel
   (ID 94217603).
 - The repository test suite passes with `npm test`.
@@ -103,10 +120,12 @@ npm run watch
 
 ## Next: Solana token checks for traders
 
-Traders often copy a Solana token address just before buying. The next
-ClipGuard check will recognise that address and ask Telegraph for live
-token-risk signals before the trade: rug-risk indicators, mint or freeze
-authority, and holder concentration where a specialist miner can provide it.
+EVM token contracts (Ethereum, Base) are checked today, holder count and
+fraud signal combined into one verdict. Traders also copy Solana token
+addresses just before buying, and that chain isn't covered yet. The next
+ClipGuard check will recognise a Solana address and ask Telegraph for live
+token-risk signals: rug-risk indicators, mint or freeze authority, and holder
+concentration where a specialist miner can provide it.
 
 The goal is simple: make the easiest safety check happen at the exact moment a
 trader is deciding whether to buy.

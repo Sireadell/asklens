@@ -7,6 +7,8 @@ import { recordAnswered } from "./stats.js";
 import { config } from "./config.js";
 import { walletAssessRequest } from "./mcp.js";
 import { snapWalletResult } from "./snap-wallet.js";
+import { isContractAddress } from "./chain.js";
+import { checkTokenSafety } from "./token-safety.js";
 
 // Three genuinely different backends that each return an immediate verdict
 // (no async submit-then-poll like urlscan.io or VirusTotal, which would blow
@@ -143,6 +145,16 @@ export async function checkUrlAcrossMiners(url, { timeoutMs = 9000 } = {}) {
 // ours. The call still goes through Telegraph's paid engine, so it is a real
 // attributed network request, not a shortcut to our own host.
 export async function checkWalletAddress(address, { timeoutMs = 12000, chain = "eth", retriesLeft = 1 } = {}) {
+  // A contract address and a wallet address are the same 0x + 40 hex text,
+  // so the fraud-signal check below is the wrong question for a contract:
+  // it asks "has this address done anything malicious", not "is there a
+  // real, distributed token here". One free on-chain read tells them apart
+  // before either check runs.
+  const isContract = await isContractAddress(address, chain);
+  if (isContract) {
+    return checkTokenSafety(address, { timeoutMs, chain });
+  }
+
   const miner = config.ownMiners.sentinel;
   try {
     const { body } = await askMiner(miner.id, walletAssessRequest(address, chain), { timeoutMs });

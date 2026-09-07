@@ -20,6 +20,8 @@ import { extractAnswer, extractConfidence } from "./answer.js";
 import { logAsk } from "./asklog.js";
 import { recordAnswered } from "./stats.js";
 import { intentInfo } from "./intents.js";
+import { isContractAddress } from "./chain.js";
+import { checkTokenSafety } from "./token-safety.js";
 
 const EVM_ADDRESS_RE = /^0x[a-fA-F0-9]{40}$/;
 
@@ -253,6 +255,57 @@ async function checkWalletSafety({ address, chain }) {
   return textResult(text);
 }
 
+async function checkTokenSafetyTool({ address, chain }) {
+  if (!isValidAddress(address)) {
+    return textResult(
+      `"${address}" does not look like an EVM contract address. It should be 0x followed by 40 hex characters.`,
+      true
+    );
+  }
+
+  const normalizedChain = normalizeChain(chain);
+  if (!normalizedChain.ok) {
+    return textResult(
+      `"${chain}" is not a chain this check supports. This covers eth and base right now.`,
+      true
+    );
+  }
+
+  const isContract = await isContractAddress(address, normalizedChain.value);
+  if (isContract === false) {
+    return textResult(
+      `${address} has no code deployed on ${normalizedChain.value} — it's a wallet, not a token contract. Use check_wallet_safety instead.`,
+      true
+    );
+  }
+  if (isContract === null) {
+    return textResult(`Could not reach ${normalizedChain.value} to confirm this is a contract. Try again shortly.`, true);
+  }
+
+  const startedAt = Date.now();
+  const verdict = await checkTokenSafety(address, { chain: normalizedChain.value });
+  const lines = [
+    `Token safety verdict: ${verdict.overall.toUpperCase()}`,
+    verdict.holderCount !== null ? `Holders: ${verdict.holderCount}` : "Holders: could not be read",
+    verdict.fraudLabel ? `Fraud signal: ${verdict.fraudLabel}` : "Fraud signal: could not be read",
+    `Reason: ${verdict.reason}`,
+    `Answered by: ${verdict.miner}`,
+  ].join("\n");
+
+  logToolCall({
+    question: `check_token_safety: ${address}`,
+    intent: "TOKEN_HOLDER_COUNT",
+    minerName: verdict.miner,
+    direct: true,
+    answer: lines,
+    signalHash: verdict.signalHash,
+    paymentTx: null,
+    durationMs: Date.now() - startedAt,
+  });
+
+  return textResult(lines);
+}
+
 // ip-geolocate wants a literal IP, not a hostname, so a domain has to be
 // resolved with DNS first. A bare IP passed straight through is used as-is.
 async function resolveHostForGeo(domain) {
@@ -442,6 +495,23 @@ function registerTools(server) {
       },
     },
     async ({ url }) => checkLinkSafety({ url })
+  );
+
+  server.registerTool(
+    "check_token_safety",
+    {
+      title: "Check token contract safety",
+      description:
+        "Checks an EVM token contract address (not a wallet) for a healthy holder count and fraud signals, and returns a SAFE, CAUTION, or DANGEROUS verdict.",
+      inputSchema: {
+        address: z.string().describe("The token contract address to check, e.g. 0xabc...123"),
+        chain: z
+          .string()
+          .optional()
+          .describe("The chain the contract is on. Supported chains are eth and base, defaulting to eth."),
+      },
+    },
+    async ({ address, chain }) => checkTokenSafetyTool({ address, chain })
   );
 }
 

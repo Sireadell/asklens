@@ -36,8 +36,9 @@ const LINK_TITLES = {
 };
 
 const ADDRESS_TITLES = {
-  dangerous: "⚠ Dangerous wallet address copied",
-  safe: "✓ Wallet address looks clean",
+  dangerous: "⚠ Dangerous address copied",
+  caution: "⚠ Proceed carefully — thin or unclear signal",
+  safe: "✓ Address looks clean",
   unavailable: "AskLens: could not check this address",
 };
 

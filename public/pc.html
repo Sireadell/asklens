@@ -12,22 +12,22 @@
 <main class="product-main product-wrap clipguard-page">
   <div class="clipguard-copy">
     <p class="product-kicker"><i class="ti ti-clipboard-check" aria-hidden="true"></i>ClipGuard for Windows</p>
-    <h1>Check copied links and crypto addresses before you use them.</h1>
-    <p class="product-lead">Copy a web link or a crypto address. ClipGuard checks it with AskLens and shows the result in a Windows notification.</p>
+    <h1>Check copied links, wallets, and token contracts before you use them.</h1>
+    <p class="product-lead">Copy a web link or an <code>0x</code> address. ClipGuard tells a wallet from an Ethereum or Base token contract, runs the matching live AskLens check, and sends the result in a Windows notification.</p>
     <div class="clipguard-installs">
       <div class="clipguard-install is-primary"><i class="ti ti-brand-windows" aria-hidden="true"></i><div><strong>Windows app</strong><span>Unzip and run, no install</span></div><a class="product-primary" href="https://github.com/Sireadell/asklens/releases/download/v0.1.0-clipguard/AskLens.Clip.Guard-1.0.0-win.zip">Download for Windows</a></div>
       <div class="clipguard-install"><i class="ti ti-terminal-2" aria-hidden="true"></i><div><strong>Run from source</strong><span>For people with Node.js</span></div><button class="product-secondary" id="copy-setup" type="button">Copy setup commands</button></div>
       <p class="installer-note">This prototype is not code-signed yet, so Windows may warn about it or, on machines with Smart App Control on, block it outright. The commands above avoid that entirely.</p>
     </div>
   </div>
-  <div class="clipguard-visual" aria-label="An animation showing a copied crypto address receiving an AskLens safety check and Windows notification">
+  <div class="clipguard-visual" aria-label="An animation showing a copied token contract receiving an AskLens safety check and Windows notification">
     <div class="clipguard-copied"><span><i class="ti ti-clipboard"></i>Copied</span><strong>0x8d12A197cB00D4747a1fe03395095ce2A5CC6819</strong></div>
     <div class="clipguard-flow-line" aria-hidden="true"></div>
     <div class="clipguard-scanning"><i class="ti ti-shield-search"></i><span>Scanning with AskLens...</span></div>
     <div class="clipguard-flow-line second" aria-hidden="true"></div>
-    <div class="clipguard-toast"><i class="ti ti-shield-exclamation"></i><div><strong>Address needs review</strong><span>A live check found a risk signal.</span><small>Review before you send.</small></div><button type="button" aria-label="Notification settings"><i class="ti ti-settings"></i></button></div>
+    <div class="clipguard-toast"><i class="ti ti-shield-exclamation"></i><div><strong>Contract needs review</strong><span>A live check found a risk signal.</span><small>Review before you trade.</small></div><button type="button" aria-label="Notification settings"><i class="ti ti-settings"></i></button></div>
   </div>
-  <div class="product-facts"><span><i class="ti ti-world" aria-hidden="true"></i>Checks web links</span><span><i class="ti ti-brand-ethereum" aria-hidden="true"></i>Checks crypto addresses</span><span><i class="ti ti-circle-off" aria-hidden="true"></i>Everything else is ignored</span></div>
+  <div class="product-facts"><span><i class="ti ti-world" aria-hidden="true"></i>Checks web links</span><span><i class="ti ti-wallet" aria-hidden="true"></i>Checks wallet addresses</span><span><i class="ti ti-file-code" aria-hidden="true"></i>Checks token contracts on Ethereum and Base</span><span><i class="ti ti-circle-off" aria-hidden="true"></i>Everything else is ignored</span></div>
 </main>
 <script>
   document.getElementById("copy-setup").addEventListener("click", async (event) => {
