@@ -3,6 +3,7 @@
 // verdict, fast enough to show in a desktop notification.
 import { askMiner, EngineError } from "./telegraph.js";
 import { extractAnswer, extractConfidence } from "./answer.js";
+import { recordAnswered } from "./stats.js";
 
 // Three genuinely different backends that each return an immediate verdict
 // (no async submit-then-poll like urlscan.io or VirusTotal, which would blow
@@ -68,6 +69,7 @@ async function askOneMiner(miner, url, timeoutMs, retriesLeft = 1) {
       { method: miner.method, endpoint: miner.endpoint, payload: miner.payload(url) },
       { timeoutMs }
     );
+    recordAnswered({ intent: "URL_SCAN", minerName: miner.name });
     return {
       miner: miner.name,
       ok: true,

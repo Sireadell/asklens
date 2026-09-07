@@ -469,6 +469,8 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .product-secondary:hover { border-color: #fff; }
 .product-primary:disabled, .product-secondary:disabled { opacity: .45; cursor: not-allowed; }
 .product-note { max-width: 620px; margin: 13px 0 0; color: #c1cad5; font-size: 14px; }
+.product-note a { color: #2583ff; }
+.product-code { max-width: 620px; margin: 32px 0 0; padding: 18px 20px; border: 1px solid #34404d; background: #080c12; color: #dfe5ec; font-size: 14px; line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
 .product-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; max-width: 800px; margin-top: 70px; border-top: 1px solid #34404d; border-bottom: 1px solid #34404d; }
 .product-facts span { display: flex; align-items: center; gap: 14px; min-height: 80px; padding: 18px 20px; color: #dfe5ec; font-size: 15px; }
 .product-facts span + span { border-left: 1px solid #34404d; }

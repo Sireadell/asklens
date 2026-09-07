@@ -84,7 +84,7 @@ async function poll() {
   }
 }
 
-console.log("AskLens Clip Guard is watching your clipboard.");
+console.log("AskLens Clip Guard is ready — checking links you copy.");
 console.log(`Checking against: ${ASKLENS_URL}`);
 console.log("Copy a link to see it checked. Press Ctrl+C to stop.");
 setInterval(poll, POLL_MS);

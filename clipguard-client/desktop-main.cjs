@@ -1,8 +1,9 @@
-const { app, clipboard, Menu, Notification, Tray, nativeImage } = require("electron");
+const { app, clipboard, Menu, Notification, Tray, nativeImage, BrowserWindow } = require("electron");
 const fs = require("fs");
 const path = require("path");
 
 const ICON_PATH = path.join(__dirname, "icon.png");
+const STATUS_HTML_PATH = path.join(__dirname, "status.html");
 
 function logToFile(message) {
   try {
@@ -22,6 +23,32 @@ const URL_ONLY_RE = /^https?:\/\/\S+$/i;
 
 let lastChecked = "";
 let tray;
+let statusWindow;
+let isQuitting = false;
+
+function openStatusWindow() {
+  if (statusWindow && !statusWindow.isDestroyed()) {
+    statusWindow.show();
+    statusWindow.focus();
+    return;
+  }
+  statusWindow = new BrowserWindow({
+    width: 380,
+    height: 520,
+    title: "AskLens Clip Guard",
+    icon: ICON_PATH,
+    backgroundColor: "#0a0a0a",
+    autoHideMenuBar: true,
+    webPreferences: { nodeIntegration: true, contextIsolation: false },
+  });
+  statusWindow.loadFile(STATUS_HTML_PATH);
+  statusWindow.on("close", (event) => {
+    if (!isQuitting) {
+      event.preventDefault();
+      statusWindow.hide();
+    }
+  });
+}
 
 function startupPreferencePath() {
   return path.join(app.getPath("userData"), "settings.json");
@@ -50,6 +77,7 @@ function updateTray(status) {
   tray.setContextMenu(Menu.buildFromTemplate([
     { label: `Status: ${status}`, enabled: false },
     { type: "separator" },
+    { label: "Open Clip Guard", click: openStatusWindow },
     {
       label: "Start when I sign in",
       type: "checkbox",
@@ -57,12 +85,25 @@ function updateTray(status) {
       click: (item) => setStartWithWindows(item.checked),
     },
     { type: "separator" },
-    { label: "Quit Clip Guard", click: () => app.quit() },
+    {
+      label: "Quit Clip Guard",
+      click: () => {
+        isQuitting = true;
+        app.quit();
+      },
+    },
   ]));
+}
+
+function sendToStatusWindow(channel, payload) {
+  if (statusWindow && !statusWindow.isDestroyed()) {
+    statusWindow.webContents.send(channel, payload);
+  }
 }
 
 async function checkUrl(url) {
   updateTray("Checking copied link");
+  sendToStatusWindow("checking", url);
   try {
     const response = await fetch(ASKLENS_URL, {
       method: "POST",
@@ -85,10 +126,12 @@ async function checkUrl(url) {
     }[data.overall] || "No clear link verdict";
 
     showNotice(title, `${data.answeredCount}/${data.totalCount} miners answered${resultLine ? `: ${resultLine}` : ""}`);
-    updateTray("Watching your clipboard");
+    sendToStatusWindow("result", data);
+    updateTray("Ready — checking links you copy");
   } catch (error) {
     showNotice("AskLens could not check this link", error.message);
-    updateTray("Watching your clipboard");
+    sendToStatusWindow("error", { url, message: error.message });
+    updateTray("Ready — checking links you copy");
   }
 }
 
@@ -111,8 +154,11 @@ if (!gotLock) {
       app.setLoginItemSettings({ openAtLogin: startsWithWindows() });
       const icon = nativeImage.createFromPath(ICON_PATH);
       tray = new Tray(icon.isEmpty() ? nativeImage.createEmpty() : icon);
-      updateTray("Watching your clipboard");
+      tray.on("click", openStatusWindow);
+      tray.on("double-click", openStatusWindow);
+      updateTray("Ready — checking links you copy");
       startWatching();
+      openStatusWindow();
       showNotice("AskLens Clip Guard is on", "Copy a link and it will be checked before you paste it.");
     } catch (err) {
       logToFile(`startup failed: ${err.stack || err.message}`);
