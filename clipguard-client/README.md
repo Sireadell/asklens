@@ -8,7 +8,16 @@ Built for people with no company security filter standing between them and
 the links people send them: freelancers, remote workers, and anyone active
 in crypto or Discord communities.
 
-## Run it
+## Install on Windows
+
+Download **AskLens Clip Guard Setup.exe**, then double-click it once. Clip
+Guard starts quietly after you sign in to Windows and shows a notification
+whenever you copy a link.
+
+The installer is published in the project's GitHub Releases. Developers can
+also run it from source:
+
+## Run from source
 
 ```
 npm install
@@ -31,10 +40,5 @@ sources, not one source with three name tags:
 If they disagree, the notification shows that too, rather than a single
 falsely confident number.
 
-By default it talks to the hosted AskLens backend
-(`https://asklens-zoox.onrender.com`). To point it at a local AskLens server
-instead:
-
-```
-ASKLENS_URL="http://localhost:3000/api/clipguard/check-url" npm start
-```
+It checks copied links through the hosted AskLens service at
+`https://asklens-zoox.onrender.com`.

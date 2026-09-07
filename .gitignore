@@ -1,5 +1,7 @@
 node_modules/
 *.log
+clipguard-client/dist/
+clipguard-client/release/
 
 # The pay wallet's key lives here. Never commit it.
 .env
