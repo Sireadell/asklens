@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AskLens Clip Guard for PC</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" />
+<link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+<nav class="topnav">
+  <div class="wrap topnav-row">
+    <a class="brand" href="/"><i class="ti ti-shield-check" aria-hidden="true"></i>AskLens</a>
+    <div class="topnav-links">
+      <a href="/#intents">Intents</a>
+      <a href="/connect.html">Docs</a>
+      <a href="https://github.com/Sireadell/asklens" rel="noopener">GitHub</a>
+    </div>
+    <div class="topnav-actions">
+      <a class="pill" href="/connect.html">Add to your AI</a>
+      <a class="pill" href="/metamask.html">Add to MetaMask</a>
+      <a class="pill" href="/">Back to AskLens</a>
+    </div>
+  </div>
+</nav>
+
+<header class="subhero">
+  <div class="wrap">
+    <span class="eyebrow"><i class="ti ti-clipboard-check" aria-hidden="true"></i>Clip Guard</span>
+    <h1>AskLens Clip Guard for PC</h1>
+    <p class="tag">Copy a link, get a safety verdict before you ever paste it anywhere. No app to open, no habit to learn, it just watches what you already do.</p>
+  </div>
+</header>
+
+<main class="wrap connect-page">
+  <section class="notice">
+    <strong>Built for people with no security team watching their back.</strong> Freelancers, remote workers, and anyone active in crypto or Discord communities get sent links constantly. Clip Guard checks every copied link against several independent Telegraph miners the instant you copy it.
+  </section>
+
+  <section class="install-card">
+    <span class="step">1</span>
+    <h2>Get the client</h2>
+    <pre><code>git clone https://github.com/Sireadell/asklens.git
+cd asklens/clipguard-client
+npm install</code></pre>
+    <button class="copy" type="button" data-copy="git clone https://github.com/Sireadell/asklens.git
+cd asklens/clipguard-client
+npm install">Copy commands</button>
+  </section>
+
+  <section class="install-card">
+    <span class="step">2</span>
+    <h2>Run it</h2>
+    <pre><code>npm start</code></pre>
+    <button class="copy" type="button" data-copy="npm start">Copy command</button>
+    <p class="small">A small console window opens and keeps watching in the background. Leave it running.</p>
+  </section>
+
+  <section class="install-card">
+    <span class="step">3</span>
+    <h2>Copy any link</h2>
+    <p>Copy a URL from a DM, an email, or a group chat as you normally would. Within a few seconds a Windows notification tells you whether it's safe, suspicious, or dangerous, and which independent scanners agreed.</p>
+  </section>
+
+  <section class="safety-note">
+    <strong>What it checks against.</strong> NetWire, URL Sentinel, and Preflight, three separately built Telegraph miners, each pulling from different threat sources (live HTTP checks, URLhaus, OpenPhish, TLS validation). If they disagree, you see that too, not a false single confident number.
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p class="powered">Powered by <a href="https://telegraphprotocol.com" rel="noopener">Telegraph Protocol</a>. <a href="https://github.com/Sireadell/asklens" rel="noopener">View the source on GitHub</a>.</p>
+  </div>
+</footer>
+
+<script>
+  document.querySelectorAll("[data-copy]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      await navigator.clipboard.writeText(button.dataset.copy);
+      const original = button.textContent;
+      button.textContent = "Copied";
+      setTimeout(() => { button.textContent = original; }, 1600);
+    });
+  });
+</script>
+</body>
+</html>

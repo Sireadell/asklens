@@ -16,6 +16,7 @@ import { createAskLensServer } from "./mcp.js";
 import { assessWalletForSnap } from "./snap-wallet.js";
 import { createSnapRequestGuard } from "./snap-guard.js";
 import { createSnapWalletSafetyHandler } from "./snap-route.js";
+import { createClipguardHandler } from "./clipguard-route.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -183,6 +184,17 @@ app.post("/api/snap/wallet-safety", createSnapWalletSafetyHandler({
   guard: snapGuard,
   enabled: config.snapPublicDemoEnabled,
 }));
+
+// Clip Guard: the PC background app calls this the instant a link is
+// copied. Same shape as the Snap route above (a narrow endpoint behind a
+// rate/budget guard, real Telegraph miners on the other side).
+const clipguardGuard = createSnapRequestGuard({
+  usageFile: config.clipguardUsageFile,
+  perClientLimit: config.clipguardRateLimit,
+  windowMs: config.clipguardRateWindowMs,
+  dailyPaidLimit: config.clipguardDailyPaidLimit,
+});
+app.post("/api/clipguard/check-url", createClipguardHandler({ guard: clipguardGuard }));
 
 app.get("/api/health", (_req, res) => {
   res.json({

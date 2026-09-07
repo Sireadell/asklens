@@ -36,6 +36,10 @@ export const config = {
   snapRateLimit: int(process.env.SNAP_RATE_LIMIT, 5),
   snapRateWindowMs: int(process.env.SNAP_RATE_WINDOW_MS, 10 * 60 * 1000),
   snapDailyPaidLimit: int(process.env.SNAP_DAILY_PAID_LIMIT, 100),
+  clipguardUsageFile: process.env.CLIPGUARD_USAGE_FILE ?? "data/clipguard-usage.json",
+  clipguardRateLimit: int(process.env.CLIPGUARD_RATE_LIMIT, 10),
+  clipguardRateWindowMs: int(process.env.CLIPGUARD_RATE_WINDOW_MS, 10 * 60 * 1000),
+  clipguardDailyPaidLimit: int(process.env.CLIPGUARD_DAILY_PAID_LIMIT, 60),
   // Our own miners, used for the "second opinion" panel and for labelling
   // answers that came from a miner this project also operates.
   ownMiners: {

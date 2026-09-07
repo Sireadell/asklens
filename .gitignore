@@ -9,3 +9,4 @@ node_modules/
 # study cites them, and a reader should be able to check the numbers.
 data/stats.json
 data/snap-usage.json
+data/clipguard-usage.json

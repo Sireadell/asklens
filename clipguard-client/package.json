@@ -1,0 +1,17 @@
+{
+  "name": "asklens-clipguard-client",
+  "version": "1.0.0",
+  "description": "Watches the clipboard and checks copied links against live Telegraph miners before you paste them anywhere.",
+  "type": "module",
+  "main": "watch.js",
+  "scripts": {
+    "start": "node watch.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "clipboardy": "^3.0.0",
+    "node-notifier": "^10.0.1"
+  }
+}
