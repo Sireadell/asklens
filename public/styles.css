@@ -375,8 +375,10 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .product-lane > i { color: #2583ff; font-size: 38px; }
 .product-lane strong { font-size: 22px; }
 .product-lane span { max-width: 27ch; color: #c1cad5; font-size: 16px; line-height: 1.5; }
-.product-lane em { position: absolute; right: 22px; bottom: 34px; color: #2583ff; font-size: 25px; font-style: normal; }
+.product-lane em { position: absolute; right: 22px; bottom: 28px; display: inline-flex; align-items: center; gap: 10px; color: #2583ff; font-size: 14px; font-style: normal; font-weight: 650; }
+.product-lane em i { font-size: 22px; }
 .product-lane:hover { background: #0a1018; }
+.product-lane:hover em { color: #fff; }
 .home-proof { display: grid; grid-template-columns: .9fr 2.1fr; gap: 48px; padding: 64px 0; border-bottom: 1px solid #34404d; }
 .home-proof h2 { margin: 0; color: #fff; font-size: 41px; line-height: 1.2; }
 .proof-list { display: grid; grid-template-columns: repeat(3, 1fr); }
@@ -430,7 +432,7 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
   .product-rail, .proof-list { grid-template-columns: 1fr; }
   .product-lane { min-height: 0; padding: 24px 48px 24px 0; border-left: 0; border-top: 1px solid #34404d; }
   .product-lane:first-child { border-top: 0; }
-  .product-lane em { right: 4px; bottom: 35px; }
+  .product-lane em { right: 4px; bottom: 31px; }
   .home-proof { gap: 35px; padding: 45px 0; }
   .home-proof h2 { font-size: 33px; }
   .proof-list > div { padding: 22px 0; border-left: 0; border-top: 1px solid #34404d; }
