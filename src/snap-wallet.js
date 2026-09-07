@@ -1,5 +1,7 @@
 import { config } from "./config.js";
-import { isValidAddress } from "./mcp.js";
+import { isValidAddress, walletAssessRequest } from "./mcp.js";
+import { askMiner } from "./telegraph.js";
+import { recordAnswered } from "./stats.js";
 
 const CHAIN_BY_CAIP_ID = {
   "eip155:1": "eth",
@@ -39,7 +41,12 @@ export function snapWalletResult(body, address) {
   };
 }
 
-export async function assessWalletForSnap({ address, chainId }, fetchFn = fetch) {
+// Goes through Telegraph's paid engine rather than calling Sentinel's own URL
+// directly. Sentinel is our miner either way, but only the routed call is a
+// real Telegraph request: it settles x402 payment, is attributed to this app's
+// wallet on Telegraph's side, and counts toward the app's request numbers. A
+// direct call to the miner's host proves nothing about network usage.
+export async function assessWalletForSnap({ address, chainId }, fetchFn) {
   if (!isValidAddress(address)) {
     return { status: "unavailable", message: "This transaction has no valid recipient address to check." };
   }
@@ -49,15 +56,14 @@ export async function assessWalletForSnap({ address, chainId }, fetchFn = fetch)
     return { status: "unavailable", message: "Sentinel does not support this network yet." };
   }
 
+  const miner = config.ownMiners.sentinel;
   try {
-    const response = await fetchFn(`${config.sentinelDirectUrl}/assess-wallet`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify({ wallet: address }),
-      signal: AbortSignal.timeout(config.snapAskTimeoutMs),
+    const { body } = await askMiner(miner.id, walletAssessRequest(address, chain), {
+      timeoutMs: config.snapAskTimeoutMs,
+      ...(fetchFn ? { fetchFn } : {}),
     });
-    if (!response.ok) throw new Error(`Sentinel returned HTTP ${response.status}`);
-    return snapWalletResult(await response.json(), address);
+    recordAnswered({ intent: "WALLET_SAFETY", minerName: miner.name });
+    return snapWalletResult(body, address);
   } catch {
     return { status: "unavailable", message: "Sentinel could not check this address right now." };
   }

@@ -16,7 +16,7 @@ import { createAskLensServer } from "./mcp.js";
 import { assessWalletForSnap } from "./snap-wallet.js";
 import { createSnapRequestGuard } from "./snap-guard.js";
 import { createSnapWalletSafetyHandler } from "./snap-route.js";
-import { createClipguardHandler } from "./clipguard-route.js";
+import { createClipguardHandler, createClipguardWalletHandler } from "./clipguard-route.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -195,6 +195,7 @@ const clipguardGuard = createSnapRequestGuard({
   dailyPaidLimit: config.clipguardDailyPaidLimit,
 });
 app.post("/api/clipguard/check-url", createClipguardHandler({ guard: clipguardGuard }));
+app.post("/api/clipguard/check-wallet", createClipguardWalletHandler({ guard: clipguardGuard }));
 
 app.get("/api/health", (_req, res) => {
   res.json({

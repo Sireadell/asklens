@@ -5,13 +5,14 @@
 import clipboardy from "clipboardy";
 import notifier from "node-notifier";
 
-const ASKLENS_URL = process.env.ASKLENS_URL ?? "https://asklens-zoox.onrender.com/api/clipguard/check-url";
+const ASKLENS_BASE = process.env.ASKLENS_URL ?? "https://asklens-zoox.onrender.com/api/clipguard";
 const POLL_MS = 800;
 
-// Matches a whole clipboard entry that IS a URL, not a URL somewhere inside
-// a longer copied paragraph — pasting a document with a link in it should
-// not trigger a check on every copy.
+// Matches a whole clipboard entry that IS a URL or an address, not one buried
+// inside a longer copied paragraph — pasting a document with a link in it
+// should not trigger a check on every copy.
 const URL_ONLY_RE = /^https?:\/\/\S+$/i;
+const ADDRESS_ONLY_RE = /^0x[a-fA-F0-9]{40}$/;
 
 let lastChecked = "";
 
@@ -26,40 +27,58 @@ function notify(title, message, icon) {
   });
 }
 
-const VERDICT_DISPLAY = {
-  malicious: { title: "⚠ Dangerous link copied", icon: null },
-  suspicious: { title: "⚠ Suspicious link copied", icon: null },
-  safe: { title: "✓ Link looks safe", icon: null },
-  unavailable: { title: "AskLens: could not check this link", icon: null },
-  unknown: { title: "AskLens: no clear verdict", icon: null },
+const LINK_TITLES = {
+  malicious: "⚠ Dangerous link copied",
+  suspicious: "⚠ Suspicious link copied",
+  safe: "✓ Link looks safe",
+  unavailable: "AskLens: could not check this link",
+  unknown: "AskLens: no clear verdict",
 };
 
-async function checkUrl(url) {
-  console.log(`\nCopied: ${url}`);
+const ADDRESS_TITLES = {
+  dangerous: "⚠ Dangerous wallet address copied",
+  safe: "✓ Wallet address looks clean",
+  unavailable: "AskLens: could not check this address",
+};
+
+// A link verdict comes from several miners voting, a wallet verdict from
+// Sentinel alone, so each is flattened into one title and one detail line.
+function summarise(kind, data) {
+  if (kind === "link") {
+    const line = (data.results || [])
+      .filter((r) => r.ok)
+      .map((r) => `${r.miner}: ${r.verdict}`)
+      .join("  ·  ");
+    return {
+      title: LINK_TITLES[data.overall] ?? LINK_TITLES.unknown,
+      detail: `${data.answeredCount}/${data.totalCount} miners answered — ${line || "no results"}`,
+    };
+  }
+  return {
+    title: ADDRESS_TITLES[data.overall] ?? "AskLens: no clear wallet verdict",
+    detail: data.reason ? `${data.miner}: ${data.reason}` : `Checked by ${data.miner}.`,
+  };
+}
+
+async function check(kind, value) {
+  const isLink = kind === "link";
+  console.log(`\nCopied ${isLink ? "link" : "address"}: ${value}`);
   console.log("Checking with Telegraph miners...");
-  notify("AskLens Clip Guard", `Checking: ${url}`);
   try {
-    const res = await fetch(ASKLENS_URL, {
+    const res = await fetch(`${ASKLENS_BASE}/${isLink ? "check-url" : "check-wallet"}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url }),
+      body: JSON.stringify(isLink ? { url: value } : { address: value }),
     });
     const data = await res.json();
     if (!res.ok) {
       console.log("Could not check:", data.message);
-      notify("AskLens: could not check this link", data.message ?? "The check service is unavailable right now.");
+      notify("AskLens: could not check this", data.message ?? "The check service is unavailable right now.");
       return;
     }
-    const display = VERDICT_DISPLAY[data.overall] ?? VERDICT_DISPLAY.unknown;
-    const line = data.results
-      .filter((r) => r.ok)
-      .map((r) => `${r.miner}: ${r.verdict}`)
-      .join("  ·  ");
-    console.log(`Verdict: ${data.overall} (${data.answeredCount}/${data.totalCount} answered) — ${line}`);
-    notify(
-      display.title,
-      `${data.answeredCount}/${data.totalCount} miners answered — ${line || "no results"}`
-    );
+    const { title, detail } = summarise(kind, data);
+    console.log(`Verdict: ${data.overall} — ${detail}`);
+    notify(title, detail);
   } catch (err) {
     console.log("Error:", err.message);
     notify("AskLens: could not reach the check service", err.message);
@@ -69,13 +88,14 @@ async function checkUrl(url) {
 async function poll() {
   try {
     const text = (await clipboardy.read()).trim();
-    if (text && text !== lastChecked && URL_ONLY_RE.test(text)) {
+    const kind = URL_ONLY_RE.test(text) ? "link" : ADDRESS_ONLY_RE.test(text) ? "address" : null;
+    if (text && text !== lastChecked && kind) {
       lastChecked = text;
-      await checkUrl(text);
-    } else if (text !== lastChecked && !URL_ONLY_RE.test(text)) {
-      // Not a URL — remember it so a later copy of the SAME non-URL text
-      // doesn't accidentally get treated as "new" once a real URL is copied
-      // and then something is copied back.
+      await check(kind, text);
+    } else if (text !== lastChecked && !kind) {
+      // Not something we check — remember it anyway, so that copying the SAME
+      // ordinary text again later isn't mistaken for a fresh copy after a real
+      // link or address has been through in between.
       lastChecked = text;
     }
   } catch {
@@ -84,7 +104,7 @@ async function poll() {
   }
 }
 
-console.log("AskLens Clip Guard is ready — checking links you copy.");
-console.log(`Checking against: ${ASKLENS_URL}`);
-console.log("Copy a link to see it checked. Press Ctrl+C to stop.");
+console.log("AskLens Clip Guard is ready — checking links and wallet addresses you copy.");
+console.log(`Checking against: ${ASKLENS_BASE}`);
+console.log("Copy a link or a 0x wallet address to see it checked. Press Ctrl+C to stop.");
 setInterval(poll, POLL_MS);

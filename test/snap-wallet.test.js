@@ -16,15 +16,25 @@ test("turns Sentinel HIGH into a critical result", () => {
   assert.equal(result.reason, "Known exploiter.");
 });
 
-test("uses Sentinel's direct live wallet route", async () => {
+test("routes the wallet check through Telegraph's paid engine, not Sentinel's own host", async () => {
   let request;
   const result = await assessWalletForSnap({ address: BAD, chainId: "eip155:1" }, async (url, options) => {
     request = { url, options };
-    return new Response(JSON.stringify({ label: "LOW", reason: "No known fraud signals." }), { status: 200 });
+    return new Response(
+      JSON.stringify({ result: { label: "LOW", reason: "No known fraud signals." } }),
+      { status: 200, headers: { "Content-Type": "application/json" } }
+    );
   });
-  assert.match(request.url, /telegraph-sentinel.*\/assess-wallet/);
-  assert.equal(request.options.method, "POST");
-  assert.equal(request.options.body, JSON.stringify({ wallet: BAD }));
+
+  // A direct call to the miner's own host settles no x402 payment and is not
+  // attributed to this app on Telegraph's side, so it must not be used here.
+  assert.doesNotMatch(request.url, /telegraph-sentinel/);
+  assert.match(request.url, /\/v1\/ask\//);
+
+  const sent = JSON.parse(request.options.body);
+  assert.equal(sent.method, "POST");
+  assert.equal(sent.endpoint, "/assess-wallet");
+  assert.deepEqual(sent.payload, { wallet: BAD, chain: "eth" });
   assert.equal(result.status, "safe");
 });
 

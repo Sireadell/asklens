@@ -4,6 +4,9 @@
 import { askMiner, EngineError } from "./telegraph.js";
 import { extractAnswer, extractConfidence } from "./answer.js";
 import { recordAnswered } from "./stats.js";
+import { config } from "./config.js";
+import { walletAssessRequest } from "./mcp.js";
+import { snapWalletResult } from "./snap-wallet.js";
 
 // Three genuinely different backends that each return an immediate verdict
 // (no async submit-then-poll like urlscan.io or VirusTotal, which would blow
@@ -125,4 +128,46 @@ export async function checkUrlAcrossMiners(url, { timeoutMs = 9000 } = {}) {
     safe,
     results,
   };
+}
+
+// Copying a wallet address is the single highest-stakes copy action in crypto:
+// it is the step immediately before money moves. Two well-documented attacks
+// live in exactly that gap. Clipboard hijacking malware silently replaces the
+// address you copied with the attacker's, and address poisoning seeds a
+// lookalike address into your transaction history hoping you copy the wrong
+// one. Checking at the moment of the copy is the only point where either is
+// still catchable, before the paste, before the send.
+//
+// Unlike the URL check this asks one miner, not several: Sentinel is the only
+// miner on the network serving a wallet fraud verdict, and it happens to be
+// ours. The call still goes through Telegraph's paid engine, so it is a real
+// attributed network request, not a shortcut to our own host.
+export async function checkWalletAddress(address, { timeoutMs = 12000, chain = "eth", retriesLeft = 1 } = {}) {
+  const miner = config.ownMiners.sentinel;
+  try {
+    const { body } = await askMiner(miner.id, walletAssessRequest(address, chain), { timeoutMs });
+    recordAnswered({ intent: "WALLET_SAFETY", minerName: miner.name });
+
+    const verdict = snapWalletResult(body, address);
+    if (verdict.status === "unavailable") {
+      return { address, chain, overall: "unavailable", reason: verdict.message, miner: miner.name };
+    }
+    return {
+      address,
+      chain,
+      overall: verdict.status === "critical" ? "dangerous" : "safe",
+      label: verdict.label,
+      reason: verdict.reason,
+      confidence: verdict.confidence,
+      miner: verdict.miner ?? miner.name,
+    };
+  } catch (err) {
+    // Same transient payment race the URL checks hit: one retry after a short
+    // pause clears it almost every time, and the balance is not the problem.
+    if (retriesLeft > 0 && err instanceof EngineError && err.code === "PAYMENT_FAILED") {
+      await sleep(600);
+      return checkWalletAddress(address, { timeoutMs, chain, retriesLeft: retriesLeft - 1 });
+    }
+    return { address, chain, overall: "unavailable", reason: err.message, miner: miner.name };
+  }
 }

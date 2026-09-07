@@ -17,9 +17,16 @@ function logToFile(message) {
 process.on("uncaughtException", (err) => logToFile(`uncaughtException: ${err.stack || err.message}`));
 process.on("unhandledRejection", (err) => logToFile(`unhandledRejection: ${err?.stack || err}`));
 
-const ASKLENS_URL = "https://asklens-zoox.onrender.com/api/clipguard/check-url";
+const ASKLENS_BASE = "https://asklens-zoox.onrender.com/api/clipguard";
 const POLL_MS = 800;
+
+// Both patterns match a clipboard entry that IS the thing, not one that merely
+// contains it somewhere inside a longer copied paragraph, so copying a page of
+// text with a link or an address in it does not fire a check.
 const URL_ONLY_RE = /^https?:\/\/\S+$/i;
+const ADDRESS_ONLY_RE = /^0x[a-fA-F0-9]{40}$/;
+
+const READY_STATUS = "Ready — checking links and wallet addresses you copy";
 
 let lastChecked = "";
 let tray;
@@ -101,38 +108,64 @@ function sendToStatusWindow(channel, payload) {
   }
 }
 
-async function checkUrl(url) {
-  updateTray("Checking copied link");
-  sendToStatusWindow("checking", url);
+const LINK_TITLES = {
+  malicious: "Dangerous link copied",
+  suspicious: "Suspicious link copied",
+  safe: "Link looks safe",
+};
+
+const ADDRESS_TITLES = {
+  dangerous: "Dangerous wallet address copied",
+  safe: "Wallet address looks clean",
+};
+
+// A link verdict comes from several miners voting, a wallet verdict from
+// Sentinel alone, so each is flattened here into the one shape the status
+// window and the notification both read.
+function summarise(kind, data) {
+  if (kind === "link") {
+    const line = (data.results || [])
+      .filter((result) => result.ok)
+      .map((result) => `${result.miner}: ${result.verdict}`)
+      .join("  |  ");
+    return {
+      title: LINK_TITLES[data.overall] || "No clear link verdict",
+      detail: `${data.answeredCount}/${data.totalCount} miners answered${line ? `: ${line}` : ""}`,
+    };
+  }
+  return {
+    title: ADDRESS_TITLES[data.overall] || "No clear wallet verdict",
+    detail: data.reason ? `${data.miner}: ${data.reason}` : `Checked by ${data.miner}.`,
+  };
+}
+
+async function check(kind, value) {
+  const isLink = kind === "link";
+  updateTray(isLink ? "Checking copied link" : "Checking copied address");
+  sendToStatusWindow("checking", { key: value, kind });
+
   try {
-    const response = await fetch(ASKLENS_URL, {
+    const response = await fetch(`${ASKLENS_BASE}/${isLink ? "check-url" : "check-wallet"}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url }),
+      body: JSON.stringify(isLink ? { url: value } : { address: value }),
     });
     const data = await response.json();
     if (!response.ok) {
       throw new Error(data.message || "The check service is unavailable right now.");
     }
 
-    const resultLine = data.results
-      .filter((result) => result.ok)
-      .map((result) => `${result.miner}: ${result.verdict}`)
-      .join("  |  ");
-    const title = {
-      malicious: "Dangerous link copied",
-      suspicious: "Suspicious link copied",
-      safe: "Link looks safe",
-    }[data.overall] || "No clear link verdict";
-
-    showNotice(title, `${data.answeredCount}/${data.totalCount} miners answered${resultLine ? `: ${resultLine}` : ""}`);
-    sendToStatusWindow("result", data);
-    updateTray("Ready — checking links you copy");
+    const { title, detail } = summarise(kind, data);
+    showNotice(title, detail);
+    sendToStatusWindow("result", { key: value, kind, overall: data.overall, detail });
   } catch (error) {
-    showNotice("AskLens could not check this link", error.message);
-    sendToStatusWindow("error", { url, message: error.message });
-    updateTray("Ready — checking links you copy");
+    showNotice(
+      isLink ? "AskLens could not check this link" : "AskLens could not check this address",
+      error.message
+    );
+    sendToStatusWindow("error", { key: value, kind, message: error.message });
   }
+  updateTray(READY_STATUS);
 }
 
 function startWatching() {
@@ -140,7 +173,8 @@ function startWatching() {
     const text = clipboard.readText().trim();
     if (text === lastChecked) return;
     lastChecked = text;
-    if (URL_ONLY_RE.test(text)) checkUrl(text);
+    if (URL_ONLY_RE.test(text)) check("link", text);
+    else if (ADDRESS_ONLY_RE.test(text)) check("address", text);
   }, POLL_MS);
 }
 
@@ -156,10 +190,10 @@ if (!gotLock) {
       tray = new Tray(icon.isEmpty() ? nativeImage.createEmpty() : icon);
       tray.on("click", openStatusWindow);
       tray.on("double-click", openStatusWindow);
-      updateTray("Ready — checking links you copy");
+      updateTray(READY_STATUS);
       startWatching();
       openStatusWindow();
-      showNotice("AskLens Clip Guard is on", "Copy a link and it will be checked before you paste it.");
+      showNotice("AskLens Clip Guard is on", "Copy a link or a wallet address and it gets checked before you paste it.");
     } catch (err) {
       logToFile(`startup failed: ${err.stack || err.message}`);
     }

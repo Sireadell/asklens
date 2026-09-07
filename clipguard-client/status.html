@@ -47,7 +47,9 @@
   .badge.safe { background: #052e16; color: #4ade80; }
   .badge.suspicious { background: #422006; color: #fbbf24; }
   .badge.malicious { background: #450a0a; color: #f87171; }
+  .badge.dangerous { background: #450a0a; color: #f87171; }
   .badge.unknown, .badge.unavailable, .badge.checking { background: #262626; color: #a3a3a3; }
+  .kind { font-size: 11px; color: #525252; text-transform: uppercase; letter-spacing: 0.04em; }
   .miners { font-size: 12px; color: #737373; }
   .time { font-size: 11px; color: #525252; }
   footer {
@@ -62,10 +64,10 @@
 <body>
 <header>
   <div class="brand"><span class="dot"></span>AskLens Clip Guard</div>
-  <div class="status-line" id="status">Ready — checking links you copy</div>
+  <div class="status-line" id="status">Ready — checking links and wallet addresses you copy</div>
 </header>
 <main id="list">
-  <div class="empty">Copy any link (http:// or https://) and it will show up here checked in real time, backed by several independent Telegraph miners.</div>
+  <div class="empty">Copy a link (http:// or https://) or a wallet address (0x...) and it shows up here checked in real time, against live Telegraph miners.</div>
 </main>
 <footer>Runs in the background. Closing this window keeps it checking, use the tray icon to quit.</footer>
 <script>
@@ -74,44 +76,46 @@
   const statusEl = document.getElementById("status");
   let hasEntries = false;
 
-  function addChecking(url) {
+  const READY = "Ready — checking links and wallet addresses you copy";
+
+  function rowFor(key) {
+    return list.querySelector(`.row[data-key="${cssEscape(key)}"]`);
+  }
+
+  function addChecking(key, kind) {
     if (!hasEntries) { list.innerHTML = ""; hasEntries = true; }
     const row = document.createElement("div");
     row.className = "row";
-    row.dataset.url = url;
+    row.dataset.key = key;
     row.innerHTML = `
       <div class="row-top">
-        <span class="url">${escapeHtml(url)}</span>
+        <span class="url">${escapeHtml(key)}</span>
         <span class="badge checking">Checking</span>
       </div>
+      <div class="kind">${kind === "address" ? "Wallet address" : "Link"}</div>
       <div class="miners">Asking Telegraph miners...</div>
     `;
     list.prepend(row);
-    statusEl.textContent = "Checking a copied link...";
+    statusEl.textContent = kind === "address" ? "Checking a copied address..." : "Checking a copied link...";
   }
 
-  function updateResult(data) {
-    statusEl.textContent = "Ready — checking links you copy";
-    const row = list.querySelector(`.row[data-url="${cssEscape(data.url)}"]`);
+  function updateResult(key, overall, detail) {
+    statusEl.textContent = READY;
+    const row = rowFor(key);
     if (!row) return;
     const badge = row.querySelector(".badge");
-    badge.className = `badge ${data.overall}`;
-    badge.textContent = data.overall;
-    const line = (data.results || [])
-      .filter((r) => r.ok)
-      .map((r) => `${r.miner}: ${r.verdict}`)
-      .join("  \u00b7  ");
-    row.querySelector(".miners").textContent =
-      `${data.answeredCount}/${data.totalCount} miners answered${line ? " \u2014 " + line : ""}`;
+    badge.className = `badge ${overall}`;
+    badge.textContent = overall;
+    row.querySelector(".miners").textContent = detail;
     const time = document.createElement("div");
     time.className = "time";
     time.textContent = new Date().toLocaleTimeString();
     row.appendChild(time);
   }
 
-  function updateError(url, message) {
-    statusEl.textContent = "Ready — checking links you copy";
-    const row = list.querySelector(`.row[data-url="${cssEscape(url)}"]`);
+  function updateError(key, message) {
+    statusEl.textContent = READY;
+    const row = rowFor(key);
     if (!row) return;
     const badge = row.querySelector(".badge");
     badge.className = "badge unavailable";
@@ -126,9 +130,9 @@
     return s.replace(/["\\]/g, "\\$&");
   }
 
-  ipcRenderer.on("checking", (_e, url) => addChecking(url));
-  ipcRenderer.on("result", (_e, data) => updateResult(data));
-  ipcRenderer.on("error", (_e, { url, message }) => updateError(url, message));
+  ipcRenderer.on("checking", (_e, { key, kind }) => addChecking(key, kind));
+  ipcRenderer.on("result", (_e, { key, overall, detail }) => updateResult(key, overall, detail));
+  ipcRenderer.on("error", (_e, { key, message }) => updateError(key, message));
 </script>
 </body>
 </html>
