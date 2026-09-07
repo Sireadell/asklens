@@ -13,19 +13,24 @@
   <div class="clipguard-copy">
     <p class="product-kicker"><i class="ti ti-clipboard-check" aria-hidden="true"></i>ClipGuard for Windows</p>
     <h1>Check a copied link<br />before you open it.</h1>
-    <p class="product-lead">ClipGuard securely checks copied links before you paste them into your browser.</p>
-    <pre class="product-code"><code>git clone https://github.com/Sireadell/asklens.git
-cd asklens/clipguard-client
-npm install
-npm run watch</code></pre>
-    <p class="product-note">Recommended: runs as a plain script, nothing to install system-wide, works on any machine.</p>
-    <p class="product-note"><a href="https://github.com/Sireadell/asklens/releases/download/v0.1.0-clipguard/AskLens.Clip.Guard.Setup.1.0.0.exe">Prefer a one-click installer instead?</a> It's not code-signed yet, so some Windows security settings may block or warn on it. If that happens, use the commands above instead.</p>
+    <p class="product-lead">ClipGuard checks complete web links with live safety intelligence and shows a Windows alert when the result is ready.</p>
+    <div class="clipguard-installs">
+      <div class="clipguard-install is-primary"><i class="ti ti-brand-windows" aria-hidden="true"></i><div><strong>Windows installer</strong><span>Simplest option for most people</span></div><a class="product-primary" href="https://github.com/Sireadell/asklens/releases/download/v0.1.0-clipguard/AskLens.Clip.Guard.Setup.1.0.0.exe">Download for Windows</a></div>
+      <p class="installer-note">Windows may show a security warning because this prototype is not code-signed yet.</p>
+      <div class="clipguard-install"><i class="ti ti-terminal-2" aria-hidden="true"></i><div><strong>Run from source</strong><span>For people with Node.js</span></div><button class="product-secondary" id="copy-setup" type="button">Copy setup commands</button></div>
+    </div>
   </div>
   <div class="clipguard-visual" aria-label="An animation showing a copied link being checked and a Windows alert appearing">
-    <div class="clipguard-window"><span></span><span></span><span></span><div class="clipguard-address"><i class="ti ti-link"></i><b></b></div><div class="clipguard-shield"><i class="ti ti-shield-check"></i></div><div class="clipguard-scan"></div></div>
-    <div class="clipguard-toast"><i class="ti ti-shield-check"></i><span></span><b></b></div>
+    <div class="clipguard-window"><span></span><span></span><span></span><div class="clipguard-address"><i class="ti ti-lock"></i><b>https://www.microsoft.com</b></div><div class="clipguard-shield"><i class="ti ti-shield-check"></i></div><div class="clipguard-scan"></div></div>
+    <div class="clipguard-toast"><i class="ti ti-shield-check"></i><div><strong>Link checked</strong><span>microsoft.com</span></div></div>
   </div>
   <div class="product-facts"><span><i class="ti ti-lock" aria-hidden="true"></i>Only complete web links are checked</span><span><i class="ti ti-device-desktop" aria-hidden="true"></i>Runs quietly from your Windows notification area</span><span><i class="ti ti-brand-github" aria-hidden="true"></i>Fully open source, <a href="https://github.com/Sireadell/asklens/blob/main/clipguard-client/desktop-main.cjs">read the code yourself</a></span><span><i class="ti ti-eye-off" aria-hidden="true"></i>Nothing leaves your PC unless it's a full web link, everything else you copy is ignored and never sent anywhere</span></div>
 </main>
+<script>
+  document.getElementById("copy-setup").addEventListener("click", async (event) => {
+    await navigator.clipboard.writeText("git clone https://github.com/Sireadell/asklens.git\ncd asklens/clipguard-client\nnpm install\nnpm run watch");
+    event.currentTarget.textContent = "Commands copied";
+  });
+</script>
 </body>
 </html>
