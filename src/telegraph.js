@@ -110,10 +110,10 @@ export async function postToEngine(path, body, { timeoutMs = config.askTimeoutMs
 
 // Auto-routed ask: Telegraph's own router reads the question, picks the intent
 // and the miner, and tells us why.
-export function ask(query, context) {
+export function ask(query, context, options) {
   const payload = { query };
   if (context && Object.keys(context).length > 0) payload.context = context;
-  return postToEngine("/v1/ask", payload);
+  return postToEngine("/v1/ask", payload, options);
 }
 
 // Direct ask: we name the miner ourselves. Used for the second-opinion panel,

@@ -55,6 +55,65 @@ ClipGuard asks the chain itself which one it is (a free, instant
 Only an item that is exactly a web link or `0x` address is sent for checking.
 Other copied text is ignored and never sent anywhere.
 
+## Why some checks go straight to a miner, and some let Telegraph choose
+
+Telegraph can pick the miner for you. You describe what you need and its router
+sends the request to whichever miner currently ranks best for that job. That is
+the network working as intended, and it is what we want to use wherever we can.
+
+Two of our checks do not use it, and the reason is measured rather than
+preferred. On 2026-09-04 we sent ten wallet-fraud requests through Telegraph's
+automatic routing and all ten failed before a miner was chosen. The same ten
+addresses, asked of Telegraph Sentinel by ID, returned ten answers. A day
+earlier, when routing did complete, fraud questions reached a documentation
+miner and a prompt-injection detector, neither of which can assess a wallet.
+
+So the rule is simple. A signal the safety verdict rests on goes to a miner we
+know answers it. A signal that adds context around that verdict goes through
+Telegraph's router.
+
+| Signal | How it is called | Why |
+|---|---|---|
+| Fraud check, wallet and token | Direct to Telegraph Sentinel | Automatic routing returned nothing on all ten of our test requests. This is the signal a dangerous verdict rests on. |
+| Holder count | Direct to TxLens | The same category of risk. We did not move a safety-critical signal onto a path we had not proven. |
+| Token price | Telegraph's router (`CRYPTO_PRICE`) | Context only, never changes the verdict, so the router's own reliability is an acceptable risk here. |
+
+We also looked for two more signals a token check could use, and neither made
+it in:
+
+**Total value locked, dropped.** We asked the router for USDC's TVL by contract
+address on 2026-09-08. It answered with confidence 1 and no visible error, and
+the number it returned was Ethereum's TVL, labelled `token_symbol: "ETH"`, not
+USDC's. A router that fails is a nuisance. A router that answers the wrong
+question with full confidence is worse, since it looks exactly like a correct
+answer. We are not shipping a signal that can do that.
+
+**Honeypot detection, not available at all.** Exactly one miner on the live
+network claims this, TrustGate (registered id 8421), described as detecting
+"honeypot patterns, wash trading, holder concentration." Telegraph lists it as
+active and scored it as recently as this morning, ranked 12th on
+`FRAUD_DETECTION`. Its declared endpoint, and the one in its own published
+spec, both return HTTP 404. It is being ranked and shown as available while
+unable to answer a single request. We checked our own reachability against it
+in the same minute with Sentinel, which answered normally, so this is
+TrustGate's outage, not ours.
+
+**The router itself, retested same-day.** On 2026-09-08 we ran the price and
+TVL calls above seven times through automatic routing. Two succeeded quickly.
+Five failed, four of them timing out at 61 to 62 seconds before returning
+HTTP 504. That is the real number worth knowing if you are building on
+Telegraph: a path that can take over a minute to fail cannot sit anywhere on
+a product that has to answer before someone finishes pasting, no matter how
+good the eventual answer is. This is why the new price signal above is capped
+at 6 seconds client-side and simply omitted if it does not make it back in
+time, rather than left to run its full course.
+
+The fix we would suggest is to let a request declare the evidence it needs, such
+as a sanctions lookup or a funding-pattern check, so the router can drop miners
+that cannot provide it before ranking the rest. Competition stays exactly as it
+is, and a wallet investigation stops landing on a miner that reads text for
+prompt injection or one whose endpoint no longer exists.
+
 ## Telegraph team feedback
 
 Before shipping ClipGuard, we asked the Telegraph team how a multi-miner URL

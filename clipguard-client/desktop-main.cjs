@@ -120,6 +120,16 @@ const ADDRESS_TITLES = {
   safe: "Address looks clean",
 };
 
+// Best-effort context only, so it is fine that this rarely has a value —
+// Telegraph's price router took 20-60s+ in live testing, longer than this
+// app waits, so most checks simply run without it.
+function formatPriceUsd(price) {
+  if (typeof price !== "number" || !Number.isFinite(price)) return null;
+  if (price >= 1) return price.toFixed(2);
+  if (price >= 0.01) return price.toFixed(4);
+  return price.toPrecision(3);
+}
+
 // A link verdict comes from several miners voting, a wallet verdict from
 // Sentinel alone, so each is flattened here into the one shape the status
 // window and the notification both read.
@@ -134,9 +144,11 @@ function summarise(kind, data) {
       detail: `${data.answeredCount}/${data.totalCount} miners answered${line ? `: ${line}` : ""}`,
     };
   }
+  const formattedPrice = formatPriceUsd(data.priceUsd);
+  const base = data.reason ? `${data.miner}: ${data.reason}` : `Checked by ${data.miner}.`;
   return {
     title: ADDRESS_TITLES[data.overall] || "No clear wallet verdict",
-    detail: data.reason ? `${data.miner}: ${data.reason}` : `Checked by ${data.miner}.`,
+    detail: formattedPrice ? `${base} Trading at $${formattedPrice}.` : base,
   };
 }
 

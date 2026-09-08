@@ -11,12 +11,19 @@
 //   - A Sentinel fraud signal at HIGH/CRITICAL always wins, regardless of
 //     holder count, same as the existing wallet check.
 import { config } from "./config.js";
-import { askMiner, EngineError } from "./telegraph.js";
+import { askMiner, ask, EngineError } from "./telegraph.js";
 import { intentInfo } from "./intents.js";
 import { walletAssessRequest } from "./mcp.js";
 import { snapWalletResult } from "./snap-wallet.js";
 
 const MIN_HEALTHY_HOLDERS = 10;
+
+// Telegraph's auto-router answers CRYPTO_PRICE, but live testing (2026-09-08)
+// showed successful answers taking 20-60+ seconds. Price never changes the
+// verdict, so it is not worth slowing every check down to match that. This
+// timeout is short on purpose: most of the time price will not make it back
+// in time and the check simply runs without it, which is the point.
+const PRICE_TIMEOUT_MS = 6000;
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -62,6 +69,36 @@ async function fetchFraudSignal(address, chain, timeoutMs, retriesLeft = 1) {
   }
 }
 
+// Auto-routed, not Direct Ask: price is context, not a signal the verdict
+// rests on, so it is the one call in this file that lets Telegraph pick the
+// miner. A short client-side timeout only stops us from waiting on a slow
+// answer; it does not undo a payment already in flight server-side, so a
+// timed-out call can still be a paid one. Not retried, on purpose: retrying
+// a call this slow would only double the chance of paying for an answer we
+// then throw away.
+async function fetchPrice(address, chain) {
+  try {
+    const chainName = chain === "base" ? "Base" : "Ethereum";
+    const query = `What is the current USD price of the token at contract address ${address} on ${chainName}?`;
+    const { body } = await ask(query, undefined, { timeoutMs: PRICE_TIMEOUT_MS });
+    const data = body?.result?.data ?? body?.result ?? {};
+    const price = typeof data.price_usd === "number" ? data.price_usd : null;
+    return { ok: price !== null, price, miner: body?.miner_name ?? null };
+  } catch {
+    return { ok: false, price: null };
+  }
+}
+
+// Anything from a fraction of a cent to a stablecoin to a large-cap token,
+// shown with enough precision to be meaningful at each scale without a wall
+// of trailing zeros.
+export function formatPriceUsd(price) {
+  if (typeof price !== "number" || !Number.isFinite(price)) return null;
+  if (price >= 1) return price.toFixed(2);
+  if (price >= 0.01) return price.toFixed(4);
+  return price.toPrecision(3);
+}
+
 export function holderFlag(holders) {
   if (!holders.ok || holders.count === null) return "unknown";
   if (holders.count === 0) return "none";
@@ -98,9 +135,10 @@ export function deriveTokenVerdict(holders, fraud) {
 }
 
 export async function checkTokenSafety(address, { chain = "eth", timeoutMs = 12000 } = {}) {
-  const [holders, fraud] = await Promise.all([
+  const [holders, fraud, price] = await Promise.all([
     fetchHolderCount(address, chain, timeoutMs),
     sleep(900).then(() => fetchFraudSignal(address, chain, timeoutMs)),
+    sleep(1800).then(() => fetchPrice(address, chain)),
   ]);
 
   const { overall, reason } = deriveTokenVerdict(holders, fraud);
@@ -111,6 +149,7 @@ export async function checkTokenSafety(address, { chain = "eth", timeoutMs = 120
     overall,
     holderCount: holders.ok ? holders.count : null,
     fraudLabel: fraud.label ?? null,
+    priceUsd: price.ok ? price.price : null,
     reason,
     miner: `${holders.miner ?? config.ownMiners.txlens.name} + ${config.ownMiners.sentinel.name}`,
     signalHash: fraud.signalHash ?? null,

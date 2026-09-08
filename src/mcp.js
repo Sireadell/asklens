@@ -21,7 +21,7 @@ import { logAsk } from "./asklog.js";
 import { recordAnswered } from "./stats.js";
 import { intentInfo } from "./intents.js";
 import { isContractAddress } from "./chain.js";
-import { checkTokenSafety } from "./token-safety.js";
+import { checkTokenSafety, formatPriceUsd } from "./token-safety.js";
 
 const EVM_ADDRESS_RE = /^0x[a-fA-F0-9]{40}$/;
 
@@ -288,9 +288,10 @@ async function checkTokenSafetyTool({ address, chain }) {
     `Token safety verdict: ${verdict.overall.toUpperCase()}`,
     verdict.holderCount !== null ? `Holders: ${verdict.holderCount}` : "Holders: could not be read",
     verdict.fraudLabel ? `Fraud signal: ${verdict.fraudLabel}` : "Fraud signal: could not be read",
+    verdict.priceUsd !== null ? `Price: $${formatPriceUsd(verdict.priceUsd)} (context only, does not affect the verdict)` : null,
     `Reason: ${verdict.reason}`,
     `Answered by: ${verdict.miner}`,
-  ].join("\n");
+  ].filter(Boolean).join("\n");
 
   logToolCall({
     question: `check_token_safety: ${address}`,
