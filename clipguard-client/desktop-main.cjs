@@ -1,6 +1,12 @@
 const { app, clipboard, Menu, Notification, Tray, nativeImage, BrowserWindow } = require("electron");
+const { execFileSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
+
+// ClipGuard's normal state is an invisible tray app. A background safety
+// watcher should not need a visible window, and disabling GPU work avoids
+// keeping a graphics process alive merely to read the clipboard and notify.
+app.disableHardwareAcceleration();
 
 const ICON_PATH = path.join(__dirname, "icon.png");
 const STATUS_HTML_PATH = path.join(__dirname, "status.html");
@@ -19,6 +25,7 @@ process.on("unhandledRejection", (err) => logToFile(`unhandledRejection: ${err?.
 
 const ASKLENS_BASE = "https://asklens-zoox.onrender.com/api/clipguard";
 const POLL_MS = 800;
+const BACKGROUND_ARG = "--background";
 
 // Both patterns match a clipboard entry that IS the thing, not one that merely
 // contains it somewhere inside a longer copied paragraph, so copying a page of
@@ -32,6 +39,10 @@ let lastChecked = "";
 let tray;
 let statusWindow;
 let isQuitting = false;
+
+function startedInBackground() {
+  return process.argv.includes(BACKGROUND_ARG);
+}
 
 function openStatusWindow() {
   if (statusWindow && !statusWindow.isDestroyed()) {
@@ -49,11 +60,10 @@ function openStatusWindow() {
     webPreferences: { nodeIntegration: true, contextIsolation: false },
   });
   statusWindow.loadFile(STATUS_HTML_PATH);
-  statusWindow.on("close", (event) => {
-    if (!isQuitting) {
-      event.preventDefault();
-      statusWindow.hide();
-    }
+  // The protection service stays alive in the tray, but the optional status
+  // window is discarded when closed so it does not keep browser memory alive.
+  statusWindow.on("closed", () => {
+    statusWindow = undefined;
   });
 }
 
@@ -72,7 +82,31 @@ function startsWithWindows() {
 function setStartWithWindows(enabled) {
   fs.mkdirSync(app.getPath("userData"), { recursive: true });
   fs.writeFileSync(startupPreferencePath(), JSON.stringify({ startWithWindows: enabled }));
-  app.setLoginItemSettings({ openAtLogin: enabled });
+  app.setLoginItemSettings({
+    openAtLogin: enabled,
+    path: process.execPath,
+    args: [BACKGROUND_ARG],
+  });
+
+  // Electron's Windows auto-start API is not reliably creating a Run entry
+  // for this packaged app. Write the same explicit command as a fallback so
+  // the safety watcher starts after every sign-in, not only after the user
+  // opens it by hand.
+  if (app.isPackaged) {
+    const key = "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run";
+    try {
+      if (enabled) {
+        execFileSync("reg.exe", [
+          "add", key, "/v", "AskLens Clip Guard", "/t", "REG_SZ",
+          "/d", `\"${process.execPath}\" ${BACKGROUND_ARG}`, "/f",
+        ], { windowsHide: true });
+      } else {
+        execFileSync("reg.exe", ["delete", key, "/v", "AskLens Clip Guard", "/f"], { windowsHide: true });
+      }
+    } catch (err) {
+      logToFile(`could not update Windows startup: ${err.message}`);
+    }
+  }
 }
 
 function showNotice(title, body) {
@@ -120,7 +154,7 @@ const ADDRESS_TITLES = {
   safe: "Address looks clean",
 };
 
-// Best-effort context only, so it is fine that this rarely has a value —
+// Context only, so it is fine that this rarely has a value.
 // Telegraph's price router took 20-60s+ in live testing, longer than this
 // app waits, so most checks simply run without it.
 function formatPriceUsd(price) {
@@ -191,22 +225,33 @@ function startWatching() {
   }, POLL_MS);
 }
 
+logToFile(`launch requested (background=${startedInBackground()})`);
 const gotLock = app.requestSingleInstanceLock();
+logToFile(`single-instance lock=${gotLock}`);
 if (!gotLock) {
   app.quit();
 } else {
+  app.on("second-instance", () => {
+    // A normal launch while ClipGuard is already protecting in the tray
+    // should bring the status window back, not silently do nothing.
+    if (app.isReady()) openStatusWindow();
+  });
   app.whenReady().then(() => {
     try {
+      logToFile("Electron ready");
       app.setAppUserModelId("com.asklens.clipguard");
-      app.setLoginItemSettings({ openAtLogin: startsWithWindows() });
+      setStartWithWindows(startsWithWindows());
       const icon = nativeImage.createFromPath(ICON_PATH);
       tray = new Tray(icon.isEmpty() ? nativeImage.createEmpty() : icon);
       tray.on("click", openStatusWindow);
       tray.on("double-click", openStatusWindow);
       updateTray(READY_STATUS);
       startWatching();
-      openStatusWindow();
-      showNotice("AskLens Clip Guard is on", "Copy a link or a wallet address and it gets checked before you paste it.");
+      logToFile("tray watcher started");
+      if (!startedInBackground()) {
+        openStatusWindow();
+        showNotice("AskLens Clip Guard is on", "Copy a link or a wallet address and it gets checked before you paste it.");
+      }
     } catch (err) {
       logToFile(`startup failed: ${err.stack || err.message}`);
     }
@@ -214,3 +259,10 @@ if (!gotLock) {
 }
 
 app.on("window-all-closed", (event) => event.preventDefault());
+// Electron otherwise exits when no BrowserWindow exists. ClipGuard deliberately
+// starts without one, so veto implicit quit requests and only exit through the
+// explicit tray command, which sets isQuitting first.
+app.on("before-quit", (event) => {
+  if (!isQuitting) event.preventDefault();
+});
+app.on("activate", openStatusWindow);
