@@ -34,6 +34,17 @@ have opened it.
 ClipGuard checks a complete copied web link or `0x` wallet address and sends a
 Windows notification when the result is ready.
 
+### Background protection
+
+ClipGuard starts with Windows and runs quietly in the system tray. Closing the
+status window does not stop protection. The watcher keeps checking complete
+links and wallet addresses copied to the clipboard, then shows a Windows
+notification when the result is ready.
+
+In an idle Windows Task Manager check on September 9, 2026, the three ClipGuard
+background processes used 9.6 MB combined. That is an observed test result, not
+a guaranteed amount for every computer.
+
 ## One link, three live opinions
 
 For a copied web link, ClipGuard asks **NetWire, URL Sentinel, and Preflight**
