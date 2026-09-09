@@ -6,6 +6,11 @@ Live safety checks for the copied link, copied wallet address, or AI answer
 you're about to trust. AskLens brings live Telegraph intelligence to those
 moments without making you leave the workflow you are in.
 
+## Watch AskLens work
+
+- [ClipGuard on Windows: copy a link and receive a live Telegraph safety result](https://x.com/Sireadell/status/2097041436650676576?s=20)
+- [AskLens MCP: bring live Telegraph intelligence into Claude and ChatGPT](https://x.com/Sireadell/status/2096357846019346633?s=20)
+
 | Start here | Link |
 |---|---|
 | ClipGuard for Windows | [Open ClipGuard](https://asklens-zoox.onrender.com/pc.html) |
