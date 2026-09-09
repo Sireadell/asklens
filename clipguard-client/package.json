@@ -30,7 +30,7 @@
     "win": {
       "target": "nsis",
       "icon": "icon-large.png",
-      "signAndEditExecutable": false
+      "signAndEditExecutable": true
     },
     "nsis": {
       "oneClick": true,
