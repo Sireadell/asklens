@@ -4,6 +4,7 @@ import {
   chooseRankedUrlMiners,
   classifyUrlVerdict,
   createUrlMinerSelector,
+  aggregateUrlVerdict,
 } from "../src/clipguard.js";
 
 const definitions = {
@@ -124,4 +125,26 @@ test("treats ProofGate's incompatible and contradictory verdicts as unknown", ()
   assert.equal(classifyUrlVerdict({ verdict: "no_threat_signal" }), "unknown");
   assert.equal(classifyUrlVerdict({ verdict: "no_threat_signal", malicious: false }), "unknown");
   assert.equal(classifyUrlVerdict({ verdict: "safe", malicious: true }), "unknown");
+});
+
+test("does not call a link safe when any reviewed miner is missing or unclear", () => {
+  assert.equal(aggregateUrlVerdict([
+    { ok: true, verdict: "safe" },
+    { ok: false, error: "timed out" },
+    { ok: true, verdict: "safe" },
+  ], 3).overall, "caution");
+
+  assert.equal(aggregateUrlVerdict([
+    { ok: true, verdict: "safe" },
+    { ok: true, verdict: "unknown" },
+    { ok: true, verdict: "safe" },
+  ], 3).overall, "caution");
+});
+
+test("calls a link safe only when every reviewed miner returns safe", () => {
+  assert.equal(aggregateUrlVerdict([
+    { ok: true, verdict: "safe" },
+    { ok: true, verdict: "safe" },
+    { ok: true, verdict: "safe" },
+  ], 3).overall, "safe");
 });

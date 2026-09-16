@@ -241,27 +241,39 @@ export async function checkUrlAcrossMiners(url, { timeoutMs = 9000 } = {}) {
     })
   );
   const results = settled.map((s) => (s.status === "fulfilled" ? s.value : { ok: false, error: "internal error" }));
-  const answered = results.filter((r) => r.ok);
-
-  const malicious = answered.filter((r) => r.verdict === "malicious").length;
-  const suspicious = answered.filter((r) => r.verdict === "suspicious").length;
-  const safe = answered.filter((r) => r.verdict === "safe").length;
-
-  let overall = "unknown";
-  if (answered.length === 0) overall = "unavailable";
-  else if (malicious > 0) overall = "malicious";
-  else if (suspicious > 0) overall = "suspicious";
-  else if (safe > 0) overall = "safe";
+  const verdict = aggregateUrlVerdict(results, selectedMiners.length);
 
   return {
     url,
+    ...verdict,
+    totalCount: selectedMiners.length,
+    results,
+  };
+}
+
+// A partial clean result is not a clean bill of health. A slow, unavailable,
+// or incompatible miner must turn an otherwise-safe link result into caution,
+// so Clip Guard never calls a link safe on one incomplete answer.
+export function aggregateUrlVerdict(results, totalCount = results.length) {
+  const answered = results.filter((result) => result?.ok);
+  const malicious = answered.filter((result) => result.verdict === "malicious").length;
+  const suspicious = answered.filter((result) => result.verdict === "suspicious").length;
+  const safe = answered.filter((result) => result.verdict === "safe").length;
+  const unknown = answered.length - malicious - suspicious - safe;
+
+  let overall = "caution";
+  if (answered.length === 0) overall = "unavailable";
+  else if (malicious > 0) overall = "malicious";
+  else if (suspicious > 0) overall = "suspicious";
+  else if (safe === totalCount && answered.length === totalCount) overall = "safe";
+
+  return {
     overall,
     answeredCount: answered.length,
-    totalCount: selectedMiners.length,
     malicious,
     suspicious,
     safe,
-    results,
+    unknown,
   };
 }
 

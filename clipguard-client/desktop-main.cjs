@@ -195,13 +195,16 @@ function proofItems(kind, data) {
 const LINK_TITLES = {
   malicious: "Dangerous link copied",
   suspicious: "Suspicious link copied",
+  caution: "Link needs a second look",
   safe: "Link looks safe",
+  unavailable: "Link could not be checked",
 };
 
 const ADDRESS_TITLES = {
   dangerous: "Dangerous address copied",
   caution: "Proceed carefully — thin or unclear signal",
   safe: "Address looks clean",
+  unavailable: "Address could not be checked",
 };
 
 // Context only, so it is fine that this rarely has a value.
@@ -225,7 +228,7 @@ function summarise(kind, data) {
       .join("  |  ");
     return {
       title: LINK_TITLES[data.overall] || "No clear link verdict",
-      detail: `${data.answeredCount}/${data.totalCount} miners answered${line ? `: ${line}` : ""}`,
+      detail: `${data.answeredCount}/${data.totalCount} miners answered${data.overall === "caution" ? ". Do not treat an incomplete result as safe." : ""}${line ? `: ${line}` : ""}`,
     };
   }
   const formattedPrice = formatPriceUsd(data.priceUsd);
@@ -268,11 +271,23 @@ async function check(kind, value, { addressChanged = false } = {}) {
     sendToStatusWindow("result", entry);
     if (entries) sendToStatusWindow("history", { entries });
   } catch (error) {
+    const entry = {
+      key: value,
+      kind,
+      overall: "unavailable",
+      title: isLink ? "Link could not be checked" : "Address could not be checked",
+      detail: error.message,
+      addressChanged,
+      proofs: [],
+      checkedAt: new Date().toISOString(),
+    };
+    const entries = saveActivity(entry);
     showNotice(
-      isLink ? "AskLens could not check this link" : "AskLens could not check this address",
+      entry.title,
       error.message
     );
     sendToStatusWindow("error", { key: value, kind, message: error.message });
+    if (entries) sendToStatusWindow("history", { entries });
   }
   updateTray(READY_STATUS);
 }
