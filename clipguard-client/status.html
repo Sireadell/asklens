@@ -22,6 +22,11 @@
   .brand { font-size: 15px; font-weight: 600; color: #fff; display: flex; align-items: center; gap: 8px; }
   .dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 8px #22c55e; }
   .status-line { margin-top: 6px; font-size: 13px; color: #9ca3af; }
+  .summary { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid #1f1f1f; }
+  .summary-item { padding: 12px 8px; text-align: center; border-right: 1px solid #1f1f1f; }
+  .summary-item:last-child { border-right: 0; }
+  .summary-number { display: block; color: #fff; font-size: 18px; font-weight: 700; }
+  .summary-label { display: block; margin-top: 2px; color: #737373; font-size: 10px; letter-spacing: .05em; text-transform: uppercase; }
   main {
     flex: 1;
     overflow-y: auto;
@@ -45,13 +50,20 @@
   .url { font-size: 13px; color: #e5e5e5; word-break: break-all; }
   .badge { flex-shrink: 0; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.03em; }
   .badge.safe { background: #052e16; color: #4ade80; }
-  .badge.suspicious { background: #422006; color: #fbbf24; }
+  .badge.suspicious, .badge.caution { background: #422006; color: #fbbf24; }
   .badge.malicious { background: #450a0a; color: #f87171; }
   .badge.dangerous { background: #450a0a; color: #f87171; }
   .badge.unknown, .badge.unavailable, .badge.checking { background: #262626; color: #a3a3a3; }
   .kind { font-size: 11px; color: #525252; text-transform: uppercase; letter-spacing: 0.04em; }
   .miners { font-size: 12px; color: #737373; }
   .time { font-size: 11px; color: #525252; }
+  .change-alert { color: #fbbf24; font-size: 12px; }
+  details { margin-top: 4px; color: #9ca3af; font-size: 11px; }
+  summary { cursor: pointer; color: #d4d4d4; }
+  .proof { margin-top: 5px; overflow-wrap: anywhere; }
+  .row-actions { display: flex; gap: 8px; margin-top: 4px; }
+  .recheck { border: 1px solid #404040; border-radius: 6px; background: #171717; color: #e5e5e5; cursor: pointer; font-size: 11px; padding: 5px 8px; }
+  .recheck:hover { background: #262626; }
   footer {
     padding: 10px 20px;
     border-top: 1px solid #1f1f1f;
@@ -66,15 +78,24 @@
   <div class="brand"><span class="dot"></span>AskLens Clip Guard</div>
   <div class="status-line" id="status">Ready — checking links and wallet addresses you copy</div>
 </header>
+<section class="summary" aria-label="Recent safety checks">
+  <div class="summary-item"><span class="summary-number" id="checked-count">0</span><span class="summary-label">Checked</span></div>
+  <div class="summary-item"><span class="summary-number" id="careful-count">0</span><span class="summary-label">Careful</span></div>
+  <div class="summary-item"><span class="summary-number" id="blocked-count">0</span><span class="summary-label">Blocked</span></div>
+</section>
 <main id="list">
-  <div class="empty">Copy a link (http:// or https://) or a wallet address (0x...) and it shows up here checked in real time, against live Telegraph miners.</div>
+  <div class="empty">Copy a link (http:// or https://) or a wallet address (0x...) and it appears here with the live Telegraph result.</div>
 </main>
-<footer>Runs in the background. Closing this window keeps it checking, use the tray icon to quit.</footer>
+<footer>Recent results stay on this computer. Closing this window keeps protection running, use the tray icon to quit.</footer>
 <script>
   const { ipcRenderer } = require("electron");
   const list = document.getElementById("list");
   const statusEl = document.getElementById("status");
+  const checkedCount = document.getElementById("checked-count");
+  const carefulCount = document.getElementById("careful-count");
+  const blockedCount = document.getElementById("blocked-count");
   let hasEntries = false;
+  let history = [];
 
   const READY = "Ready — checking links and wallet addresses you copy";
 
@@ -97,6 +118,59 @@
     `;
     list.prepend(row);
     statusEl.textContent = kind === "address" ? "Checking a copied address..." : "Checking a copied link...";
+  }
+
+  function renderSummary() {
+    checkedCount.textContent = history.length;
+    carefulCount.textContent = history.filter((entry) => entry.overall === "suspicious" || entry.overall === "caution").length;
+    blockedCount.textContent = history.filter((entry) => entry.overall === "malicious" || entry.overall === "dangerous").length;
+  }
+
+  function addStoredEntry(entry) {
+    if (!entry) return;
+    if (!hasEntries) { list.innerHTML = ""; hasEntries = true; }
+    const row = document.createElement("div");
+    row.className = "row";
+    row.dataset.key = `${entry.key}::${entry.checkedAt}`;
+    row.innerHTML = `
+      <div class="row-top">
+        <span class="url">${escapeHtml(entry.key)}</span>
+        <span class="badge ${escapeHtml(entry.overall)}">${escapeHtml(entry.overall)}</span>
+      </div>
+      <div class="kind">${entry.kind === "address" ? "Wallet address" : "Link"}</div>
+      ${entry.addressChanged ? '<div class="change-alert">The copied address changed. Verify the recipient before sending.</div>' : ''}
+      <div class="miners">${escapeHtml(entry.detail)}</div>
+      ${proofMarkup(entry.proofs)}
+      <div class="row-actions"><button class="recheck" type="button">Check again</button></div>
+      <div class="time">${new Date(entry.checkedAt).toLocaleString()}</div>
+    `;
+    row.querySelector(".recheck").addEventListener("click", () => {
+      ipcRenderer.send("recheck", { key: entry.key, kind: entry.kind });
+    });
+    list.appendChild(row);
+  }
+
+  function proofMarkup(proofs) {
+    const items = Array.isArray(proofs) ? proofs : [];
+    if (!items.length) return '<details><summary>Proof</summary><div class="proof">No proof reference was returned for this check.</div></details>';
+    const rows = items.map((proof) => {
+      const miner = escapeHtml(proof?.miner || "Unknown miner");
+      const reference = proof?.signalHash ? escapeHtml(proof.signalHash) : "No reference returned";
+      return `<div class="proof">${miner}: ${reference}</div>`;
+    }).join("");
+    return `<details><summary>View Telegraph proof</summary>${rows}</details>`;
+  }
+
+  function setHistory(entries) {
+    history = Array.isArray(entries) ? entries : [];
+    list.innerHTML = "";
+    hasEntries = history.length > 0;
+    if (!hasEntries) {
+      list.innerHTML = '<div class="empty">Copy a link (http:// or https://) or a wallet address (0x...) and it appears here with the live Telegraph result.</div>';
+    } else {
+      history.forEach(addStoredEntry);
+    }
+    renderSummary();
   }
 
   function updateResult(key, overall, detail) {
@@ -124,7 +198,7 @@
   }
 
   function escapeHtml(s) {
-    return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   }
   function cssEscape(s) {
     return s.replace(/["\\]/g, "\\$&");
@@ -133,6 +207,7 @@
   ipcRenderer.on("checking", (_e, { key, kind }) => addChecking(key, kind));
   ipcRenderer.on("result", (_e, { key, overall, detail }) => updateResult(key, overall, detail));
   ipcRenderer.on("error", (_e, { key, message }) => updateError(key, message));
+  ipcRenderer.on("history", (_e, { entries }) => setHistory(entries));
 </script>
 </body>
 </html>

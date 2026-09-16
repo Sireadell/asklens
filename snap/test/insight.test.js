@@ -6,9 +6,18 @@ const BAD = "0x098B716B8Aaf21512996dC57EB0615e2383E2f96";
 const ORDINARY = "0x0000000000000000000000000000000000000001";
 
 test("known-bad recipient returns a clear risk warning", () => {
-  const insight = resultToView({ status: "critical", reason: "Known exploiter." }, BAD);
+  const insight = resultToView({
+    status: "critical",
+    reason: "Known exploiter.",
+    confidence: 0.91,
+    miner: "Telegraph Sentinel",
+    signalHash: "0xproof",
+  }, BAD);
   assert.equal(insight.title, "Critical wallet warning");
   assert.match(insight.message, /Do not sign/);
+  assert.match(insight.detail, /Confidence: 91%/);
+  assert.match(insight.detail, /Checked by: Telegraph Sentinel/);
+  assert.match(insight.detail, /Telegraph proof: 0xproof/);
   assert.equal(insight.severity, undefined);
 });
 

@@ -1,7 +1,8 @@
-const { app, clipboard, Menu, Notification, Tray, nativeImage, BrowserWindow } = require("electron");
+const { app, clipboard, ipcMain, Menu, Notification, Tray, nativeImage, BrowserWindow } = require("electron");
 const { execFileSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
+const { didAddressChange } = require("./address-change.cjs");
 
 // ClipGuard's normal state is an invisible tray app. A background safety
 // watcher should not need a visible window, and disabling GPU work avoids
@@ -34,11 +35,13 @@ const URL_ONLY_RE = /^https?:\/\/\S+$/i;
 const ADDRESS_ONLY_RE = /^0x[a-fA-F0-9]{40}$/;
 
 const READY_STATUS = "Ready — checking links and wallet addresses you copy";
+const MAX_ACTIVITY_ITEMS = 50;
 
 let lastChecked = "";
 let tray;
 let statusWindow;
 let isQuitting = false;
+let latestAddressCopy = null;
 
 function startedInBackground() {
   return process.argv.includes(BACKGROUND_ARG);
@@ -60,6 +63,9 @@ function openStatusWindow() {
     webPreferences: { nodeIntegration: true, contextIsolation: false },
   });
   statusWindow.loadFile(STATUS_HTML_PATH);
+  statusWindow.webContents.once("did-finish-load", () => {
+    sendToStatusWindow("history", { entries: readActivity() });
+  });
   // The protection service stays alive in the tray, but the optional status
   // window is discarded when closed so it does not keep browser memory alive.
   statusWindow.on("closed", () => {
@@ -110,7 +116,9 @@ function setStartWithWindows(enabled) {
 }
 
 function showNotice(title, body) {
-  new Notification({ title, body, silent: true }).show();
+  const notification = new Notification({ title, body, silent: true });
+  notification.on("click", openStatusWindow);
+  notification.show();
 }
 
 function updateTray(status) {
@@ -140,6 +148,48 @@ function sendToStatusWindow(channel, payload) {
   if (statusWindow && !statusWindow.isDestroyed()) {
     statusWindow.webContents.send(channel, payload);
   }
+}
+
+function activityPath() {
+  return path.join(app.getPath("userData"), "activity.json");
+}
+
+function readActivity() {
+  try {
+    const parsed = JSON.parse(fs.readFileSync(activityPath(), "utf8"));
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((entry) => (
+      entry
+      && typeof entry.key === "string"
+      && (entry.kind === "link" || entry.kind === "address")
+      && typeof entry.overall === "string"
+      && typeof entry.detail === "string"
+      && typeof entry.checkedAt === "string"
+    )).slice(0, MAX_ACTIVITY_ITEMS);
+  } catch {
+    return [];
+  }
+}
+
+function saveActivity(entry) {
+  try {
+    const next = [entry, ...readActivity()].slice(0, MAX_ACTIVITY_ITEMS);
+    fs.writeFileSync(activityPath(), JSON.stringify(next, null, 2));
+    return next;
+  } catch (error) {
+    logToFile(`could not save activity: ${error.message}`);
+    return null;
+  }
+}
+
+function proofItems(kind, data) {
+  if (kind === "link") {
+    return (Array.isArray(data.results) ? data.results : [])
+      .filter((result) => result?.ok)
+      .map((result) => ({ miner: result.miner ?? "Unknown miner", signalHash: result.signalHash ?? null }));
+  }
+  if (Array.isArray(data.proofs)) return data.proofs;
+  return [{ miner: data.miner ?? "Unknown miner", signalHash: data.signalHash ?? null }];
 }
 
 const LINK_TITLES = {
@@ -186,7 +236,7 @@ function summarise(kind, data) {
   };
 }
 
-async function check(kind, value) {
+async function check(kind, value, { addressChanged = false } = {}) {
   const isLink = kind === "link";
   updateTray(isLink ? "Checking copied link" : "Checking copied address");
   sendToStatusWindow("checking", { key: value, kind });
@@ -203,8 +253,20 @@ async function check(kind, value) {
     }
 
     const { title, detail } = summarise(kind, data);
+    const entry = {
+      key: value,
+      kind,
+      overall: data.overall,
+      title,
+      detail,
+      addressChanged,
+      proofs: proofItems(kind, data),
+      checkedAt: new Date().toISOString(),
+    };
+    const entries = saveActivity(entry);
     showNotice(title, detail);
-    sendToStatusWindow("result", { key: value, kind, overall: data.overall, detail });
+    sendToStatusWindow("result", entry);
+    if (entries) sendToStatusWindow("history", { entries });
   } catch (error) {
     showNotice(
       isLink ? "AskLens could not check this link" : "AskLens could not check this address",
@@ -215,13 +277,27 @@ async function check(kind, value) {
   updateTray(READY_STATUS);
 }
 
+ipcMain.on("recheck", (_event, { key, kind }) => {
+  if ((kind === "link" && URL_ONLY_RE.test(key)) || (kind === "address" && ADDRESS_ONLY_RE.test(key))) {
+    check(kind, key);
+  }
+});
+
 function startWatching() {
   setInterval(() => {
     const text = clipboard.readText().trim();
     if (text === lastChecked) return;
     lastChecked = text;
     if (URL_ONLY_RE.test(text)) check("link", text);
-    else if (ADDRESS_ONLY_RE.test(text)) check("address", text);
+    else if (ADDRESS_ONLY_RE.test(text)) {
+      const now = Date.now();
+      const addressChanged = didAddressChange(latestAddressCopy, text, now);
+      latestAddressCopy = { address: text, copiedAt: now };
+      if (addressChanged) {
+        showNotice("Copied address changed", "Verify the recipient before sending. AskLens is checking the new address.");
+      }
+      check("address", text, { addressChanged });
+    }
   }, POLL_MS);
 }
 

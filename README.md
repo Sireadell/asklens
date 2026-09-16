@@ -160,8 +160,9 @@ reason.
   check: a fraud request for a wallet, or a holder-count and fraud check for
   a contract.
 - AskLens ships a Windows client, MetaMask Snap, and MCP setup flow.
-- The same three checks (link, wallet, token contract) are also MCP tools:
-  `check_link_safety`, `check_wallet_safety`, `check_token_safety`.
+- AskLens MCP has a simple `check_this` action for a link, wallet address, or
+  transaction hash. The specialist link, wallet, and token-contract actions
+  remain available when an AI needs a specific check.
 - We run two Telegraph miners: TxLens (ID 9002) and Telegraph Sentinel
   (ID 94217603).
 - The repository test suite passes with `npm test`.

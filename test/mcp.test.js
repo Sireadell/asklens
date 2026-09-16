@@ -10,6 +10,7 @@ import {
   shapeLinkVerdict,
   walletAssessRequest,
   shapeLookupVerdict,
+  classifyCheckInput,
 } from "../src/mcp.js";
 import { EngineError } from "../src/telegraph.js";
 
@@ -91,6 +92,22 @@ test("returns null for something that is not a URL at all", () => {
   assert.equal(extractDomain(""), null);
   assert.equal(extractDomain("   "), null);
   assert.equal(extractDomain(null), null);
+});
+
+// -- classifyCheckInput ---------------------------------------------------
+
+test("routes only the three inputs the simple safety tool already supports", () => {
+  assert.deepEqual(classifyCheckInput("https://example.com/path"), { kind: "link", value: "https://example.com/path" });
+  assert.deepEqual(classifyCheckInput("example.com"), { kind: "link", value: "example.com" });
+  assert.deepEqual(
+    classifyCheckInput("0x1234567890abcdef1234567890abcdef12345678"),
+    { kind: "wallet", value: "0x1234567890abcdef1234567890abcdef12345678" }
+  );
+  assert.deepEqual(
+    classifyCheckInput("0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"),
+    { kind: "transaction", value: "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" }
+  );
+  assert.deepEqual(classifyCheckInput("is this claim real?"), { kind: "unknown" });
 });
 
 // -- normalizeChain ---------------------------------------------------------

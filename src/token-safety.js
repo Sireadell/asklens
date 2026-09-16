@@ -4,9 +4,9 @@
 // signals from our own miners into one verdict, the same shape as the
 // wallet-safety and link-safety checks already use.
 //
-// Default thresholds (deliberately simple, not tuned against real scam
-// tokens yet — revisit once this has seen live copies):
-//   - Zero or unreadable holder count -> dangerous. A real token has buyers.
+// Default thresholds (deliberately conservative, revisit once this has seen
+// enough real copies):
+//   - Zero holders -> dangerous. A real token has buyers.
 //   - Fewer than 10 holders -> caution. Could just be brand new.
 //   - A Sentinel fraud signal at HIGH/CRITICAL always wins, regardless of
 //     holder count, same as the existing wallet check.
@@ -44,8 +44,16 @@ async function fetchHolderCount(address, chain, timeoutMs, retriesLeft = 1) {
   try {
     const { body } = await askMiner(miner.id, holderRequest(address, chain), { timeoutMs });
     const result = body?.result ?? {};
-    const count = typeof result.holders_count === "number" ? result.holders_count : null;
-    return { ok: true, count, status: result.status ?? null, miner: body?.miner_name ?? miner.name };
+    const count = Number.isSafeInteger(result.holders_count) && result.holders_count >= 0
+      ? result.holders_count
+      : null;
+    return {
+      ok: true,
+      count,
+      status: result.status ?? null,
+      miner: body?.miner_name ?? miner.name,
+      signalHash: body?.signal_hash ?? null,
+    };
   } catch (err) {
     if (retriesLeft > 0 && err instanceof EngineError && err.code === "PAYMENT_FAILED") {
       await sleep(600);
@@ -100,7 +108,7 @@ export function formatPriceUsd(price) {
 }
 
 export function holderFlag(holders) {
-  if (!holders.ok || holders.count === null) return "unknown";
+  if (!holders.ok || !Number.isSafeInteger(holders.count) || holders.count < 0) return "unknown";
   if (holders.count === 0) return "none";
   if (holders.count < MIN_HEALTHY_HOLDERS) return "thin";
   return "ok";
@@ -153,5 +161,9 @@ export async function checkTokenSafety(address, { chain = "eth", timeoutMs = 120
     reason,
     miner: `${holders.miner ?? config.ownMiners.txlens.name} + ${config.ownMiners.sentinel.name}`,
     signalHash: fraud.signalHash ?? null,
+    proofs: [
+      holders.ok ? { miner: holders.miner ?? config.ownMiners.txlens.name, signalHash: holders.signalHash ?? null } : null,
+      fraud.status !== "unavailable" ? { miner: fraud.miner ?? config.ownMiners.sentinel.name, signalHash: fraud.signalHash ?? null } : null,
+    ].filter(Boolean),
   };
 }

@@ -1,6 +1,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { holderFlag, deriveTokenVerdict, formatPriceUsd } from "../src/token-safety.js";
+import {
+  holderFlag,
+  deriveTokenVerdict,
+  formatPriceUsd,
+} from "../src/token-safety.js";
 
 const OK_HOLDERS = { ok: true, count: 500 };
 const THIN_HOLDERS = { ok: true, count: 3 };
@@ -16,6 +20,8 @@ test("holderFlag classifies a healthy, thin, empty, and unreadable holder count"
   assert.equal(holderFlag(THIN_HOLDERS), "thin");
   assert.equal(holderFlag(NO_HOLDERS), "none");
   assert.equal(holderFlag(UNKNOWN_HOLDERS), "unknown");
+  assert.equal(holderFlag({ ok: true, count: -1 }), "unknown");
+  assert.equal(holderFlag({ ok: true, count: 10.5 }), "unknown");
 });
 
 test("a real, distributed token with no fraud signal is safe", () => {

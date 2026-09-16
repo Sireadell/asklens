@@ -1,5 +1,5 @@
 {
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Checks transaction recipients with Telegraph Sentinel before signing.",
   "proposedName": "AskLens Safety",
   "repository": {
@@ -7,10 +7,11 @@
     "url": "git+https://github.com/Sireadell/asklens.git"
   },
   "source": {
-    "shasum": "86593uWIrnk00bQRpiyexkXNeGBC9aVzeBJDCM2WTJA=",
+    "shasum": "XZhBMX4ms6o3SnUzEz+Jvt0Ji2ta0x1ZrE48MxYhwmQ=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
+        "iconPath": "images/asklens-shield.svg",
         "packageName": "asklens-metamask-snap",
         "registry": "https://registry.npmjs.org/"
       }

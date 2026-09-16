@@ -24,6 +24,7 @@ import { isContractAddress } from "./chain.js";
 import { checkTokenSafety, formatPriceUsd } from "./token-safety.js";
 
 const EVM_ADDRESS_RE = /^0x[a-fA-F0-9]{40}$/;
+const EVM_TRANSACTION_RE = /^0x[a-fA-F0-9]{64}$/;
 
 export function isValidAddress(address) {
   return typeof address === "string" && EVM_ADDRESS_RE.test(address.trim());
@@ -44,6 +45,21 @@ export function extractDomain(input) {
   } catch {
     return null;
   }
+}
+
+// The all-in-one tool only accepts inputs that AskLens can already check
+// through a proven tool. This keeps a vague sentence from being silently sent
+// to an untested router or a direct provider.
+export function classifyCheckInput(input) {
+  if (typeof input !== "string" || !input.trim()) return { kind: "unknown" };
+  const value = input.trim();
+  if (EVM_TRANSACTION_RE.test(value)) return { kind: "transaction", value };
+  if (EVM_ADDRESS_RE.test(value)) return { kind: "wallet", value };
+
+  const domain = extractDomain(value);
+  const hasProtocol = /^https?:\/\//i.test(value);
+  const looksLikeDomain = domain && (domain.includes(".") || domain === "localhost" || net.isIP(domain) !== 0);
+  return hasProtocol || looksLikeDomain ? { kind: "link", value } : { kind: "unknown" };
 }
 
 // Sentinel only accepts two chain values, "eth" and "base". People say
@@ -384,6 +400,17 @@ async function checkLinkSafety({ url }) {
   return textResult(text);
 }
 
+async function checkThis({ value, chain }) {
+  const input = classifyCheckInput(value);
+  if (input.kind === "link") return checkLinkSafety({ url: input.value });
+  if (input.kind === "wallet") return checkWalletSafety({ address: input.value, chain });
+  if (input.kind === "transaction") return askOwnMiner("ONCHAIN_TX_LOOKUP", input.value);
+  return textResult(
+    "AskLens can currently check a web link, an EVM wallet address, or an Ethereum transaction hash. Use check_token_safety for a token contract. Claim checks are not ready yet.",
+    true
+  );
+}
+
 // Turns one own-miner lookup into a short, readable line. Shared by every
 // plain-data tool below (gas, price, weather, and so on), which all follow
 // the same shape: one question in, one summarised answer out.
@@ -469,6 +496,23 @@ function registerTools(server) {
   }
 
   server.registerTool(
+    "check_this",
+    {
+      title: "Check this with AskLens",
+      description:
+        "Checks one web link, EVM wallet address, or Ethereum transaction hash using the matching AskLens safety or lookup tool.",
+      inputSchema: {
+        value: z.string().describe("A web link, EVM wallet address, or Ethereum transaction hash."),
+        chain: z
+          .string()
+          .optional()
+          .describe("For wallet checks only. Supported chains are eth and base, defaulting to eth."),
+      },
+    },
+    async ({ value, chain }) => checkThis({ value, chain })
+  );
+
+  server.registerTool(
     "check_wallet_safety",
     {
       title: "Check wallet safety",
@@ -503,7 +547,7 @@ function registerTools(server) {
     {
       title: "Check token contract safety",
       description:
-        "Checks an EVM token contract address (not a wallet) for a healthy holder count and fraud signals, and returns a SAFE, CAUTION, or DANGEROUS verdict.",
+        "Checks an EVM token contract address (not a wallet) for holder count and fraud signals, and returns a SAFE, CAUTION, or DANGEROUS verdict.",
       inputSchema: {
         address: z.string().describe("The token contract address to check, e.g. 0xabc...123"),
         chain: z

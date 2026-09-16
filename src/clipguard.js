@@ -10,16 +10,22 @@ import { snapWalletResult } from "./snap-wallet.js";
 import { isContractAddress } from "./chain.js";
 import { checkTokenSafety } from "./token-safety.js";
 
-// Three genuinely different backends that each return an immediate verdict
-// (no async submit-then-poll like urlscan.io or VirusTotal, which would blow
-// the notification-speed budget). ProofGate (network rank 1) is left out: it
-// fails Telegraph's own pre-flight validation on every payload shape tried,
-// a network-side registration issue, not something fixable from here.
+// These are the only URL_SCAN miners Clip Guard knows how to call and read
+// safely. The registry can rank them, but it cannot introduce an unknown
+// miner into a security decision without an explicit compatible definition.
 export const CLIPGUARD_MINERS = [
   { id: "7334", name: "NetWire", method: "GET", endpoint: "/url-scan", payload: (url) => ({ question: `Is ${url} safe?` }) },
   { id: "5001", name: "URL Sentinel", method: "POST", endpoint: "/scan", payload: (url) => ({ url }) },
   { id: "20260828", name: "Preflight", method: "GET", endpoint: "/url-scan", payload: (url) => ({ url }) },
 ];
+
+// Adding a miner here is a reviewed compatibility decision, not a registry
+// setting. Its endpoint, request payload, and response verdict schema must
+// all be verified before it can affect a safety result.
+const URL_MINER_CANDIDATES = CLIPGUARD_MINERS;
+const URL_SCAN_INTENT = "URL_SCAN";
+export const URL_MINER_DISCOVERY_CACHE_MS = 6 * 60 * 60 * 1000;
+export const URL_MINER_DISCOVERY_TIMEOUT_MS = 1500;
 
 const VERDICT_MAP = {
   safe: "safe", clean: "safe", benign: "safe", legitimate: "safe", ok: "safe", low: "safe",
@@ -27,22 +33,143 @@ const VERDICT_MAP = {
   malicious: "malicious", phishing: "malicious", scam: "malicious", dangerous: "malicious", blocklisted: "malicious", blacklisted: "malicious", threat: "malicious", compromised: "malicious", high: "malicious",
 };
 
+function registryEntries(payload) {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.integrations)) return payload.integrations;
+  if (Array.isArray(payload?.miners)) return payload.miners;
+  if (Array.isArray(payload?.data)) return payload.data;
+  return [];
+}
+
+function urlScanRank(integration) {
+  const scores = Array.isArray(integration?.scores) ? integration.scores : [];
+  const score = scores.find((item) => item?.intent_id === URL_SCAN_INTENT);
+  const rank = Number(score?.rank);
+  return Number.isFinite(rank) && rank > 0 ? rank : null;
+}
+
+function hasCompatibleEndpoint(integration, candidate) {
+  const endpoints = Array.isArray(integration?.endpoints)
+    ? integration.endpoints
+    : [integration?.endpoints];
+  return endpoints.some((endpoint) => (
+    endpoint?.path === candidate.endpoint
+    && String(endpoint?.method ?? "").toUpperCase() === candidate.method
+  ));
+}
+
+// The registry is an advisory leaderboard, not a source of executable
+// configuration. A miner is eligible only when it is active, says it serves
+// URL_SCAN, and has an explicit compatible definition above.
+export function chooseRankedUrlMiners(payload, candidates = URL_MINER_CANDIDATES) {
+  const byId = new Map(registryEntries(payload).map((item) => [String(item?.id), item]));
+  return candidates
+    .map((candidate) => ({ candidate, integration: byId.get(candidate.id) }))
+    .filter(({ candidate, integration }) => (
+      integration?.activation_status === "active"
+      && Array.isArray(integration.supported_intents)
+      && integration.supported_intents.includes(URL_SCAN_INTENT)
+      && urlScanRank(integration) !== null
+      && hasCompatibleEndpoint(integration, candidate)
+    ))
+    .sort((a, b) => {
+      const rankDifference = urlScanRank(a.integration) - urlScanRank(b.integration);
+      return rankDifference || a.candidate.name.localeCompare(b.candidate.name);
+    })
+    .slice(0, 3)
+    .map(({ candidate }) => candidate);
+}
+
+export function createUrlMinerSelector({
+  discoveryUrl = config.discoveryUrl,
+  fetchFn = fetch,
+  now = () => Date.now(),
+  cacheMs = URL_MINER_DISCOVERY_CACHE_MS,
+  discoveryTimeoutMs = URL_MINER_DISCOVERY_TIMEOUT_MS,
+} = {}) {
+  // The original three are the safe startup and failure fallback. A failed
+  // registry read never takes protection away or changes a live check.
+  let currentMiners = [...CLIPGUARD_MINERS];
+  let lastAttemptAt = null;
+  let refreshInFlight = null;
+
+  function refreshIfDue() {
+    const currentTime = now();
+    if (lastAttemptAt !== null && currentTime - lastAttemptAt < cacheMs) {
+      return [...currentMiners];
+    }
+    if (refreshInFlight) return [...currentMiners];
+
+    // Record the attempt before the request so a broken registry cannot add a
+    // network request to every clipboard event.
+    lastAttemptAt = currentTime;
+    refreshInFlight = (async () => {
+      const controller = new AbortController();
+      let deadline;
+      try {
+        const timeout = new Promise((_, reject) => {
+          deadline = setTimeout(() => {
+            controller.abort();
+            reject(new Error("Registry request timed out."));
+          }, discoveryTimeoutMs);
+        });
+        // The deadline covers both headers and the JSON body. A response can
+        // arrive while its body never finishes, which must not leave the
+        // refresh marked in-flight forever.
+        const payload = await Promise.race([
+          (async () => {
+            const response = await fetchFn(discoveryUrl, {
+              headers: { Accept: "application/json" },
+              signal: controller.signal,
+            });
+            if (!response?.ok) throw new Error(`Registry returned HTTP ${response?.status ?? "unknown"}.`);
+            return response.json();
+          })(),
+          timeout,
+        ]);
+        const ranked = chooseRankedUrlMiners(payload);
+        // Do not replace a complete, known-working set with a partial one.
+        if (ranked.length === 3) currentMiners = ranked;
+      } catch {
+        // Retain the last complete set. The next refresh is still rate-limited.
+      } finally {
+        clearTimeout(deadline);
+        refreshInFlight = null;
+      }
+    })();
+    // Discovery is advisory. Clipboard checks immediately use the last
+    // complete snapshot while this bounded refresh happens in the background.
+    return [...currentMiners];
+  }
+
+  return { refreshIfDue };
+}
+
+const urlMinerSelector = createUrlMinerSelector();
+
 // Every miner names its verdict differently, so this trusts an exact,
 // short verdict-style field first (e.g. "safe", "malicious", or NetWire's
 // "risk": "low") rather than scanning full sentences: a clean explanation
 // naturally contains words like "malicious" inside a negation ("no
 // malicious signals found"), and a substring scan over that free text
 // would misread it as a bad verdict. Free-text scanning is never used.
-function classify(result) {
+export function classifyUrlVerdict(result) {
   if (!result || typeof result !== "object") return "unknown";
 
-  if (typeof result.verdict === "string") {
-    const mapped = VERDICT_MAP[result.verdict.trim().toLowerCase()];
-    if (mapped) return mapped;
-  }
+  const hasExplicitVerdict = typeof result.verdict === "string";
+  const explicitVerdict = hasExplicitVerdict
+    ? VERDICT_MAP[result.verdict.trim().toLowerCase()]
+    : null;
   if (typeof result.malicious === "boolean") {
-    return result.malicious ? "malicious" : "safe";
+    const booleanVerdict = result.malicious ? "malicious" : "safe";
+    // Two explicit signals that disagree are not evidence of safety.
+    if (explicitVerdict && explicitVerdict !== booleanVerdict) return "unknown";
+    // An unrecognised named verdict means this miner needs an adapter before
+    // its boolean field can be trusted for a safety decision.
+    if (hasExplicitVerdict && !explicitVerdict) return "unknown";
+    return explicitVerdict ?? booleanVerdict;
   }
+  if (explicitVerdict) return explicitVerdict;
   if (typeof result.safe === "boolean") {
     if (result.safe) return "safe";
     if (typeof result.risk === "string") {
@@ -77,9 +204,11 @@ async function askOneMiner(miner, url, timeoutMs, retriesLeft = 1) {
     recordAnswered({ intent: "URL_SCAN", minerName: miner.name });
     return {
       miner: miner.name,
+      minerId: body?.miner_id ?? miner.id,
       ok: true,
-      verdict: classify(body?.result),
+      verdict: classifyUrlVerdict(body?.result),
       confidence: extractConfidence(body?.result),
+      signalHash: body?.signal_hash ?? null,
       reason: typeof body?.result?.reason === "string" && body.result.reason.trim()
         ? body.result.reason.trim()
         : extractAnswer(body?.result).text,
@@ -98,11 +227,15 @@ async function askOneMiner(miner, url, timeoutMs, retriesLeft = 1) {
 // past the cap are left to finish in the background; only whoever answered
 // in time counts toward the verdict.
 export async function checkUrlAcrossMiners(url, { timeoutMs = 9000 } = {}) {
+  // Resolve the ranked set before any paid miner call starts, then retain this
+  // snapshot for the whole check. A registry refresh can therefore never
+  // switch miners halfway through a user-visible result.
+  const selectedMiners = urlMinerSelector.refreshIfDue();
   // Firing all payments in the same instant occasionally collides (the same
   // wallet signs several transactions at once); a stagger between
   // dispatches avoids that without meaningfully slowing the notification.
   const settled = await Promise.allSettled(
-    CLIPGUARD_MINERS.map(async (miner, i) => {
+    selectedMiners.map(async (miner, i) => {
       await sleep(i * 900);
       return askOneMiner(miner, url, timeoutMs);
     })
@@ -124,7 +257,7 @@ export async function checkUrlAcrossMiners(url, { timeoutMs = 9000 } = {}) {
     url,
     overall,
     answeredCount: answered.length,
-    totalCount: CLIPGUARD_MINERS.length,
+    totalCount: selectedMiners.length,
     malicious,
     suspicious,
     safe,
@@ -172,6 +305,7 @@ export async function checkWalletAddress(address, { timeoutMs = 12000, chain = "
       reason: verdict.reason,
       confidence: verdict.confidence,
       miner: verdict.miner ?? miner.name,
+      signalHash: verdict.signalHash ?? null,
     };
   } catch (err) {
     // Same transient payment race the URL checks hit: one retry after a short

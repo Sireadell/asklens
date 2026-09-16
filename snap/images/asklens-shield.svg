@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+  <title>AskLens safety shield</title>
+  <rect width="128" height="128" rx="28" fill="#0a0a0a"/>
+  <path d="M64 17 103 32v29c0 25-15 43-39 50C40 104 25 86 25 61V32l39-15Z" fill="#16a34a"/>
+  <path d="M43 65.5 57 79l30-31" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/>
+</svg>

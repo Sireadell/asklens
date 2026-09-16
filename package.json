@@ -10,6 +10,7 @@
     "start": "node src/server.js",
     "mcp": "node src/mcp.js",
     "test": "node --test \"test/**/*.test.js\"",
+    "proof": "node scripts/asklens-proof-bench.mjs",
     "watch": "node scripts/watch.mjs"
   },
   "keywords": [],

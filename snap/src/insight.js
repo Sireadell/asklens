@@ -17,7 +17,7 @@ export function resultToView(result, address) {
     return {
       title: "Critical wallet warning",
       message: `Do not sign unless you are certain. Telegraph Sentinel marked ${address} as high risk.`,
-      detail: result.reason ?? "This address is linked to known fraud signals.",
+      detail: evidenceDetail(result, "This address is linked to known fraud signals."),
     };
   }
 
@@ -25,11 +25,19 @@ export function resultToView(result, address) {
     return {
       title: "AskLens wallet check",
       message: `Telegraph Sentinel found no known high-risk signals for ${address}.`,
-      detail: result.reason ?? "Risk can change. Always check transaction details.",
+      detail: evidenceDetail(result, "Risk can change. Always check transaction details."),
     };
   }
 
   return unavailableView(result?.message);
+}
+
+function evidenceDetail(result, fallback) {
+  const details = [result?.reason ?? fallback];
+  if (typeof result?.confidence === "number") details.push(`Confidence: ${Math.round(result.confidence * 100)}%.`);
+  if (result?.miner) details.push(`Checked by: ${result.miner}.`);
+  if (result?.signalHash) details.push(`Telegraph proof: ${result.signalHash}`);
+  return details.join(" ");
 }
 
 export function unavailableView(message = "AskLens could not check this address right now.") {
