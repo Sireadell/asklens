@@ -13,7 +13,8 @@ moments without making you leave the workflow you are in.
 
 | Start here | Link |
 |---|---|
-| ClipGuard for Windows | [Open ClipGuard](https://asklens-zoox.onrender.com/pc.html) |
+| ClipGuard 1.2.2 for Windows | [Download the current installer](https://github.com/Sireadell/asklens/releases/tag/v1.2.2-clipguard) |
+| ClipGuard for Windows | [See how it works](https://asklens-zoox.onrender.com/pc.html) |
 | Wallet safety in MetaMask | [Open the Snap guide](https://asklens-zoox.onrender.com/metamask.html) |
 | Use from Claude or Cursor | [Open the MCP setup guide](https://asklens-zoox.onrender.com/connect.html) |
 | Source code | [github.com/Sireadell/asklens](https://github.com/Sireadell/asklens) |
@@ -41,6 +42,14 @@ status window does not stop protection. The watcher keeps checking complete
 links and wallet addresses copied to the clipboard, then shows a Windows
 notification when the result is ready.
 
+Every completed check stays in the local activity view with its time, miner
+names, and any returned Telegraph proof reference. A failed check stays there
+too, so the person can use **Check again** rather than losing the result.
+
+If a different wallet address is copied shortly after another one, ClipGuard
+warns the person to verify the recipient before sending. It does not claim the
+computer has malware. It checks the final copied address through Telegraph.
+
 In an idle Windows Task Manager check on September 9, 2026, the three ClipGuard
 background processes used 9.6 MB combined. That is an observed test result, not
 a guaranteed amount for every computer.
@@ -49,8 +58,9 @@ a guaranteed amount for every computer.
 
 For a copied web link, ClipGuard asks **NetWire, URL Sentinel, and Preflight**
 through Telegraph. Their answers become one result, and ClipGuard shows which
-miners answered. Disagreement is visible. It is not hidden behind a single
-confident label.
+miners answered. A link is called safe only when all three reviewed miners
+return safe. Disagreement, a missing answer, or an unclear answer is shown as
+caution, never hidden behind a confident safe label.
 
 ## The right check for a copied address
 
@@ -194,17 +204,12 @@ npm install
 npm run watch
 ```
 
-## Next: Solana token checks for traders
+## Current focus: make existing protection stronger
 
-EVM token contracts (Ethereum, Base) are checked today, holder count and
-fraud signal combined into one verdict. Traders also copy Solana token
-addresses just before buying, and that chain isn't covered yet. The next
-ClipGuard check will recognise a Solana address and ask Telegraph for live
-token-risk signals: rug-risk indicators, mint or freeze authority, and holder
-concentration where a specialist miner can provide it.
-
-The goal is simple: make the easiest safety check happen at the exact moment a
-trader is deciding whether to buy.
+AskLens is improving the checks it already ships before adding a new category.
+The priority is clear results, complete supporting proof, fast rechecks, and
+honest caution whenever Telegraph does not return enough evidence to call
+something safe.
 
 ## Network
 
