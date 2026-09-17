@@ -13,7 +13,7 @@ moments without making you leave the workflow you are in.
 
 | Start here | Link |
 |---|---|
-| ClipGuard 1.2.2 for Windows | [Download the current installer](https://github.com/Sireadell/asklens/releases/tag/v1.2.2-clipguard) |
+| ClipGuard 1.2.3 for Windows | [Download the current installer](https://github.com/Sireadell/asklens/releases/tag/v1.2.3-clipguard) |
 | ClipGuard for Windows | [See how it works](https://asklens-zoox.onrender.com/pc.html) |
 | Wallet safety in MetaMask | [Open the Snap guide](https://asklens-zoox.onrender.com/metamask.html) |
 | Use from Claude or Cursor | [Open the MCP setup guide](https://asklens-zoox.onrender.com/connect.html) |
@@ -41,6 +41,11 @@ ClipGuard starts with Windows and runs quietly in the system tray. Closing the
 status window does not stop protection. The watcher keeps checking complete
 links and wallet addresses copied to the clipboard, then shows a Windows
 notification when the result is ready.
+
+The status window now has first-run guidance, a pause and resume control, a
+clear history button, and a simple last-check health line. Rapid repeated
+rechecks are also collapsed so one copied item cannot trigger several paid
+checks at the same time.
 
 Every completed check stays in the local activity view with its time, miner
 names, and any returned Telegraph proof reference. A failed check stays there

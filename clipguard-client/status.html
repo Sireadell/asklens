@@ -21,7 +21,31 @@
   }
   .brand { font-size: 15px; font-weight: 600; color: #fff; display: flex; align-items: center; gap: 8px; }
   .dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 8px #22c55e; }
+  .dot.paused { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
   .status-line { margin-top: 6px; font-size: 13px; color: #9ca3af; }
+  .health-line { margin-top: 6px; font-size: 12px; color: #737373; }
+  .health-line.ok { color: #86efac; }
+  .health-line.error { color: #fca5a5; }
+  .controls {
+    display: flex;
+    gap: 8px;
+    padding: 10px 12px;
+    border-bottom: 1px solid #1f1f1f;
+    background: #0f0f0f;
+  }
+  .control-button {
+    border: 1px solid #404040;
+    border-radius: 6px;
+    background: #171717;
+    color: #e5e5e5;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 8px 10px;
+  }
+  .control-button:hover { background: #262626; }
+  .control-button:disabled { color: #737373; cursor: default; background: #111; }
+  .control-button.primary { border-color: #166534; color: #bbf7d0; }
+  .control-button.warning { border-color: #92400e; color: #fde68a; }
   .summary { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid #1f1f1f; }
   .summary-item { padding: 12px 8px; text-align: center; border-right: 1px solid #1f1f1f; }
   .summary-item:last-child { border-right: 0; }
@@ -33,12 +57,15 @@
     padding: 8px 0;
   }
   .empty {
-    padding: 40px 20px;
-    text-align: center;
-    color: #6b7280;
+    padding: 32px 22px;
+    color: #9ca3af;
     font-size: 13px;
-    line-height: 1.6;
+    line-height: 1.55;
   }
+  .empty-title { color: #fff; font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+  .empty p { margin: 0 0 10px; }
+  .empty-list { margin: 14px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+  .empty-list li { padding: 10px; border: 1px solid #1f1f1f; border-radius: 8px; background: #101010; }
   .row {
     padding: 12px 20px;
     border-bottom: 1px solid #161616;
@@ -54,6 +81,7 @@
   .badge.malicious { background: #450a0a; color: #f87171; }
   .badge.dangerous { background: #450a0a; color: #f87171; }
   .badge.unknown, .badge.unavailable, .badge.checking { background: #262626; color: #a3a3a3; }
+  .badge.paused { background: #422006; color: #fbbf24; }
   .kind { font-size: 11px; color: #525252; text-transform: uppercase; letter-spacing: 0.04em; }
   .miners { font-size: 12px; color: #737373; }
   .time { font-size: 11px; color: #525252; }
@@ -64,6 +92,7 @@
   .row-actions { display: flex; gap: 8px; margin-top: 4px; }
   .recheck { border: 1px solid #404040; border-radius: 6px; background: #171717; color: #e5e5e5; cursor: pointer; font-size: 11px; padding: 5px 8px; }
   .recheck:hover { background: #262626; }
+  .recheck:disabled { color: #737373; cursor: default; background: #111; }
   footer {
     padding: 10px 20px;
     border-top: 1px solid #1f1f1f;
@@ -75,32 +104,51 @@
 </head>
 <body>
 <header>
-  <div class="brand"><span class="dot"></span>AskLens Clip Guard</div>
-  <div class="status-line" id="status">Ready — checking links and wallet addresses you copy</div>
+  <div class="brand"><span class="dot" id="status-dot"></span>AskLens Clip Guard</div>
+  <div class="status-line" id="status">Ready, checking links and wallet addresses you copy</div>
+  <div class="health-line" id="health">Waiting for your first copied link or address.</div>
 </header>
+<section class="controls" aria-label="Clip Guard controls">
+  <button class="control-button primary" id="toggle-protection" type="button">Pause protection</button>
+  <button class="control-button" id="clear-history" type="button" disabled>Clear history</button>
+</section>
 <section class="summary" aria-label="Recent safety checks">
   <div class="summary-item"><span class="summary-number" id="checked-count">0</span><span class="summary-label">Checked</span></div>
   <div class="summary-item"><span class="summary-number" id="careful-count">0</span><span class="summary-label">Careful</span></div>
   <div class="summary-item"><span class="summary-number" id="blocked-count">0</span><span class="summary-label">Blocked</span></div>
 </section>
 <main id="list">
-  <div class="empty">Copy a link (http:// or https://) or a wallet address (0x...) and it appears here with the live Telegraph result.</div>
+  <div class="empty">
+    <div class="empty-title">Protection is on</div>
+    <p>Copy a full web link or a 0x wallet address. AskLens checks it with Telegraph before you paste.</p>
+    <ul class="empty-list">
+      <li>Results stay on this computer.</li>
+      <li>Closing this window keeps protection running in the tray.</li>
+      <li>Only exact links and wallet addresses are checked.</li>
+    </ul>
+  </div>
 </main>
 <footer>Recent results stay on this computer. Closing this window keeps protection running, use the tray icon to quit.</footer>
 <script>
   const { ipcRenderer } = require("electron");
   const list = document.getElementById("list");
   const statusEl = document.getElementById("status");
+  const healthEl = document.getElementById("health");
+  const statusDot = document.getElementById("status-dot");
+  const toggleProtection = document.getElementById("toggle-protection");
+  const clearHistory = document.getElementById("clear-history");
   const checkedCount = document.getElementById("checked-count");
   const carefulCount = document.getElementById("careful-count");
   const blockedCount = document.getElementById("blocked-count");
   let hasEntries = false;
   let history = [];
+  let protectionEnabled = true;
 
-  const READY = "Ready — checking links and wallet addresses you copy";
+  const READY = "Ready, checking links and wallet addresses you copy";
+  const PAUSED = "Paused, clipboard checks are off";
 
   function rowFor(key) {
-    return list.querySelector(`.row[data-key="${cssEscape(key)}"]`);
+    return Array.from(list.querySelectorAll(".row")).find((row) => row.dataset.key === key);
   }
 
   function addChecking(key, kind) {
@@ -145,6 +193,9 @@
       <div class="time">${new Date(entry.checkedAt).toLocaleString()}</div>
     `;
     row.querySelector(".recheck").addEventListener("click", () => {
+      const button = row.querySelector(".recheck");
+      button.disabled = true;
+      button.textContent = "Checking...";
       ipcRenderer.send("recheck", { key: entry.key, kind: entry.kind });
     });
     list.appendChild(row);
@@ -166,15 +217,26 @@
     list.innerHTML = "";
     hasEntries = history.length > 0;
     if (!hasEntries) {
-      list.innerHTML = '<div class="empty">Copy a link (http:// or https://) or a wallet address (0x...) and it appears here with the live Telegraph result.</div>';
+      list.innerHTML = `
+        <div class="empty">
+          <div class="empty-title">${protectionEnabled ? "Protection is on" : "Protection is paused"}</div>
+          <p>${protectionEnabled ? "Copy a full web link or a 0x wallet address. AskLens checks it with Telegraph before you paste." : "Turn protection back on when you want AskLens to check copied links and wallet addresses again."}</p>
+          <ul class="empty-list">
+            <li>Results stay on this computer.</li>
+            <li>Closing this window keeps the tray app available.</li>
+            <li>Only exact links and wallet addresses are checked.</li>
+          </ul>
+        </div>
+      `;
     } else {
       history.forEach(addStoredEntry);
     }
     renderSummary();
+    clearHistory.disabled = history.length === 0;
   }
 
   function updateResult(key, overall, detail) {
-    statusEl.textContent = READY;
+    statusEl.textContent = protectionEnabled ? READY : PAUSED;
     const row = rowFor(key);
     if (!row) return;
     const badge = row.querySelector(".badge");
@@ -188,7 +250,7 @@
   }
 
   function updateError(key, message) {
-    statusEl.textContent = READY;
+    statusEl.textContent = protectionEnabled ? READY : PAUSED;
     const row = rowFor(key);
     if (!row) return;
     const badge = row.querySelector(".badge");
@@ -197,17 +259,36 @@
     row.querySelector(".miners").textContent = message;
   }
 
+  function setAppState(state) {
+    protectionEnabled = state?.protectionEnabled !== false;
+    statusEl.textContent = protectionEnabled ? (state?.status || READY) : PAUSED;
+    statusDot.classList.toggle("paused", !protectionEnabled);
+    toggleProtection.textContent = protectionEnabled ? "Pause protection" : "Resume protection";
+    toggleProtection.classList.toggle("primary", protectionEnabled);
+    toggleProtection.classList.toggle("warning", !protectionEnabled);
+    healthEl.textContent = state?.lastCheckMessage || "Waiting for your first copied link or address.";
+    healthEl.className = `health-line ${state?.lastCheckStatus === "ok" ? "ok" : state?.lastCheckStatus === "error" ? "error" : ""}`;
+    if (!hasEntries) setHistory(history);
+  }
+
   function escapeHtml(s) {
     return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   }
-  function cssEscape(s) {
-    return s.replace(/["\\]/g, "\\$&");
-  }
+  toggleProtection.addEventListener("click", () => {
+    ipcRenderer.send("set-protection-enabled", !protectionEnabled);
+  });
 
+  clearHistory.addEventListener("click", () => {
+    clearHistory.disabled = true;
+    ipcRenderer.send("clear-history");
+  });
+
+  ipcRenderer.send("request-app-state");
   ipcRenderer.on("checking", (_e, { key, kind }) => addChecking(key, kind));
   ipcRenderer.on("result", (_e, { key, overall, detail }) => updateResult(key, overall, detail));
   ipcRenderer.on("error", (_e, { key, message }) => updateError(key, message));
   ipcRenderer.on("history", (_e, { entries }) => setHistory(entries));
+  ipcRenderer.on("app-state", (_e, state) => setAppState(state));
 </script>
 </body>
 </html>

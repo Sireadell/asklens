@@ -3,6 +3,7 @@ const { execFileSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 const { didAddressChange } = require("./address-change.cjs");
+const { createCheckGate } = require("./check-gate.cjs");
 
 // ClipGuard's normal state is an invisible tray app. A background safety
 // watcher should not need a visible window, and disabling GPU work avoids
@@ -34,7 +35,8 @@ const BACKGROUND_ARG = "--background";
 const URL_ONLY_RE = /^https?:\/\/\S+$/i;
 const ADDRESS_ONLY_RE = /^0x[a-fA-F0-9]{40}$/;
 
-const READY_STATUS = "Ready — checking links and wallet addresses you copy";
+const READY_STATUS = "Ready, checking links and wallet addresses you copy";
+const PAUSED_STATUS = "Paused, clipboard checks are off";
 const MAX_ACTIVITY_ITEMS = 50;
 
 let lastChecked = "";
@@ -42,6 +44,10 @@ let tray;
 let statusWindow;
 let isQuitting = false;
 let latestAddressCopy = null;
+let protectionEnabled = true;
+let lastCheckStatus = "waiting";
+let lastCheckMessage = "Waiting for your first copied link or address.";
+const checkGate = createCheckGate();
 
 function startedInBackground() {
   return process.argv.includes(BACKGROUND_ARG);
@@ -64,6 +70,7 @@ function openStatusWindow() {
   });
   statusWindow.loadFile(STATUS_HTML_PATH);
   statusWindow.webContents.once("did-finish-load", () => {
+    sendAppState();
     sendToStatusWindow("history", { entries: readActivity() });
   });
   // The protection service stays alive in the tray, but the optional status
@@ -77,17 +84,29 @@ function startupPreferencePath() {
   return path.join(app.getPath("userData"), "settings.json");
 }
 
-function startsWithWindows() {
+function readSettings() {
   try {
-    return JSON.parse(fs.readFileSync(startupPreferencePath(), "utf8")).startWithWindows !== false;
+    const parsed = JSON.parse(fs.readFileSync(startupPreferencePath(), "utf8"));
+    return {
+      startWithWindows: parsed.startWithWindows !== false,
+      protectionEnabled: parsed.protectionEnabled !== false,
+    };
   } catch {
-    return true;
+    return { startWithWindows: true, protectionEnabled: true };
   }
 }
 
-function setStartWithWindows(enabled) {
+function writeSettings(nextSettings) {
   fs.mkdirSync(app.getPath("userData"), { recursive: true });
-  fs.writeFileSync(startupPreferencePath(), JSON.stringify({ startWithWindows: enabled }));
+  fs.writeFileSync(startupPreferencePath(), JSON.stringify(nextSettings, null, 2));
+}
+
+function startsWithWindows() {
+  return readSettings().startWithWindows;
+}
+
+function setStartWithWindows(enabled) {
+  writeSettings({ ...readSettings(), startWithWindows: enabled });
   app.setLoginItemSettings({
     openAtLogin: enabled,
     path: process.execPath,
@@ -121,12 +140,47 @@ function showNotice(title, body) {
   notification.show();
 }
 
+function currentStatus() {
+  return protectionEnabled ? READY_STATUS : PAUSED_STATUS;
+}
+
+function appState() {
+  return {
+    protectionEnabled,
+    startWithWindows: startsWithWindows(),
+    status: currentStatus(),
+    lastCheckStatus,
+    lastCheckMessage,
+  };
+}
+
+function sendAppState() {
+  sendToStatusWindow("app-state", appState());
+}
+
+function setProtectionEnabled(enabled) {
+  protectionEnabled = Boolean(enabled);
+  writeSettings({ ...readSettings(), protectionEnabled });
+  updateTray(currentStatus());
+  sendAppState();
+  showNotice(
+    protectionEnabled ? "AskLens Clip Guard is on" : "AskLens Clip Guard is paused",
+    protectionEnabled ? "New copied links and wallet addresses will be checked." : "Clipboard checks are off until you turn protection back on."
+  );
+}
+
 function updateTray(status) {
   tray.setToolTip(`AskLens Clip Guard\n${status}`);
   tray.setContextMenu(Menu.buildFromTemplate([
     { label: `Status: ${status}`, enabled: false },
     { type: "separator" },
     { label: "Open Clip Guard", click: openStatusWindow },
+    {
+      label: "Protection on",
+      type: "checkbox",
+      checked: protectionEnabled,
+      click: (item) => setProtectionEnabled(item.checked),
+    },
     {
       label: "Start when I sign in",
       type: "checkbox",
@@ -182,6 +236,17 @@ function saveActivity(entry) {
   }
 }
 
+function clearActivity() {
+  try {
+    fs.rmSync(activityPath(), { force: true });
+    sendToStatusWindow("history", { entries: [] });
+    return true;
+  } catch (error) {
+    logToFile(`could not clear activity: ${error.message}`);
+    return false;
+  }
+}
+
 function proofItems(kind, data) {
   if (kind === "link") {
     return (Array.isArray(data.results) ? data.results : [])
@@ -202,7 +267,7 @@ const LINK_TITLES = {
 
 const ADDRESS_TITLES = {
   dangerous: "Dangerous address copied",
-  caution: "Proceed carefully — thin or unclear signal",
+  caution: "Proceed carefully, thin or unclear signal",
   safe: "Address looks clean",
   unavailable: "Address could not be checked",
 };
@@ -240,8 +305,17 @@ function summarise(kind, data) {
 }
 
 async function check(kind, value, { addressChanged = false } = {}) {
+  if (!checkGate.tryStart(kind, value)) {
+    lastCheckStatus = "checking";
+    lastCheckMessage = "Already checking this item.";
+    sendAppState();
+    return;
+  }
   const isLink = kind === "link";
   updateTray(isLink ? "Checking copied link" : "Checking copied address");
+  lastCheckStatus = "checking";
+  lastCheckMessage = isLink ? "Checking copied link with Telegraph miners." : "Checking copied address with Telegraph miners.";
+  sendAppState();
   sendToStatusWindow("checking", { key: value, kind });
 
   try {
@@ -267,7 +341,10 @@ async function check(kind, value, { addressChanged = false } = {}) {
       checkedAt: new Date().toISOString(),
     };
     const entries = saveActivity(entry);
+    lastCheckStatus = "ok";
+    lastCheckMessage = "Last check reached Telegraph and returned a result.";
     showNotice(title, detail);
+    sendAppState();
     sendToStatusWindow("result", entry);
     if (entries) sendToStatusWindow("history", { entries });
   } catch (error) {
@@ -282,14 +359,19 @@ async function check(kind, value, { addressChanged = false } = {}) {
       checkedAt: new Date().toISOString(),
     };
     const entries = saveActivity(entry);
+    lastCheckStatus = "error";
+    lastCheckMessage = "Last check could not reach a result. Use Check again after the connection settles.";
     showNotice(
       entry.title,
       error.message
     );
+    sendAppState();
     sendToStatusWindow("error", { key: value, kind, message: error.message });
     if (entries) sendToStatusWindow("history", { entries });
+  } finally {
+    checkGate.finish(kind, value);
+    updateTray(currentStatus());
   }
-  updateTray(READY_STATUS);
 }
 
 ipcMain.on("recheck", (_event, { key, kind }) => {
@@ -298,9 +380,25 @@ ipcMain.on("recheck", (_event, { key, kind }) => {
   }
 });
 
+ipcMain.on("set-protection-enabled", (_event, enabled) => {
+  setProtectionEnabled(enabled);
+});
+
+ipcMain.on("clear-history", () => {
+  clearActivity();
+});
+
+ipcMain.on("request-app-state", () => {
+  sendAppState();
+});
+
 function startWatching() {
   setInterval(() => {
     const text = clipboard.readText().trim();
+    if (!protectionEnabled) {
+      lastChecked = text;
+      return;
+    }
     if (text === lastChecked) return;
     lastChecked = text;
     if (URL_ONLY_RE.test(text)) check("link", text);
@@ -331,12 +429,14 @@ if (!gotLock) {
     try {
       logToFile("Electron ready");
       app.setAppUserModelId("com.asklens.clipguard");
-      setStartWithWindows(startsWithWindows());
+      const settings = readSettings();
+      protectionEnabled = settings.protectionEnabled;
+      setStartWithWindows(settings.startWithWindows);
       const icon = nativeImage.createFromPath(ICON_PATH);
       tray = new Tray(icon.isEmpty() ? nativeImage.createEmpty() : icon);
       tray.on("click", openStatusWindow);
       tray.on("double-click", openStatusWindow);
-      updateTray(READY_STATUS);
+      updateTray(currentStatus());
       startWatching();
       logToFile("tray watcher started");
       if (!startedInBackground()) {
