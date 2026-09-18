@@ -4,143 +4,346 @@
 <meta charset="utf-8" />
 <title>AskLens Clip Guard</title>
 <style>
-  :root { color-scheme: dark; }
+  :root {
+    color-scheme: dark;
+    --bg: #090909;
+    --panel: #111111;
+    --panel-soft: #171717;
+    --line: #262626;
+    --text: #f5f5f5;
+    --muted: #b3b3b3;
+    --subtle: #8a8a8a;
+    --green: #4ade80;
+    --green-bg: #052e16;
+    --amber: #fbbf24;
+    --amber-bg: #422006;
+    --red: #f87171;
+    --red-bg: #450a0a;
+    --blue: #93c5fd;
+    --blue-bg: #172554;
+  }
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    background: #0a0a0a;
-    color: #e5e5e5;
+    background: var(--bg);
+    color: var(--text);
     font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
     height: 100vh;
     display: flex;
     flex-direction: column;
   }
-  header {
-    padding: 18px 20px 14px;
-    border-bottom: 1px solid #1f1f1f;
+  button, summary { font: inherit; }
+  button:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: 2px;
   }
-  .brand { font-size: 15px; font-weight: 600; color: #fff; display: flex; align-items: center; gap: 8px; }
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 8px #22c55e; }
-  .dot.paused { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
-  .status-line { margin-top: 6px; font-size: 13px; color: #9ca3af; }
-  .health-line { margin-top: 6px; font-size: 12px; color: #737373; }
-  .health-line.ok { color: #86efac; }
-  .health-line.error { color: #fca5a5; }
+  header {
+    padding: 18px 18px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .brand-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 10px var(--green);
+  }
+  .dot.paused {
+    background: var(--amber);
+    box-shadow: 0 0 10px var(--amber);
+  }
+  .state-pill {
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--muted);
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+  .status-line {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+  .health-line {
+    margin-top: 5px;
+    color: var(--subtle);
+    font-size: 12px;
+    line-height: 1.35;
+  }
+  .health-line.ok { color: #bbf7d0; }
+  .health-line.error { color: #fecaca; }
+  .decision {
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(180deg, #111111, #0c0c0c);
+  }
+  .decision-label {
+    color: var(--subtle);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .decision-title {
+    margin-top: 6px;
+    font-size: 22px;
+    line-height: 1.18;
+    font-weight: 750;
+  }
+  .decision-body {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.45;
+  }
   .controls {
     display: flex;
     gap: 8px;
-    padding: 10px 12px;
-    border-bottom: 1px solid #1f1f1f;
-    background: #0f0f0f;
+    margin-top: 14px;
   }
-  .control-button {
-    border: 1px solid #404040;
-    border-radius: 6px;
-    background: #171717;
-    color: #e5e5e5;
+  .control-button, .recheck {
+    border: 1px solid #3a3a3a;
+    border-radius: 7px;
+    background: var(--panel-soft);
+    color: var(--text);
     cursor: pointer;
     font-size: 12px;
     padding: 8px 10px;
   }
-  .control-button:hover { background: #262626; }
-  .control-button:disabled { color: #737373; cursor: default; background: #111; }
+  .control-button:hover, .recheck:hover { background: #202020; }
+  .control-button:disabled, .recheck:disabled {
+    color: var(--subtle);
+    cursor: default;
+    background: #101010;
+  }
   .control-button.primary { border-color: #166534; color: #bbf7d0; }
   .control-button.warning { border-color: #92400e; color: #fde68a; }
-  .summary { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid #1f1f1f; }
-  .summary-item { padding: 12px 8px; text-align: center; border-right: 1px solid #1f1f1f; }
+  .summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-bottom: 1px solid var(--line);
+    background: #0c0c0c;
+  }
+  .summary-item {
+    padding: 11px 8px;
+    text-align: center;
+    border-right: 1px solid var(--line);
+  }
   .summary-item:last-child { border-right: 0; }
-  .summary-number { display: block; color: #fff; font-size: 18px; font-weight: 700; }
-  .summary-label { display: block; margin-top: 2px; color: #737373; font-size: 10px; letter-spacing: .05em; text-transform: uppercase; }
+  .summary-number {
+    display: block;
+    color: var(--text);
+    font-size: 17px;
+    font-weight: 750;
+  }
+  .summary-label {
+    display: block;
+    margin-top: 2px;
+    color: var(--muted);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
   main {
     flex: 1;
     overflow-y: auto;
-    padding: 8px 0;
+  }
+  .section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 13px 18px 8px;
+  }
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .privacy-note {
+    color: var(--subtle);
+    font-size: 11px;
+    line-height: 1.4;
+    padding: 0 18px 12px;
   }
   .empty {
-    padding: 32px 22px;
-    color: #9ca3af;
-    font-size: 13px;
-    line-height: 1.55;
+    margin: 4px 18px 16px;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--panel);
   }
-  .empty-title { color: #fff; font-size: 18px; font-weight: 700; margin-bottom: 10px; }
-  .empty p { margin: 0 0 10px; }
-  .empty-list { margin: 14px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; }
-  .empty-list li { padding: 10px; border: 1px solid #1f1f1f; border-radius: 8px; background: #101010; }
+  .empty-title {
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .empty p {
+    margin: 7px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.45;
+  }
   .row {
-    padding: 12px 20px;
-    border-bottom: 1px solid #161616;
+    margin: 0 12px 10px;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--panel);
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 8px;
   }
-  .row-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-  .url { font-size: 13px; color: #e5e5e5; word-break: break-all; }
-  .badge { flex-shrink: 0; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.03em; }
-  .badge.safe { background: #052e16; color: #4ade80; }
-  .badge.suspicious, .badge.caution { background: #422006; color: #fbbf24; }
-  .badge.malicious { background: #450a0a; color: #f87171; }
-  .badge.dangerous { background: #450a0a; color: #f87171; }
-  .badge.unknown, .badge.unavailable, .badge.checking { background: #262626; color: #a3a3a3; }
-  .badge.paused { background: #422006; color: #fbbf24; }
-  .kind { font-size: 11px; color: #525252; text-transform: uppercase; letter-spacing: 0.04em; }
-  .miners { font-size: 12px; color: #737373; }
-  .time { font-size: 11px; color: #525252; }
-  .change-alert { color: #fbbf24; font-size: 12px; }
-  details { margin-top: 4px; color: #9ca3af; font-size: 11px; }
-  summary { cursor: pointer; color: #d4d4d4; }
-  .proof { margin-top: 5px; overflow-wrap: anywhere; }
-  .row-actions { display: flex; gap: 8px; margin-top: 4px; }
-  .recheck { border: 1px solid #404040; border-radius: 6px; background: #171717; color: #e5e5e5; cursor: pointer; font-size: 11px; padding: 5px 8px; }
-  .recheck:hover { background: #262626; }
-  .recheck:disabled { color: #737373; cursor: default; background: #111; }
-  footer {
-    padding: 10px 20px;
-    border-top: 1px solid #1f1f1f;
+  .row-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .item-copy {
+    min-width: 0;
+  }
+  .kind {
+    color: var(--muted);
     font-size: 11px;
-    color: #525252;
-    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .url {
+    display: block;
+    margin-top: 3px;
+    color: var(--text);
+    font-size: 13px;
+    word-break: break-all;
+    line-height: 1.35;
+  }
+  .badge {
+    flex-shrink: 0;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 750;
+    padding: 4px 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .badge.safe { background: var(--green-bg); color: var(--green); }
+  .badge.suspicious, .badge.caution, .badge.paused { background: var(--amber-bg); color: var(--amber); }
+  .badge.malicious, .badge.dangerous { background: var(--red-bg); color: var(--red); }
+  .badge.unknown, .badge.unavailable { background: #262626; color: var(--muted); }
+  .badge.checking { background: var(--blue-bg); color: var(--blue); }
+  .advice {
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .reason {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.45;
+  }
+  .change-alert {
+    color: #fde68a;
+    background: rgba(251, 191, 36, 0.08);
+    border: 1px solid rgba(251, 191, 36, 0.28);
+    border-radius: 7px;
+    padding: 8px;
+    font-size: 12px;
+    line-height: 1.35;
+  }
+  details {
+    border-top: 1px solid var(--line);
+    padding-top: 8px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  summary {
+    cursor: pointer;
+    color: var(--text);
+    font-weight: 650;
+  }
+  .proof {
+    display: grid;
+    grid-template-columns: 78px minmax(0, 1fr);
+    gap: 4px 8px;
+    margin-top: 8px;
+    overflow-wrap: anywhere;
+  }
+  .proof-label {
+    color: var(--subtle);
+    font-size: 11px;
+  }
+  .proof-value {
+    color: var(--muted);
+    font-size: 11px;
+  }
+  .row-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .time {
+    color: var(--subtle);
+    font-size: 11px;
   }
 </style>
 </head>
 <body>
 <header>
-  <div class="brand"><span class="dot" id="status-dot"></span>AskLens Clip Guard</div>
+  <div class="brand-row">
+    <div class="brand"><span class="dot" id="status-dot"></span>AskLens Clip Guard</div>
+    <div class="state-pill" id="state-pill">On</div>
+  </div>
   <div class="status-line" id="status">Ready, checking links and wallet addresses you copy</div>
   <div class="health-line" id="health">Waiting for your first copied link or address.</div>
 </header>
-<section class="controls" aria-label="Clip Guard controls">
-  <button class="control-button primary" id="toggle-protection" type="button">Pause protection</button>
-  <button class="control-button" id="clear-history" type="button" disabled>Clear history</button>
+<section class="decision" id="decision-panel" aria-live="polite">
+  <div class="decision-label">Current answer</div>
+  <div class="decision-title" id="decision-title">Ready when you copy something</div>
+  <div class="decision-body" id="decision-body">Copy a full web link or a 0x wallet address. AskLens checks it through Telegraph and keeps the result here.</div>
+  <div class="controls" aria-label="Clip Guard controls">
+    <button class="control-button primary" id="toggle-protection" type="button">Pause protection</button>
+    <button class="control-button" id="clear-history" type="button" disabled>Clear history</button>
+  </div>
 </section>
 <section class="summary" aria-label="Recent safety checks">
   <div class="summary-item"><span class="summary-number" id="checked-count">0</span><span class="summary-label">Checked</span></div>
-  <div class="summary-item"><span class="summary-number" id="careful-count">0</span><span class="summary-label">Careful</span></div>
-  <div class="summary-item"><span class="summary-number" id="blocked-count">0</span><span class="summary-label">Blocked</span></div>
+  <div class="summary-item"><span class="summary-number" id="careful-count">0</span><span class="summary-label">Review</span></div>
+  <div class="summary-item"><span class="summary-number" id="blocked-count">0</span><span class="summary-label">Do not use</span></div>
 </section>
-<main id="list">
-  <div class="empty">
-    <div class="empty-title">Protection is on</div>
-    <p>Copy a full web link or a 0x wallet address. AskLens checks it with Telegraph before you paste.</p>
-    <ul class="empty-list">
-      <li>Results stay on this computer.</li>
-      <li>Closing this window keeps protection running in the tray.</li>
-      <li>Only exact links and wallet addresses are checked.</li>
-    </ul>
+<main>
+  <div class="section-heading">
+    <div class="section-title">Recent checks</div>
   </div>
+  <div class="privacy-note">Results stay on this computer. Only exact links and wallet addresses are checked.</div>
+  <div id="list"></div>
 </main>
-<footer>Recent results stay on this computer. Closing this window keeps protection running, use the tray icon to quit.</footer>
 <script>
   const { ipcRenderer } = require("electron");
   const list = document.getElementById("list");
   const statusEl = document.getElementById("status");
   const healthEl = document.getElementById("health");
   const statusDot = document.getElementById("status-dot");
+  const statePill = document.getElementById("state-pill");
+  const decisionTitle = document.getElementById("decision-title");
+  const decisionBody = document.getElementById("decision-body");
   const toggleProtection = document.getElementById("toggle-protection");
   const clearHistory = document.getElementById("clear-history");
   const checkedCount = document.getElementById("checked-count");
   const carefulCount = document.getElementById("careful-count");
   const blockedCount = document.getElementById("blocked-count");
-  let hasEntries = false;
   let history = [];
   let protectionEnabled = true;
 
@@ -151,20 +354,53 @@
     return Array.from(list.querySelectorAll(".row")).find((row) => row.dataset.key === key);
   }
 
+  function kindLabel(kind) {
+    return kind === "address" ? "Wallet address" : "Link";
+  }
+
+  function verdictLabel(overall) {
+    if (overall === "safe") return "Safe";
+    if (overall === "caution" || overall === "suspicious") return "Review";
+    if (overall === "dangerous" || overall === "malicious") return "Do not use";
+    if (overall === "checking") return "Checking";
+    return "Unavailable";
+  }
+
+  function adviceFor(entry) {
+    if (!entry) return protectionEnabled ? "Ready when you copy something" : "Protection is paused";
+    if (entry.overall === "safe") return "Looks safe to use";
+    if (entry.overall === "caution" || entry.overall === "suspicious") return "Review before you use it";
+    if (entry.overall === "dangerous" || entry.overall === "malicious") return "Do not use this";
+    if (entry.overall === "checking") return "Checking now";
+    return "Check again before using this";
+  }
+
+  function bodyFor(entry) {
+    if (!entry) {
+      return protectionEnabled
+        ? "Copy a full web link or a 0x wallet address. AskLens checks it through Telegraph and keeps the result here."
+        : "Turn protection back on when you want AskLens to check copied links and wallet addresses again.";
+    }
+    if (entry.overall === "checking") return `${kindLabel(entry.kind)} copied. Asking Telegraph miners now.`;
+    return entry.detail || "AskLens saved the latest check result.";
+  }
+
+  function setDecision(entry) {
+    decisionTitle.textContent = adviceFor(entry);
+    decisionBody.textContent = bodyFor(entry);
+  }
+
   function addChecking(key, kind) {
-    if (!hasEntries) { list.innerHTML = ""; hasEntries = true; }
-    const row = document.createElement("div");
-    row.className = "row";
-    row.dataset.key = key;
-    row.innerHTML = `
-      <div class="row-top">
-        <span class="url">${escapeHtml(key)}</span>
-        <span class="badge checking">Checking</span>
-      </div>
-      <div class="kind">${kind === "address" ? "Wallet address" : "Link"}</div>
-      <div class="miners">Asking Telegraph miners...</div>
-    `;
-    list.prepend(row);
+    const checkingEntry = {
+      key,
+      kind,
+      overall: "checking",
+      detail: "Asking Telegraph miners now.",
+      checkedAt: new Date().toISOString(),
+      proofs: [],
+    };
+    setDecision(checkingEntry);
+    renderRows([checkingEntry, ...history]);
     statusEl.textContent = kind === "address" ? "Checking a copied address..." : "Checking a copied link...";
   }
 
@@ -176,24 +412,28 @@
 
   function addStoredEntry(entry) {
     if (!entry) return;
-    if (!hasEntries) { list.innerHTML = ""; hasEntries = true; }
     const row = document.createElement("div");
     row.className = "row";
-    row.dataset.key = `${entry.key}::${entry.checkedAt}`;
+    row.dataset.key = entry.overall === "checking" ? entry.key : `${entry.key}::${entry.checkedAt}`;
     row.innerHTML = `
       <div class="row-top">
-        <span class="url">${escapeHtml(entry.key)}</span>
-        <span class="badge ${escapeHtml(entry.overall)}">${escapeHtml(entry.overall)}</span>
+        <div class="item-copy">
+          <span class="kind">${kindLabel(entry.kind)}</span>
+          <span class="url">${escapeHtml(entry.key)}</span>
+        </div>
+        <span class="badge ${escapeHtml(entry.overall)}">${verdictLabel(entry.overall)}</span>
       </div>
-      <div class="kind">${entry.kind === "address" ? "Wallet address" : "Link"}</div>
-      ${entry.addressChanged ? '<div class="change-alert">The copied address changed. Verify the recipient before sending.</div>' : ''}
-      <div class="miners">${escapeHtml(entry.detail)}</div>
+      <div class="advice">${escapeHtml(adviceFor(entry))}</div>
+      ${entry.addressChanged ? '<div class="change-alert">The copied address changed recently. Verify the recipient before sending.</div>' : ''}
+      <div class="reason">${escapeHtml(entry.detail)}</div>
       ${proofMarkup(entry.proofs)}
-      <div class="row-actions"><button class="recheck" type="button">Check again</button></div>
-      <div class="time">${new Date(entry.checkedAt).toLocaleString()}</div>
+      <div class="row-actions">
+        <button class="recheck" type="button" ${entry.overall === "checking" ? "disabled" : ""}>${entry.overall === "checking" ? "Checking..." : "Check again"}</button>
+        <div class="time">${new Date(entry.checkedAt).toLocaleString()}</div>
+      </div>
     `;
-    row.querySelector(".recheck").addEventListener("click", () => {
-      const button = row.querySelector(".recheck");
+    const button = row.querySelector(".recheck");
+    button.addEventListener("click", () => {
       button.disabled = true;
       button.textContent = "Checking...";
       ipcRenderer.send("recheck", { key: entry.key, kind: entry.kind });
@@ -203,77 +443,88 @@
 
   function proofMarkup(proofs) {
     const items = Array.isArray(proofs) ? proofs : [];
-    if (!items.length) return '<details><summary>Proof</summary><div class="proof">No proof reference was returned for this check.</div></details>';
+    if (!items.length) {
+      return '<details><summary>Evidence receipt</summary><div class="proof"><span class="proof-label">Proof</span><span class="proof-value">No proof reference was returned for this check.</span></div></details>';
+    }
     const rows = items.map((proof) => {
       const miner = escapeHtml(proof?.miner || "Unknown miner");
-      const reference = proof?.signalHash ? escapeHtml(proof.signalHash) : "No reference returned";
-      return `<div class="proof">${miner}: ${reference}</div>`;
+      const reference = proof?.signalHash ? escapeHtml(proof.signalHash) : "No proof reference returned";
+      return `
+        <div class="proof">
+          <span class="proof-label">Miner</span><span class="proof-value">${miner}</span>
+          <span class="proof-label">Reference</span><span class="proof-value">${reference}</span>
+        </div>
+      `;
     }).join("");
-    return `<details><summary>View Telegraph proof</summary>${rows}</details>`;
+    return `<details><summary>Evidence receipt</summary>${rows}</details>`;
+  }
+
+  function emptyMarkup() {
+    return `
+      <div class="empty">
+        <div class="empty-title">${protectionEnabled ? "Nothing checked yet" : "Protection is paused"}</div>
+        <p>${protectionEnabled ? "Copy a full web link or a 0x wallet address. The first result will appear here." : "Resume protection when you want AskLens to check copied links and wallet addresses again."}</p>
+      </div>
+    `;
+  }
+
+  function renderRows(entries) {
+    list.innerHTML = "";
+    if (!entries.length) {
+      list.innerHTML = emptyMarkup();
+      return;
+    }
+    entries.forEach(addStoredEntry);
   }
 
   function setHistory(entries) {
     history = Array.isArray(entries) ? entries : [];
-    list.innerHTML = "";
-    hasEntries = history.length > 0;
-    if (!hasEntries) {
-      list.innerHTML = `
-        <div class="empty">
-          <div class="empty-title">${protectionEnabled ? "Protection is on" : "Protection is paused"}</div>
-          <p>${protectionEnabled ? "Copy a full web link or a 0x wallet address. AskLens checks it with Telegraph before you paste." : "Turn protection back on when you want AskLens to check copied links and wallet addresses again."}</p>
-          <ul class="empty-list">
-            <li>Results stay on this computer.</li>
-            <li>Closing this window keeps the tray app available.</li>
-            <li>Only exact links and wallet addresses are checked.</li>
-          </ul>
-        </div>
-      `;
-    } else {
-      history.forEach(addStoredEntry);
-    }
+    renderRows(history);
     renderSummary();
     clearHistory.disabled = history.length === 0;
+    setDecision(history[0] || null);
   }
 
   function updateResult(key, overall, detail) {
     statusEl.textContent = protectionEnabled ? READY : PAUSED;
     const row = rowFor(key);
     if (!row) return;
-    const badge = row.querySelector(".badge");
-    badge.className = `badge ${overall}`;
-    badge.textContent = overall;
-    row.querySelector(".miners").textContent = detail;
-    const time = document.createElement("div");
-    time.className = "time";
-    time.textContent = new Date().toLocaleTimeString();
-    row.appendChild(time);
+    const entry = { key, kind: row.querySelector(".kind")?.textContent === "Wallet address" ? "address" : "link", overall, detail, checkedAt: new Date().toISOString(), proofs: [] };
+    setDecision(entry);
+    row.querySelector(".badge").className = `badge ${overall}`;
+    row.querySelector(".badge").textContent = verdictLabel(overall);
+    row.querySelector(".advice").textContent = adviceFor(entry);
+    row.querySelector(".reason").textContent = detail;
+    const button = row.querySelector(".recheck");
+    button.disabled = false;
+    button.textContent = "Check again";
+    row.querySelector(".time").textContent = new Date().toLocaleTimeString();
   }
 
   function updateError(key, message) {
-    statusEl.textContent = protectionEnabled ? READY : PAUSED;
-    const row = rowFor(key);
-    if (!row) return;
-    const badge = row.querySelector(".badge");
-    badge.className = "badge unavailable";
-    badge.textContent = "error";
-    row.querySelector(".miners").textContent = message;
+    updateResult(key, "unavailable", message);
   }
 
   function setAppState(state) {
     protectionEnabled = state?.protectionEnabled !== false;
     statusEl.textContent = protectionEnabled ? (state?.status || READY) : PAUSED;
     statusDot.classList.toggle("paused", !protectionEnabled);
+    statePill.textContent = protectionEnabled ? "On" : "Paused";
     toggleProtection.textContent = protectionEnabled ? "Pause protection" : "Resume protection";
     toggleProtection.classList.toggle("primary", protectionEnabled);
     toggleProtection.classList.toggle("warning", !protectionEnabled);
     healthEl.textContent = state?.lastCheckMessage || "Waiting for your first copied link or address.";
     healthEl.className = `health-line ${state?.lastCheckStatus === "ok" ? "ok" : state?.lastCheckStatus === "error" ? "error" : ""}`;
-    if (!hasEntries) setHistory(history);
+    if (!history.length) {
+      renderRows(history);
+      setDecision(null);
+    }
   }
 
   function escapeHtml(s) {
     return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   }
+
   toggleProtection.addEventListener("click", () => {
     ipcRenderer.send("set-protection-enabled", !protectionEnabled);
   });

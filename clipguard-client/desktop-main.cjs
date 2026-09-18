@@ -441,7 +441,7 @@ if (!gotLock) {
       logToFile("tray watcher started");
       if (!startedInBackground()) {
         openStatusWindow();
-        showNotice("AskLens Clip Guard is on", "Copy a link or a wallet address and it gets checked before you paste it.");
+        showNotice("AskLens Clip Guard is on", "Copy a link or a wallet address and AskLens checks it before you use it.");
       }
     } catch (err) {
       logToFile(`startup failed: ${err.stack || err.message}`);
