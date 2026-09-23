@@ -13,7 +13,7 @@ moments without making you leave the workflow you are in.
 
 | Start here | Link |
 |---|---|
-| ClipGuard 1.2.5 for Windows | [Download the current installer](https://github.com/Sireadell/asklens/releases/tag/v1.2.5-clipguard) |
+| ClipGuard 1.2.6 for Windows | [Download the current installer](https://github.com/Sireadell/asklens/releases/tag/v1.2.6-clipguard) |
 | ClipGuard for Windows | [See how it works](https://asklens-zoox.onrender.com/pc.html) |
 | Wallet safety in MetaMask | [Open the Snap guide](https://asklens-zoox.onrender.com/metamask.html) |
 | Use from Claude or Cursor | [Open the MCP setup guide](https://asklens-zoox.onrender.com/connect.html) |

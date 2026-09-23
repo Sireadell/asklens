@@ -74,7 +74,7 @@
   .health-line.error { color: #fecaca; }
   .tabs {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     border-bottom: 1px solid var(--line);
     background: #0d0d0d;
   }
@@ -332,7 +332,7 @@
     font-size: 13px;
     line-height: 1.45;
   }
-  .settings-row {
+  .settings-row, .trusted-row {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -357,6 +357,77 @@
   .onboarding.visible {
     display: block;
   }
+  textarea {
+    width: 100%;
+    min-height: 74px;
+    resize: vertical;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #0b0b0b;
+    color: var(--text);
+    padding: 10px;
+    font: inherit;
+    font-size: 12px;
+  }
+  .trusted-form {
+    display: grid;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .trusted-list {
+    display: grid;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .trusted-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px;
+    background: #0d0d0d;
+  }
+  .trusted-label {
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .trusted-address {
+    margin-top: 3px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .trusted-warning {
+    color: #fde68a;
+    background: rgba(251, 191, 36, 0.08);
+    border: 1px solid rgba(251, 191, 36, 0.28);
+    border-radius: 7px;
+    padding: 8px;
+    font-size: 12px;
+    line-height: 1.35;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .stat-card {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px;
+    background: #0d0d0d;
+  }
+  .stat-value {
+    display: block;
+    font-size: 18px;
+    font-weight: 750;
+  }
+  .stat-label {
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 2px;
+  }
 </style>
 </head>
 <body>
@@ -371,6 +442,7 @@
 <nav class="tabs" aria-label="Sections">
   <button class="tab active" data-tab="check" type="button">Check</button>
   <button class="tab" data-tab="activity" type="button">Activity</button>
+  <button class="tab" data-tab="trusted" type="button">Trusted</button>
   <button class="tab" data-tab="settings" type="button">Settings</button>
 </nav>
 <main>
@@ -415,6 +487,27 @@
     <div class="privacy-note">Results stay on this computer. Only exact links and wallet addresses are checked.</div>
     <div id="list"></div>
   </section>
+  <section class="panel" id="panel-trusted">
+    <div class="card">
+      <div class="card-title">Trusted recipients</div>
+      <div class="card-copy" id="trusted-encryption">Saved addresses are encrypted on this PC when Windows encryption is available.</div>
+      <form class="trusted-form" id="trusted-form">
+        <input class="manual-input" id="trusted-label" autocomplete="off" placeholder="Name, like Binance or Treasury" />
+        <input class="manual-input" id="trusted-address" autocomplete="off" spellcheck="false" placeholder="0x wallet address" />
+        <button class="button primary" type="submit">Save recipient</button>
+      </form>
+      <div class="manual-error" id="trusted-error"></div>
+      <div class="trusted-list" id="trusted-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Import addresses</div>
+      <div class="card-copy">Paste one address per line. You can include a name on the same line.</div>
+      <div class="trusted-form">
+        <textarea id="trusted-import" placeholder="Treasury 0x1234..."></textarea>
+        <button class="button" id="trusted-import-button" type="button">Import</button>
+      </div>
+    </div>
+  </section>
   <section class="panel" id="panel-settings">
     <div class="card">
       <div class="card-title">Settings</div>
@@ -431,6 +524,19 @@
           <div class="settings-copy">Remove saved check results from this PC.</div>
         </div>
         <button class="button" id="clear-history" type="button" disabled>Clear</button>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-title">Local usage</div>
+          <div class="settings-copy">These numbers stay on this PC and are calculated from local history.</div>
+          <div class="stats-grid">
+            <div class="stat-card"><span class="stat-value" id="stat-manual">0</span><div class="stat-label">Manual checks</div></div>
+            <div class="stat-card"><span class="stat-value" id="stat-auto">0</span><div class="stat-label">Clipboard checks</div></div>
+            <div class="stat-card"><span class="stat-value" id="stat-lookalike">0</span><div class="stat-label">Lookalike warnings</div></div>
+            <div class="stat-card"><span class="stat-value" id="stat-trusted">0</span><div class="stat-label">Trusted matches</div></div>
+          </div>
+          <div class="settings-copy" id="stat-miners"></div>
+        </div>
       </div>
     </div>
   </section>
@@ -454,12 +560,26 @@
   const settingsProtection = document.getElementById("settings-protection");
   const clipboardCopy = document.getElementById("clipboard-copy");
   const clearHistory = document.getElementById("clear-history");
+  const trustedForm = document.getElementById("trusted-form");
+  const trustedLabel = document.getElementById("trusted-label");
+  const trustedAddress = document.getElementById("trusted-address");
+  const trustedError = document.getElementById("trusted-error");
+  const trustedList = document.getElementById("trusted-list");
+  const trustedEncryption = document.getElementById("trusted-encryption");
+  const trustedImport = document.getElementById("trusted-import");
+  const trustedImportButton = document.getElementById("trusted-import-button");
+  const statManual = document.getElementById("stat-manual");
+  const statAuto = document.getElementById("stat-auto");
+  const statLookalike = document.getElementById("stat-lookalike");
+  const statTrusted = document.getElementById("stat-trusted");
+  const statMiners = document.getElementById("stat-miners");
   const checkedCount = document.getElementById("checked-count");
   const carefulCount = document.getElementById("careful-count");
   const blockedCount = document.getElementById("blocked-count");
   let history = [];
   let protectionEnabled = false;
   let clipboardChoiceMade = false;
+  let trustedRecipients = [];
 
   const READY = "Clipboard checks on";
   const PAUSED = "Clipboard checks off";
@@ -540,6 +660,7 @@
       </div>
       <div class="advice">${escapeHtml(adviceFor(entry))}</div>
       ${entry.addressChanged ? '<div class="change-alert">The copied address changed recently. Verify the recipient before sending.</div>' : ''}
+      ${trustedMatchMarkup(entry.trustedMatch)}
       <div class="reason">${escapeHtml(entry.detail)}</div>
       ${proofMarkup(entry.proofs)}
       <div class="row-actions">
@@ -551,6 +672,17 @@
       ipcRenderer.send("recheck", { key: entry.key, kind: entry.kind });
     });
     list.appendChild(row);
+  }
+
+  function trustedMatchMarkup(match) {
+    if (!match) return "";
+    if (match.type === "trusted") {
+      return `<div class="trusted-warning">Matches saved recipient: ${escapeHtml(match.label)} (${escapeHtml(match.shortAddress)}).</div>`;
+    }
+    if (match.type === "lookalike") {
+      return `<div class="trusted-warning">This looks like ${escapeHtml(match.label)}, but it is not the saved address ${escapeHtml(match.shortAddress)}.</div>`;
+    }
+    return "";
   }
 
   function proofMarkup(proofs) {
@@ -624,6 +756,47 @@
       : "Clipboard checks are off. Manual checks still work.";
     healthEl.textContent = state?.lastCheckMessage || "Paste a link or address to check it manually.";
     healthEl.className = `health-line ${state?.lastCheckStatus === "ok" ? "ok" : state?.lastCheckStatus === "error" ? "error" : ""}`;
+    renderStats(state?.localStats || {});
+  }
+
+  function renderStats(stats) {
+    statManual.textContent = stats.manual || 0;
+    statAuto.textContent = stats.automatic || 0;
+    statLookalike.textContent = stats.lookalikeWarnings || 0;
+    statTrusted.textContent = stats.trustedMatches || 0;
+    const miners = Object.entries(stats.miners || {})
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 4)
+      .map(([miner, count]) => `${miner}: ${count}`)
+      .join(", ");
+    statMiners.textContent = miners ? `Recent miner answers: ${miners}` : "No miner answers saved yet.";
+  }
+
+  function renderTrustedRecipients(payload) {
+    trustedRecipients = Array.isArray(payload?.recipients) ? payload.recipients : [];
+    trustedEncryption.textContent = payload?.encrypted
+      ? "Saved addresses are encrypted on this PC with Windows account protection."
+      : "Windows encryption is not available right now, so saving trusted recipients is disabled.";
+    trustedList.innerHTML = "";
+    if (!trustedRecipients.length) {
+      trustedList.innerHTML = '<div class="empty"><div class="empty-title">No trusted recipients yet</div><p>Save addresses you use often, then AskLens can warn when a copied address only looks similar.</p></div>';
+      return;
+    }
+    trustedRecipients.forEach((recipient) => {
+      const row = document.createElement("div");
+      row.className = "trusted-item";
+      row.innerHTML = `
+        <div>
+          <div class="trusted-label">${escapeHtml(recipient.label)}</div>
+          <div class="trusted-address">${escapeHtml(recipient.shortAddress)} ${escapeHtml(recipient.address)}</div>
+        </div>
+        <button class="button" type="button">Remove</button>
+      `;
+      row.querySelector("button").addEventListener("click", () => {
+        ipcRenderer.send("remove-trusted-recipient", recipient.id);
+      });
+      trustedList.appendChild(row);
+    });
   }
 
   function escapeHtml(s) {
@@ -656,6 +829,20 @@
     ipcRenderer.send("clear-history");
   });
 
+  trustedForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    trustedError.textContent = "";
+    ipcRenderer.send("add-trusted-recipient", {
+      label: trustedLabel.value,
+      address: trustedAddress.value,
+    });
+  });
+
+  trustedImportButton.addEventListener("click", () => {
+    trustedError.textContent = "";
+    ipcRenderer.send("import-trusted-recipients", trustedImport.value);
+  });
+
   ipcRenderer.send("request-app-state");
   ipcRenderer.on("checking", (_e, { key, kind }) => addChecking(key, kind));
   ipcRenderer.on("result", (_e, { key, overall, detail }) => updateResult(key, overall, detail));
@@ -664,6 +851,18 @@
     manualSubmit.disabled = false;
     manualSubmit.textContent = "Check";
     manualError.textContent = message;
+  });
+  ipcRenderer.on("trusted-recipients", (_e, payload) => {
+    renderTrustedRecipients(payload);
+    trustedLabel.value = "";
+    trustedAddress.value = "";
+  });
+  ipcRenderer.on("trusted-recipient-error", (_e, { message }) => {
+    trustedError.textContent = message;
+  });
+  ipcRenderer.on("trusted-recipient-imported", (_e, { added }) => {
+    trustedError.textContent = added ? `Imported ${added} recipient${added === 1 ? "" : "s"}.` : "No new valid addresses found.";
+    trustedImport.value = "";
   });
   ipcRenderer.on("history", (_e, { entries }) => setHistory(entries));
   ipcRenderer.on("app-state", (_e, state) => setAppState(state));

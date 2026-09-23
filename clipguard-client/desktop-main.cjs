@@ -1,9 +1,10 @@
-const { app, clipboard, ipcMain, Menu, Notification, Tray, nativeImage, BrowserWindow } = require("electron");
+const { app, clipboard, ipcMain, Menu, Notification, Tray, nativeImage, BrowserWindow, safeStorage } = require("electron");
 const { execFileSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 const { didAddressChange } = require("./address-change.cjs");
 const { createCheckGate } = require("./check-gate.cjs");
+const { findRecipientMatch, normaliseAddress, shortAddress } = require("./trusted-recipients.cjs");
 
 // ClipGuard's normal state is an invisible tray app. A background safety
 // watcher should not need a visible window, and disabling GPU work avoids
@@ -38,6 +39,7 @@ const ADDRESS_ONLY_RE = /^0x[a-fA-F0-9]{40}$/;
 const READY_STATUS = "Clipboard checks on";
 const PAUSED_STATUS = "Clipboard checks off";
 const MAX_ACTIVITY_ITEMS = 50;
+const MAX_TRUSTED_RECIPIENTS = 200;
 
 let lastChecked = "";
 let tray;
@@ -148,6 +150,14 @@ function currentStatus() {
 }
 
 function appState() {
+  const activity = readActivity();
+  const miners = activity.flatMap((entry) => Array.isArray(entry.proofs) ? entry.proofs : [])
+    .map((proof) => proof?.miner)
+    .filter(Boolean)
+    .reduce((counts, miner) => {
+      counts[miner] = (counts[miner] || 0) + 1;
+      return counts;
+    }, {});
   return {
     protectionEnabled,
     clipboardChoiceMade,
@@ -155,6 +165,14 @@ function appState() {
     status: currentStatus(),
     lastCheckStatus,
     lastCheckMessage,
+    localStats: {
+      checked: activity.length,
+      manual: activity.filter((entry) => entry.source === "manual").length,
+      automatic: activity.filter((entry) => entry.source === "clipboard").length,
+      trustedMatches: activity.filter((entry) => entry.trustedMatch?.type === "trusted").length,
+      lookalikeWarnings: activity.filter((entry) => entry.trustedMatch?.type === "lookalike").length,
+      miners,
+    },
   };
 }
 
@@ -213,6 +231,10 @@ function activityPath() {
   return path.join(app.getPath("userData"), "activity.json");
 }
 
+function trustedRecipientsPath() {
+  return path.join(app.getPath("userData"), "trusted-recipients.json");
+}
+
 function readActivity() {
   try {
     const parsed = JSON.parse(fs.readFileSync(activityPath(), "utf8"));
@@ -250,6 +272,114 @@ function clearActivity() {
     logToFile(`could not clear activity: ${error.message}`);
     return false;
   }
+}
+
+function trustedEncryptionReady() {
+  try {
+    return safeStorage.isEncryptionAvailable();
+  } catch {
+    return false;
+  }
+}
+
+function readTrustedRecipients() {
+  try {
+    const parsed = JSON.parse(fs.readFileSync(trustedRecipientsPath(), "utf8"));
+    if (!parsed?.encrypted || typeof parsed.data !== "string" || !trustedEncryptionReady()) {
+      return { recipients: [], encrypted: trustedEncryptionReady() };
+    }
+    const decrypted = safeStorage.decryptString(Buffer.from(parsed.data, "base64"));
+    const recipients = JSON.parse(decrypted);
+    if (!Array.isArray(recipients)) return { recipients: [], encrypted: true };
+    return {
+      encrypted: true,
+      recipients: recipients
+        .filter((item) => item && typeof item.label === "string" && normaliseAddress(item.address))
+        .slice(0, MAX_TRUSTED_RECIPIENTS),
+    };
+  } catch {
+    return { recipients: [], encrypted: trustedEncryptionReady() };
+  }
+}
+
+function writeTrustedRecipients(recipients) {
+  if (!trustedEncryptionReady()) throw new Error("Windows encryption is not available right now.");
+  const clean = recipients
+    .map((item) => ({
+      id: String(item.id || `${Date.now()}-${Math.random()}`),
+      label: String(item.label || "Trusted recipient").trim().slice(0, 80) || "Trusted recipient",
+      address: normaliseAddress(item.address),
+      createdAt: item.createdAt || new Date().toISOString(),
+    }))
+    .filter((item) => item.address)
+    .slice(0, MAX_TRUSTED_RECIPIENTS);
+  const encrypted = safeStorage.encryptString(JSON.stringify(clean));
+  fs.writeFileSync(trustedRecipientsPath(), JSON.stringify({
+    version: 1,
+    encrypted: true,
+    data: encrypted.toString("base64"),
+    updatedAt: new Date().toISOString(),
+  }, null, 2));
+  return clean;
+}
+
+function publicTrustedRecipients() {
+  const { recipients, encrypted } = readTrustedRecipients();
+  return {
+    encrypted,
+    recipients: recipients.map((item) => ({
+      id: item.id,
+      label: item.label,
+      address: item.address,
+      shortAddress: shortAddress(item.address),
+      createdAt: item.createdAt,
+    })),
+  };
+}
+
+function sendTrustedRecipients() {
+  sendToStatusWindow("trusted-recipients", publicTrustedRecipients());
+}
+
+function saveTrustedRecipient(label, address) {
+  const normalised = normaliseAddress(address);
+  if (!normalised) throw new Error("Enter a valid 0x wallet address.");
+  const { recipients } = readTrustedRecipients();
+  const next = [{
+    id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    label: String(label || "Trusted recipient").trim().slice(0, 80) || "Trusted recipient",
+    address: normalised,
+    createdAt: new Date().toISOString(),
+  }, ...recipients.filter((item) => normaliseAddress(item.address) !== normalised)];
+  return writeTrustedRecipients(next);
+}
+
+function removeTrustedRecipient(id) {
+  const { recipients } = readTrustedRecipients();
+  return writeTrustedRecipients(recipients.filter((item) => item.id !== id));
+}
+
+function importTrustedRecipients(text) {
+  const lines = String(text || "").split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  const { recipients } = readTrustedRecipients();
+  const byAddress = new Map(recipients.map((item) => [normaliseAddress(item.address), item]));
+  let added = 0;
+  for (const line of lines) {
+    const match = line.match(/0x[a-fA-F0-9]{40}/);
+    if (!match) continue;
+    const address = normaliseAddress(match[0]);
+    const existing = byAddress.get(address);
+    const label = line.replace(match[0], "").replace(/[,|:]+/g, " ").trim() || `Trusted ${shortAddress(address)}`;
+    if (!existing) added += 1;
+    byAddress.set(address, {
+      id: existing?.id || `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      label: label.slice(0, 80),
+      address,
+      createdAt: existing?.createdAt || new Date().toISOString(),
+    });
+  }
+  writeTrustedRecipients(Array.from(byAddress.values()));
+  return added;
 }
 
 function inferCheckKind(value) {
@@ -316,7 +446,7 @@ function summarise(kind, data) {
   };
 }
 
-async function check(kind, value, { addressChanged = false } = {}) {
+async function check(kind, value, { addressChanged = false, source = "manual" } = {}) {
   if (!checkGate.tryStart(kind, value)) {
     lastCheckStatus = "checking";
     lastCheckMessage = "Already checking this item.";
@@ -324,6 +454,12 @@ async function check(kind, value, { addressChanged = false } = {}) {
     return;
   }
   const isLink = kind === "link";
+  const trustedMatch = kind === "address"
+    ? findRecipientMatch(value, readTrustedRecipients().recipients)
+    : { type: "none" };
+  if (trustedMatch.type === "lookalike") {
+    showNotice("Address looks similar", `This is not your saved ${trustedMatch.recipient.label} address. Verify before sending.`);
+  }
   updateTray(isLink ? "Checking copied link" : "Checking copied address");
   lastCheckStatus = "checking";
   lastCheckMessage = isLink ? "Checking copied link with Telegraph miners." : "Checking copied address with Telegraph miners.";
@@ -349,6 +485,13 @@ async function check(kind, value, { addressChanged = false } = {}) {
       title,
       detail,
       addressChanged,
+      source,
+      trustedMatch: trustedMatch.type === "none" ? null : {
+        type: trustedMatch.type,
+        label: trustedMatch.recipient.label,
+        address: trustedMatch.recipient.address,
+        shortAddress: shortAddress(trustedMatch.recipient.address),
+      },
       proofs: proofItems(kind, data),
       checkedAt: new Date().toISOString(),
     };
@@ -367,6 +510,13 @@ async function check(kind, value, { addressChanged = false } = {}) {
       title: isLink ? "Link could not be checked" : "Address could not be checked",
       detail: error.message,
       addressChanged,
+      source,
+      trustedMatch: trustedMatch.type === "none" ? null : {
+        type: trustedMatch.type,
+        label: trustedMatch.recipient.label,
+        address: trustedMatch.recipient.address,
+        shortAddress: shortAddress(trustedMatch.recipient.address),
+      },
       proofs: [],
       checkedAt: new Date().toISOString(),
     };
@@ -388,7 +538,7 @@ async function check(kind, value, { addressChanged = false } = {}) {
 
 ipcMain.on("recheck", (_event, { key, kind }) => {
   if ((kind === "link" && URL_ONLY_RE.test(key)) || (kind === "address" && ADDRESS_ONLY_RE.test(key))) {
-    check(kind, key);
+    check(kind, key, { source: "manual" });
   }
 });
 
@@ -404,7 +554,35 @@ ipcMain.on("manual-check", (_event, value) => {
     });
     return;
   }
-  check(parsed.kind, parsed.value);
+  check(parsed.kind, parsed.value, { source: "manual" });
+});
+
+ipcMain.on("add-trusted-recipient", (_event, payload) => {
+  try {
+    saveTrustedRecipient(payload?.label, payload?.address);
+    sendTrustedRecipients();
+  } catch (error) {
+    sendToStatusWindow("trusted-recipient-error", { message: error.message });
+  }
+});
+
+ipcMain.on("remove-trusted-recipient", (_event, id) => {
+  try {
+    removeTrustedRecipient(String(id || ""));
+    sendTrustedRecipients();
+  } catch (error) {
+    sendToStatusWindow("trusted-recipient-error", { message: error.message });
+  }
+});
+
+ipcMain.on("import-trusted-recipients", (_event, text) => {
+  try {
+    const added = importTrustedRecipients(text);
+    sendTrustedRecipients();
+    sendToStatusWindow("trusted-recipient-imported", { added });
+  } catch (error) {
+    sendToStatusWindow("trusted-recipient-error", { message: error.message });
+  }
 });
 
 ipcMain.on("clear-history", () => {
@@ -413,6 +591,7 @@ ipcMain.on("clear-history", () => {
 
 ipcMain.on("request-app-state", () => {
   sendAppState();
+  sendTrustedRecipients();
 });
 
 function startWatching() {
@@ -423,7 +602,7 @@ function startWatching() {
     const text = clipboard.readText().trim();
     if (text === lastChecked) return;
     lastChecked = text;
-    if (URL_ONLY_RE.test(text)) check("link", text);
+    if (URL_ONLY_RE.test(text)) check("link", text, { source: "clipboard" });
     else if (ADDRESS_ONLY_RE.test(text)) {
       const now = Date.now();
       const addressChanged = didAddressChange(latestAddressCopy, text, now);
@@ -431,7 +610,7 @@ function startWatching() {
       if (addressChanged) {
         showNotice("Copied address changed", "Verify the recipient before sending. AskLens is checking the new address.");
       }
-      check("address", text, { addressChanged });
+      check("address", text, { addressChanged, source: "clipboard" });
     }
   }, POLL_MS);
 }
