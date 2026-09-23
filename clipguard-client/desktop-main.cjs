@@ -528,7 +528,7 @@ async function check(kind, value, { addressChanged = false, source = "manual" } 
       error.message
     );
     sendAppState();
-    sendToStatusWindow("error", { key: value, kind, message: error.message });
+    sendToStatusWindow("error", entry);
     if (entries) sendToStatusWindow("history", { entries });
   } finally {
     checkGate.finish(kind, value);

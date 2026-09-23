@@ -397,7 +397,7 @@
     color: var(--muted);
     font-size: 12px;
   }
-  .trusted-warning {
+  .trusted-match, .trusted-warning {
     color: #fde68a;
     background: rgba(251, 191, 36, 0.08);
     border: 1px solid rgba(251, 191, 36, 0.28);
@@ -405,6 +405,11 @@
     padding: 8px;
     font-size: 12px;
     line-height: 1.35;
+  }
+  .trusted-match {
+    color: #bfdbfe;
+    background: rgba(96, 165, 250, 0.08);
+    border-color: rgba(96, 165, 250, 0.28);
   }
   .stats-grid {
     display: grid;
@@ -503,7 +508,7 @@
       <div class="card-title">Import addresses</div>
       <div class="card-copy">Paste one address per line. You can include a name on the same line.</div>
       <div class="trusted-form">
-        <textarea id="trusted-import" placeholder="Treasury 0x1234..."></textarea>
+        <textarea id="trusted-import" placeholder="Treasury 0x1234567890abcdef1234567890abcdef1234abcd"></textarea>
         <button class="button" id="trusted-import-button" type="button">Import</button>
       </div>
     </div>
@@ -568,6 +573,7 @@
   const trustedEncryption = document.getElementById("trusted-encryption");
   const trustedImport = document.getElementById("trusted-import");
   const trustedImportButton = document.getElementById("trusted-import-button");
+  const trustedSaveButton = trustedForm.querySelector("button[type='submit']");
   const statManual = document.getElementById("stat-manual");
   const statAuto = document.getElementById("stat-auto");
   const statLookalike = document.getElementById("stat-lookalike");
@@ -677,7 +683,7 @@
   function trustedMatchMarkup(match) {
     if (!match) return "";
     if (match.type === "trusted") {
-      return `<div class="trusted-warning">Matches saved recipient: ${escapeHtml(match.label)} (${escapeHtml(match.shortAddress)}).</div>`;
+      return `<div class="trusted-match">Saved recipient: ${escapeHtml(match.label)} (${escapeHtml(match.shortAddress)}).</div>`;
     }
     if (match.type === "lookalike") {
       return `<div class="trusted-warning">This looks like ${escapeHtml(match.label)}, but it is not the saved address ${escapeHtml(match.shortAddress)}.</div>`;
@@ -726,17 +732,16 @@
     manualSubmit.textContent = "Check";
   }
 
-  function updateResult(key, overall, detail) {
+  function updateResult(entry) {
     statusEl.textContent = protectionEnabled ? READY : PAUSED;
-    const entry = { key, kind: key.startsWith("0x") ? "address" : "link", overall, detail, checkedAt: new Date().toISOString(), proofs: [] };
-    setDecision(entry);
+    setDecision(entry || null);
     manualSubmit.disabled = false;
     manualSubmit.textContent = "Check";
   }
 
-  function updateError(key, message) {
-    updateResult(key, "unavailable", message);
-    manualError.textContent = message;
+  function updateError(entry) {
+    updateResult(entry);
+    manualError.textContent = entry?.detail || "The check could not finish.";
   }
 
   function setAppState(state) {
@@ -774,9 +779,15 @@
 
   function renderTrustedRecipients(payload) {
     trustedRecipients = Array.isArray(payload?.recipients) ? payload.recipients : [];
-    trustedEncryption.textContent = payload?.encrypted
+    const encrypted = payload?.encrypted === true;
+    trustedEncryption.textContent = encrypted
       ? "Saved addresses are encrypted on this PC with Windows account protection."
       : "Windows encryption is not available right now, so saving trusted recipients is disabled.";
+    trustedLabel.disabled = !encrypted;
+    trustedAddress.disabled = !encrypted;
+    trustedSaveButton.disabled = !encrypted;
+    trustedImport.disabled = !encrypted;
+    trustedImportButton.disabled = !encrypted;
     trustedList.innerHTML = "";
     if (!trustedRecipients.length) {
       trustedList.innerHTML = '<div class="empty"><div class="empty-title">No trusted recipients yet</div><p>Save addresses you use often, then AskLens can warn when a copied address only looks similar.</p></div>';
@@ -845,8 +856,8 @@
 
   ipcRenderer.send("request-app-state");
   ipcRenderer.on("checking", (_e, { key, kind }) => addChecking(key, kind));
-  ipcRenderer.on("result", (_e, { key, overall, detail }) => updateResult(key, overall, detail));
-  ipcRenderer.on("error", (_e, { key, message }) => updateError(key, message));
+  ipcRenderer.on("result", (_e, entry) => updateResult(entry));
+  ipcRenderer.on("error", (_e, entry) => updateError(entry));
   ipcRenderer.on("manual-check-error", (_e, { message }) => {
     manualSubmit.disabled = false;
     manualSubmit.textContent = "Check";
