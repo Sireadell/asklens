@@ -60,13 +60,13 @@ In an idle Windows Task Manager check on September 9, 2026, the three ClipGuard
 background processes used 9.6 MB combined. That is an observed test result, not
 a guaranteed amount for every computer.
 
-## One link, three live opinions
+## One copied link, routed by Telegraph
 
-For a copied web link, ClipGuard asks **NetWire, URL Sentinel, and Preflight**
-through Telegraph. Their answers become one result, and ClipGuard shows which
-miners answered. A link is called safe only when all three reviewed miners
-return safe. Disagreement, a missing answer, or an unclear answer is shown as
-caution, never hidden behind a confident safe label.
+For a copied web link, ClipGuard now asks Telegraph's automatic router to pick
+the URL safety miner. AskLens saves which miner answered, the intent Telegraph
+chose, and any returned proof reference. If the router does not choose
+`URL_SCAN`, or the answer is unclear, ClipGuard shows caution rather than a
+confident safe label.
 
 ## The right check for a copied address
 
@@ -93,8 +93,8 @@ Telegraph can pick the miner for you. You describe what you need and its router
 sends the request to whichever miner currently ranks best for that job. That is
 the network working as intended, and it is what we want to use wherever we can.
 
-Two of our checks do not use it, and the reason is measured rather than
-preferred. On 2026-09-04 we sent ten wallet-fraud requests through Telegraph's
+The copied-link check now uses it. Wallet and token safety still do not, and
+the reason is measured rather than preferred. On 2026-09-04 we sent ten wallet-fraud requests through Telegraph's
 automatic routing and all ten failed before a miner was chosen. The same ten
 addresses, asked of Telegraph Sentinel by ID, returned ten answers. A day
 earlier, when routing did complete, fraud questions reached a documentation
@@ -106,6 +106,7 @@ Telegraph's router.
 
 | Signal | How it is called | Why |
 |---|---|---|
+| Copied link safety | Telegraph's router (`URL_SCAN`) | The router can choose the currently preferred URL safety miner, and AskLens can watch whether results improve. |
 | Fraud check, wallet and token | Direct to Telegraph Sentinel | Automatic routing returned nothing on all ten of our test requests. This is the signal a dangerous verdict rests on. |
 | Holder count | Direct to TxLens | The same category of risk. We did not move a safety-critical signal onto a path we had not proven. |
 | Token price | Telegraph's router (`CRYPTO_PRICE`) | Context only, never changes the verdict, so the router's own reliability is an acceptable risk here. |

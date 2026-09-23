@@ -189,11 +189,14 @@ Windows, needs no surveillance beyond the exact address Clip Guard already
 watches, and addresses the real address-poisoning and clipboard-replacement
 moment that users describe.
 
-### Improve before adding new cards: Explain link disagreement
+### Improve before adding new cards: Watch routed link checks
 
-Keep the existing three-miner link check. Add a compact explanation when the
-miners disagree or some do not answer: who said what, their source references,
-and a **check again** action. Never turn a partial answer into SAFE.
+Copied-link checks now use Telegraph's automatic router instead of a fixed
+miner list. Track which miner the router chooses, whether the chosen intent is
+`URL_SCAN`, the proof reference, and whether the verdict improves or creates
+new false alarms. Add a compact explanation and a **check again** action for
+unclear or misrouted answers. Never turn a wrong-intent or unreadable answer
+into SAFE.
 
 ### Hold behind proof: Media Origin Check
 
