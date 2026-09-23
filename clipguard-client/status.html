@@ -9,16 +9,16 @@
     --bg: #090909;
     --panel: #111111;
     --panel-soft: #171717;
-    --line: #262626;
+    --line: #2a2a2a;
     --text: #f5f5f5;
-    --muted: #b3b3b3;
-    --subtle: #8a8a8a;
-    --green: #4ade80;
-    --green-bg: #052e16;
-    --amber: #fbbf24;
-    --amber-bg: #422006;
-    --red: #f87171;
-    --red-bg: #450a0a;
+    --muted: #b8b8b8;
+    --subtle: #8f8f8f;
+    --good: #86efac;
+    --good-bg: #052e16;
+    --warn: #facc15;
+    --warn-bg: #422006;
+    --bad: #f87171;
+    --bad-bg: #450a0a;
     --blue: #93c5fd;
     --blue-bg: #172554;
   }
@@ -32,13 +32,13 @@
     display: flex;
     flex-direction: column;
   }
-  button, summary { font: inherit; }
-  button:focus-visible, summary:focus-visible {
+  button, input { font: inherit; }
+  button:focus-visible, input:focus-visible {
     outline: 2px solid var(--blue);
     outline-offset: 2px;
   }
   header {
-    padding: 18px 18px 14px;
+    padding: 16px 18px 12px;
     border-bottom: 1px solid var(--line);
   }
   .brand-row {
@@ -48,22 +48,8 @@
     gap: 12px;
   }
   .brand {
-    display: flex;
-    align-items: center;
-    gap: 9px;
     font-size: 15px;
-    font-weight: 700;
-  }
-  .dot {
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-    background: var(--green);
-    box-shadow: 0 0 10px var(--green);
-  }
-  .dot.paused {
-    background: var(--amber);
-    box-shadow: 0 0 10px var(--amber);
+    font-weight: 750;
   }
   .state-pill {
     border: 1px solid var(--line);
@@ -84,68 +70,134 @@
     font-size: 12px;
     line-height: 1.35;
   }
-  .health-line.ok { color: #bbf7d0; }
+  .health-line.ok { color: var(--good); }
   .health-line.error { color: #fecaca; }
-  .decision {
-    padding: 16px 18px;
+  .tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     border-bottom: 1px solid var(--line);
-    background: linear-gradient(180deg, #111111, #0c0c0c);
+    background: #0d0d0d;
   }
-  .decision-label {
-    color: var(--subtle);
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
+  .tab {
+    border: 0;
+    border-right: 1px solid var(--line);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 10px 8px;
+    font-size: 12px;
   }
-  .decision-title {
-    margin-top: 6px;
-    font-size: 22px;
-    line-height: 1.18;
+  .tab:last-child { border-right: 0; }
+  .tab.active {
+    background: var(--panel);
+    color: var(--text);
+    font-weight: 700;
+  }
+  main {
+    flex: 1;
+    overflow-y: auto;
+  }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .card {
+    margin: 14px 16px;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--panel);
+  }
+  .card-title {
+    font-size: 15px;
     font-weight: 750;
+    line-height: 1.25;
   }
-  .decision-body {
-    margin-top: 8px;
+  .card-copy {
+    margin-top: 7px;
     color: var(--muted);
     font-size: 13px;
     line-height: 1.45;
   }
-  .controls {
+  .manual-form {
     display: flex;
     gap: 8px;
-    margin-top: 14px;
+    margin-top: 12px;
   }
-  .control-button, .recheck {
+  .manual-input {
+    min-width: 0;
+    flex: 1;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #0b0b0b;
+    color: var(--text);
+    padding: 10px;
+    font-size: 12px;
+  }
+  .button {
     border: 1px solid #3a3a3a;
-    border-radius: 7px;
+    border-radius: 8px;
     background: var(--panel-soft);
     color: var(--text);
     cursor: pointer;
     font-size: 12px;
-    padding: 8px 10px;
+    padding: 9px 11px;
   }
-  .control-button:hover, .recheck:hover { background: #202020; }
-  .control-button:disabled, .recheck:disabled {
+  .button:hover { background: #222; }
+  .button:disabled {
     color: var(--subtle);
     cursor: default;
     background: #101010;
   }
-  .control-button.primary { border-color: #166534; color: #bbf7d0; }
-  .control-button.warning { border-color: #92400e; color: #fde68a; }
+  .button.primary { border-color: #166534; color: #bbf7d0; }
+  .button.warning { border-color: #92400e; color: #fde68a; }
+  .manual-error {
+    margin-top: 9px;
+    color: #fecaca;
+    font-size: 12px;
+    min-height: 16px;
+  }
+  .choice-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .choice-button {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #0d0d0d;
+    color: var(--text);
+    cursor: pointer;
+    padding: 12px;
+    text-align: left;
+  }
+  .choice-button strong {
+    display: block;
+    font-size: 13px;
+  }
+  .choice-button span {
+    display: block;
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.35;
+  }
   .summary {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    border-bottom: 1px solid var(--line);
+    margin: 0 16px 10px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
     background: #0c0c0c;
   }
   .summary-item {
-    padding: 11px 8px;
+    padding: 10px 8px;
     text-align: center;
     border-right: 1px solid var(--line);
   }
   .summary-item:last-child { border-right: 0; }
   .summary-number {
     display: block;
-    color: var(--text);
     font-size: 17px;
     font-weight: 750;
   }
@@ -157,44 +209,11 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
-  main {
-    flex: 1;
-    overflow-y: auto;
-  }
-  .section-heading {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 13px 18px 8px;
-  }
-  .section-title {
-    font-size: 13px;
-    font-weight: 700;
-  }
   .privacy-note {
     color: var(--subtle);
     font-size: 11px;
     line-height: 1.4;
     padding: 0 18px 12px;
-  }
-  .empty {
-    margin: 4px 18px 16px;
-    padding: 14px;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    background: var(--panel);
-  }
-  .empty-title {
-    color: var(--text);
-    font-size: 14px;
-    font-weight: 700;
-  }
-  .empty p {
-    margin: 7px 0 0;
-    color: var(--muted);
-    font-size: 13px;
-    line-height: 1.45;
   }
   .row {
     margin: 0 12px 10px;
@@ -212,9 +231,7 @@
     justify-content: space-between;
     gap: 10px;
   }
-  .item-copy {
-    min-width: 0;
-  }
+  .item-copy { min-width: 0; }
   .kind {
     color: var(--muted);
     font-size: 11px;
@@ -238,9 +255,9 @@
     text-transform: uppercase;
     letter-spacing: 0.04em;
   }
-  .badge.safe { background: var(--green-bg); color: var(--green); }
-  .badge.suspicious, .badge.caution, .badge.paused { background: var(--amber-bg); color: var(--amber); }
-  .badge.malicious, .badge.dangerous { background: var(--red-bg); color: var(--red); }
+  .badge.safe { background: var(--good-bg); color: var(--good); }
+  .badge.suspicious, .badge.caution, .badge.paused { background: var(--warn-bg); color: var(--warn); }
+  .badge.malicious, .badge.dangerous { background: var(--bad-bg); color: var(--bad); }
   .badge.unknown, .badge.unavailable { background: #262626; color: var(--muted); }
   .badge.checking { background: var(--blue-bg); color: var(--blue); }
   .advice {
@@ -298,60 +315,158 @@
     color: var(--subtle);
     font-size: 11px;
   }
+  .empty {
+    margin: 4px 18px 16px;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--panel);
+  }
+  .empty-title {
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .empty p {
+    margin: 7px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+  .settings-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 0;
+    border-top: 1px solid var(--line);
+  }
+  .settings-row:first-of-type { border-top: 0; }
+  .settings-title {
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .settings-copy {
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.35;
+  }
+  .onboarding {
+    display: none;
+  }
+  .onboarding.visible {
+    display: block;
+  }
 </style>
 </head>
 <body>
 <header>
   <div class="brand-row">
-    <div class="brand"><span class="dot" id="status-dot"></span>AskLens Clip Guard</div>
-    <div class="state-pill" id="state-pill">On</div>
+    <div class="brand">AskLens Clip Guard</div>
+    <div class="state-pill" id="state-pill">Clipboard off</div>
   </div>
-  <div class="status-line" id="status">Ready, checking links and wallet addresses you copy</div>
-  <div class="health-line" id="health">Waiting for your first copied link or address.</div>
+  <div class="status-line" id="status">Clipboard checks off</div>
+  <div class="health-line" id="health">Choose automatic clipboard checks, or paste a link or address to check it manually.</div>
 </header>
-<section class="decision" id="decision-panel" aria-live="polite">
-  <div class="decision-label">Current answer</div>
-  <div class="decision-title" id="decision-title">Ready when you copy something</div>
-  <div class="decision-body" id="decision-body">Copy a full web link or a 0x wallet address. AskLens checks it through Telegraph and keeps the result here.</div>
-  <div class="controls" aria-label="Clip Guard controls">
-    <button class="control-button primary" id="toggle-protection" type="button">Pause protection</button>
-    <button class="control-button" id="clear-history" type="button" disabled>Clear history</button>
-  </div>
-</section>
-<section class="summary" aria-label="Recent safety checks">
-  <div class="summary-item"><span class="summary-number" id="checked-count">0</span><span class="summary-label">Checked</span></div>
-  <div class="summary-item"><span class="summary-number" id="careful-count">0</span><span class="summary-label">Review</span></div>
-  <div class="summary-item"><span class="summary-number" id="blocked-count">0</span><span class="summary-label">Do not use</span></div>
-</section>
+<nav class="tabs" aria-label="Sections">
+  <button class="tab active" data-tab="check" type="button">Check</button>
+  <button class="tab" data-tab="activity" type="button">Activity</button>
+  <button class="tab" data-tab="settings" type="button">Settings</button>
+</nav>
 <main>
-  <div class="section-heading">
-    <div class="section-title">Recent checks</div>
-  </div>
-  <div class="privacy-note">Results stay on this computer. Only exact links and wallet addresses are checked.</div>
-  <div id="list"></div>
+  <section class="panel active" id="panel-check">
+    <div class="card onboarding visible" id="onboarding-card">
+      <div class="card-title">Choose how AskLens watches links and addresses</div>
+      <div class="card-copy">You can let AskLens watch for complete copied links and wallet addresses, or keep clipboard watching off and paste items here yourself.</div>
+      <div class="choice-grid">
+        <button class="choice-button" id="choose-auto" type="button">
+          <strong>Turn on clipboard checks</strong>
+          <span>AskLens checks exact links and 0x addresses when you copy them.</span>
+        </button>
+        <button class="choice-button" id="choose-manual" type="button">
+          <strong>Use manual checks only</strong>
+          <span>AskLens checks only what you paste into this app.</span>
+        </button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title" id="decision-title">Paste something to check</div>
+      <div class="card-copy" id="decision-body">Paste a full web link or a 0x wallet address. AskLens asks Telegraph and keeps the result on this computer.</div>
+      <form class="manual-form" id="manual-form">
+        <input class="manual-input" id="manual-input" autocomplete="off" spellcheck="false" placeholder="https://example.com or 0x..." />
+        <button class="button primary" id="manual-submit" type="submit">Check</button>
+      </form>
+      <div class="manual-error" id="manual-error"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Clipboard protection</div>
+      <div class="card-copy" id="clipboard-copy">Clipboard checks are off. Manual checks still work.</div>
+      <div class="choice-grid">
+        <button class="button" id="toggle-protection" type="button">Turn on clipboard checks</button>
+      </div>
+    </div>
+  </section>
+  <section class="panel" id="panel-activity">
+    <div class="summary" aria-label="Recent safety checks">
+      <div class="summary-item"><span class="summary-number" id="checked-count">0</span><span class="summary-label">Checked</span></div>
+      <div class="summary-item"><span class="summary-number" id="careful-count">0</span><span class="summary-label">Review</span></div>
+      <div class="summary-item"><span class="summary-number" id="blocked-count">0</span><span class="summary-label">Do not use</span></div>
+    </div>
+    <div class="privacy-note">Results stay on this computer. Only exact links and wallet addresses are checked.</div>
+    <div id="list"></div>
+  </section>
+  <section class="panel" id="panel-settings">
+    <div class="card">
+      <div class="card-title">Settings</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-title">Automatic clipboard checks</div>
+          <div class="settings-copy">When on, AskLens checks exact copied links and 0x wallet addresses. When off, use the manual check box.</div>
+        </div>
+        <button class="button" id="settings-protection" type="button">Off</button>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-title">Local history</div>
+          <div class="settings-copy">Remove saved check results from this PC.</div>
+        </div>
+        <button class="button" id="clear-history" type="button" disabled>Clear</button>
+      </div>
+    </div>
+  </section>
 </main>
 <script>
   const { ipcRenderer } = require("electron");
   const list = document.getElementById("list");
   const statusEl = document.getElementById("status");
   const healthEl = document.getElementById("health");
-  const statusDot = document.getElementById("status-dot");
   const statePill = document.getElementById("state-pill");
   const decisionTitle = document.getElementById("decision-title");
   const decisionBody = document.getElementById("decision-body");
+  const manualForm = document.getElementById("manual-form");
+  const manualInput = document.getElementById("manual-input");
+  const manualSubmit = document.getElementById("manual-submit");
+  const manualError = document.getElementById("manual-error");
+  const onboardingCard = document.getElementById("onboarding-card");
+  const chooseAuto = document.getElementById("choose-auto");
+  const chooseManual = document.getElementById("choose-manual");
   const toggleProtection = document.getElementById("toggle-protection");
+  const settingsProtection = document.getElementById("settings-protection");
+  const clipboardCopy = document.getElementById("clipboard-copy");
   const clearHistory = document.getElementById("clear-history");
   const checkedCount = document.getElementById("checked-count");
   const carefulCount = document.getElementById("careful-count");
   const blockedCount = document.getElementById("blocked-count");
   let history = [];
-  let protectionEnabled = true;
+  let protectionEnabled = false;
+  let clipboardChoiceMade = false;
 
-  const READY = "Ready, checking links and wallet addresses you copy";
-  const PAUSED = "Paused, clipboard checks are off";
+  const READY = "Clipboard checks on";
+  const PAUSED = "Clipboard checks off";
 
-  function rowFor(key) {
-    return Array.from(list.querySelectorAll(".row")).find((row) => row.dataset.key === key);
+  function switchTab(name) {
+    document.querySelectorAll(".tab").forEach((tab) => tab.classList.toggle("active", tab.dataset.tab === name));
+    document.querySelectorAll(".panel").forEach((panel) => panel.classList.toggle("active", panel.id === `panel-${name}`));
   }
 
   function kindLabel(kind) {
@@ -367,7 +482,7 @@
   }
 
   function adviceFor(entry) {
-    if (!entry) return protectionEnabled ? "Ready when you copy something" : "Protection is paused";
+    if (!entry) return "Paste something to check";
     if (entry.overall === "safe") return "Looks safe to use";
     if (entry.overall === "caution" || entry.overall === "suspicious") return "Review before you use it";
     if (entry.overall === "dangerous" || entry.overall === "malicious") return "Do not use this";
@@ -376,12 +491,8 @@
   }
 
   function bodyFor(entry) {
-    if (!entry) {
-      return protectionEnabled
-        ? "Copy a full web link or a 0x wallet address. AskLens checks it through Telegraph and keeps the result here."
-        : "Turn protection back on when you want AskLens to check copied links and wallet addresses again.";
-    }
-    if (entry.overall === "checking") return `${kindLabel(entry.kind)} copied. Asking Telegraph miners now.`;
+    if (!entry) return "Paste a full web link or a 0x wallet address. AskLens asks Telegraph and keeps the result on this computer.";
+    if (entry.overall === "checking") return `${kindLabel(entry.kind)} submitted. Asking Telegraph now.`;
     return entry.detail || "AskLens saved the latest check result.";
   }
 
@@ -395,13 +506,17 @@
       key,
       kind,
       overall: "checking",
-      detail: "Asking Telegraph miners now.",
+      detail: "Asking Telegraph now.",
       checkedAt: new Date().toISOString(),
       proofs: [],
     };
+    manualSubmit.disabled = true;
+    manualSubmit.textContent = "Checking";
+    manualError.textContent = "";
     setDecision(checkingEntry);
     renderRows([checkingEntry, ...history]);
-    statusEl.textContent = kind === "address" ? "Checking a copied address..." : "Checking a copied link...";
+    statusEl.textContent = kind === "address" ? "Checking an address" : "Checking a link";
+    switchTab("check");
   }
 
   function renderSummary() {
@@ -428,14 +543,11 @@
       <div class="reason">${escapeHtml(entry.detail)}</div>
       ${proofMarkup(entry.proofs)}
       <div class="row-actions">
-        <button class="recheck" type="button" ${entry.overall === "checking" ? "disabled" : ""}>${entry.overall === "checking" ? "Checking..." : "Check again"}</button>
+        <button class="button recheck" type="button" ${entry.overall === "checking" ? "disabled" : ""}>${entry.overall === "checking" ? "Checking" : "Check again"}</button>
         <div class="time">${new Date(entry.checkedAt).toLocaleString()}</div>
       </div>
     `;
-    const button = row.querySelector(".recheck");
-    button.addEventListener("click", () => {
-      button.disabled = true;
-      button.textContent = "Checking...";
+    row.querySelector(".recheck").addEventListener("click", () => {
       ipcRenderer.send("recheck", { key: entry.key, kind: entry.kind });
     });
     list.appendChild(row);
@@ -446,24 +558,19 @@
     if (!items.length) {
       return '<details><summary>Evidence receipt</summary><div class="proof"><span class="proof-label">Proof</span><span class="proof-value">No proof reference was returned for this check.</span></div></details>';
     }
-    const rows = items.map((proof) => {
-      const miner = escapeHtml(proof?.miner || "Unknown miner");
-      const reference = proof?.signalHash ? escapeHtml(proof.signalHash) : "No proof reference returned";
-      return `
-        <div class="proof">
-          <span class="proof-label">Miner</span><span class="proof-value">${miner}</span>
-          <span class="proof-label">Reference</span><span class="proof-value">${reference}</span>
-        </div>
-      `;
-    }).join("");
-    return `<details><summary>Evidence receipt</summary>${rows}</details>`;
+    return `<details><summary>Evidence receipt</summary>${items.map((proof) => `
+      <div class="proof">
+        <span class="proof-label">Miner</span><span class="proof-value">${escapeHtml(proof?.miner || "Unknown miner")}</span>
+        <span class="proof-label">Reference</span><span class="proof-value">${proof?.signalHash ? escapeHtml(proof.signalHash) : "No proof reference returned"}</span>
+      </div>
+    `).join("")}</details>`;
   }
 
   function emptyMarkup() {
     return `
       <div class="empty">
-        <div class="empty-title">${protectionEnabled ? "Nothing checked yet" : "Protection is paused"}</div>
-        <p>${protectionEnabled ? "Copy a full web link or a 0x wallet address. The first result will appear here." : "Resume protection when you want AskLens to check copied links and wallet addresses again."}</p>
+        <div class="empty-title">Nothing checked yet</div>
+        <p>Use the Check tab, or turn on clipboard checks in Settings.</p>
       </div>
     `;
   }
@@ -483,52 +590,67 @@
     renderSummary();
     clearHistory.disabled = history.length === 0;
     setDecision(history[0] || null);
+    manualSubmit.disabled = false;
+    manualSubmit.textContent = "Check";
   }
 
   function updateResult(key, overall, detail) {
     statusEl.textContent = protectionEnabled ? READY : PAUSED;
-    const row = rowFor(key);
-    if (!row) return;
-    const entry = { key, kind: row.querySelector(".kind")?.textContent === "Wallet address" ? "address" : "link", overall, detail, checkedAt: new Date().toISOString(), proofs: [] };
+    const entry = { key, kind: key.startsWith("0x") ? "address" : "link", overall, detail, checkedAt: new Date().toISOString(), proofs: [] };
     setDecision(entry);
-    row.querySelector(".badge").className = `badge ${overall}`;
-    row.querySelector(".badge").textContent = verdictLabel(overall);
-    row.querySelector(".advice").textContent = adviceFor(entry);
-    row.querySelector(".reason").textContent = detail;
-    const button = row.querySelector(".recheck");
-    button.disabled = false;
-    button.textContent = "Check again";
-    row.querySelector(".time").textContent = new Date().toLocaleTimeString();
+    manualSubmit.disabled = false;
+    manualSubmit.textContent = "Check";
   }
 
   function updateError(key, message) {
     updateResult(key, "unavailable", message);
+    manualError.textContent = message;
   }
 
   function setAppState(state) {
-    protectionEnabled = state?.protectionEnabled !== false;
+    protectionEnabled = state?.protectionEnabled === true;
+    clipboardChoiceMade = state?.clipboardChoiceMade === true;
     statusEl.textContent = protectionEnabled ? (state?.status || READY) : PAUSED;
-    statusDot.classList.toggle("paused", !protectionEnabled);
-    statePill.textContent = protectionEnabled ? "On" : "Paused";
-    toggleProtection.textContent = protectionEnabled ? "Pause protection" : "Resume protection";
-    toggleProtection.classList.toggle("primary", protectionEnabled);
-    toggleProtection.classList.toggle("warning", !protectionEnabled);
-    healthEl.textContent = state?.lastCheckMessage || "Waiting for your first copied link or address.";
+    statePill.textContent = protectionEnabled ? "Clipboard on" : "Clipboard off";
+    onboardingCard.classList.toggle("visible", !clipboardChoiceMade);
+    toggleProtection.textContent = protectionEnabled ? "Turn off clipboard checks" : "Turn on clipboard checks";
+    toggleProtection.classList.toggle("warning", protectionEnabled);
+    toggleProtection.classList.toggle("primary", !protectionEnabled);
+    settingsProtection.textContent = protectionEnabled ? "On" : "Off";
+    settingsProtection.classList.toggle("warning", protectionEnabled);
+    settingsProtection.classList.toggle("primary", !protectionEnabled);
+    clipboardCopy.textContent = protectionEnabled
+      ? "AskLens checks exact copied links and wallet addresses. You can turn this off at any time."
+      : "Clipboard checks are off. Manual checks still work.";
+    healthEl.textContent = state?.lastCheckMessage || "Paste a link or address to check it manually.";
     healthEl.className = `health-line ${state?.lastCheckStatus === "ok" ? "ok" : state?.lastCheckStatus === "error" ? "error" : ""}`;
-    if (!history.length) {
-      renderRows(history);
-      setDecision(null);
-    }
   }
 
   function escapeHtml(s) {
     return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   }
 
-  toggleProtection.addEventListener("click", () => {
-    ipcRenderer.send("set-protection-enabled", !protectionEnabled);
+  document.querySelectorAll(".tab").forEach((tab) => {
+    tab.addEventListener("click", () => switchTab(tab.dataset.tab));
   });
 
+  manualForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    manualError.textContent = "";
+    const value = manualInput.value.trim();
+    if (!value) {
+      manualError.textContent = "Paste a link or 0x address first.";
+      return;
+    }
+    manualSubmit.disabled = true;
+    manualSubmit.textContent = "Checking";
+    ipcRenderer.send("manual-check", value);
+  });
+
+  chooseAuto.addEventListener("click", () => ipcRenderer.send("set-protection-enabled", true));
+  chooseManual.addEventListener("click", () => ipcRenderer.send("set-protection-enabled", false));
+  toggleProtection.addEventListener("click", () => ipcRenderer.send("set-protection-enabled", !protectionEnabled));
+  settingsProtection.addEventListener("click", () => ipcRenderer.send("set-protection-enabled", !protectionEnabled));
   clearHistory.addEventListener("click", () => {
     clearHistory.disabled = true;
     ipcRenderer.send("clear-history");
@@ -538,6 +660,11 @@
   ipcRenderer.on("checking", (_e, { key, kind }) => addChecking(key, kind));
   ipcRenderer.on("result", (_e, { key, overall, detail }) => updateResult(key, overall, detail));
   ipcRenderer.on("error", (_e, { key, message }) => updateError(key, message));
+  ipcRenderer.on("manual-check-error", (_e, { message }) => {
+    manualSubmit.disabled = false;
+    manualSubmit.textContent = "Check";
+    manualError.textContent = message;
+  });
   ipcRenderer.on("history", (_e, { entries }) => setHistory(entries));
   ipcRenderer.on("app-state", (_e, state) => setAppState(state));
 </script>

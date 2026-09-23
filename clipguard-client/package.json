@@ -1,6 +1,6 @@
 {
   "name": "asklens-clipguard-client",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "Watches the clipboard and checks copied links against live Telegraph miners before you use them.",
   "type": "module",
   "main": "desktop-main.cjs",

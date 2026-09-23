@@ -13,7 +13,7 @@ moments without making you leave the workflow you are in.
 
 | Start here | Link |
 |---|---|
-| ClipGuard 1.2.4 for Windows | [Download the current installer](https://github.com/Sireadell/asklens/releases/tag/v1.2.4-clipguard) |
+| ClipGuard 1.2.5 for Windows | [Download the current installer](https://github.com/Sireadell/asklens/releases/tag/v1.2.5-clipguard) |
 | ClipGuard for Windows | [See how it works](https://asklens-zoox.onrender.com/pc.html) |
 | Wallet safety in MetaMask | [Open the Snap guide](https://asklens-zoox.onrender.com/metamask.html) |
 | Use from Claude or Cursor | [Open the MCP setup guide](https://asklens-zoox.onrender.com/connect.html) |
@@ -32,21 +32,22 @@ lookalike address to tempt someone into copying the wrong one. A copied link
 has the same problem: by the time a person thinks to check it, they may already
 have opened it.
 
-ClipGuard checks a complete copied web link or `0x` wallet address and sends a
-Windows notification when the result is ready.
+ClipGuard can check a complete web link or `0x` wallet address in two ways:
+the user can paste it into the app manually, or they can turn on automatic
+clipboard checks.
 
 ### Background protection
 
 ClipGuard starts with Windows and runs quietly in the system tray. Closing the
-status window does not stop protection. The watcher keeps checking complete
-links and wallet addresses copied to the clipboard, then shows a Windows
-notification when the result is ready.
+status window does not stop it. On first open, the user chooses whether AskLens
+may watch exact copied links and wallet addresses, or whether it should only
+check items pasted into the app manually.
 
-The status window now puts the answer first: whether the copied item looks safe,
-needs review, should not be used, or needs another check. It also has pause and
-resume control, clear local history, a simple last-check health line, and
-friendlier evidence receipts. Rapid repeated rechecks are collapsed so one
-copied item cannot trigger several paid checks at the same time.
+The status window now has three tabs: Check, Activity, and Settings. Check lets
+the user paste a link or address manually. Settings lets the user turn clipboard
+checks on or off at any time. Activity keeps recent results and evidence
+receipts on the PC. Rapid repeated rechecks are collapsed so one copied item
+cannot trigger several paid checks at the same time.
 
 Every completed check stays in the local activity view with its time, miner
 names, and any returned Telegraph proof reference. A failed check stays there
@@ -85,7 +86,9 @@ ClipGuard asks the chain itself which one it is (a free, instant
   caution rather than a false safe.
 
 Only an item that is exactly a web link or `0x` address is sent for checking.
-Other copied text is ignored and never sent anywhere.
+Other copied text is ignored and never sent anywhere. If clipboard checks are
+off, AskLens does not read the clipboard for checks, and the manual box remains
+available.
 
 ## Why some checks go straight to a miner, and some let Telegraph choose
 
@@ -171,7 +174,7 @@ reason.
 
 ## What a reviewer can verify
 
-- ClipGuard fans a copied web link out to three live Telegraph URL-scan miners.
+- ClipGuard routes a link safety question through Telegraph's automatic router.
 - ClipGuard tells a copied `0x` wallet address from a token contract address
   with a direct on-chain read, then sends it to Telegraph for the matching
   check: a fraud request for a wallet, or a holder-count and fraud check for

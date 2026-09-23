@@ -35,8 +35,8 @@ const BACKGROUND_ARG = "--background";
 const URL_ONLY_RE = /^https?:\/\/\S+$/i;
 const ADDRESS_ONLY_RE = /^0x[a-fA-F0-9]{40}$/;
 
-const READY_STATUS = "Ready, checking links and wallet addresses you copy";
-const PAUSED_STATUS = "Paused, clipboard checks are off";
+const READY_STATUS = "Clipboard checks on";
+const PAUSED_STATUS = "Clipboard checks off";
 const MAX_ACTIVITY_ITEMS = 50;
 
 let lastChecked = "";
@@ -44,9 +44,10 @@ let tray;
 let statusWindow;
 let isQuitting = false;
 let latestAddressCopy = null;
-let protectionEnabled = true;
+let protectionEnabled = false;
+let clipboardChoiceMade = false;
 let lastCheckStatus = "waiting";
-let lastCheckMessage = "Waiting for your first copied link or address.";
+let lastCheckMessage = "Choose automatic clipboard checks, or paste a link or address to check it manually.";
 const checkGate = createCheckGate();
 
 function startedInBackground() {
@@ -87,12 +88,14 @@ function startupPreferencePath() {
 function readSettings() {
   try {
     const parsed = JSON.parse(fs.readFileSync(startupPreferencePath(), "utf8"));
+    const clipboardChoice = parsed.clipboardChoiceMade === true;
     return {
       startWithWindows: parsed.startWithWindows !== false,
-      protectionEnabled: parsed.protectionEnabled !== false,
+      protectionEnabled: clipboardChoice ? parsed.protectionEnabled === true : false,
+      clipboardChoiceMade: clipboardChoice,
     };
   } catch {
-    return { startWithWindows: true, protectionEnabled: true };
+    return { startWithWindows: true, protectionEnabled: false, clipboardChoiceMade: false };
   }
 }
 
@@ -147,6 +150,7 @@ function currentStatus() {
 function appState() {
   return {
     protectionEnabled,
+    clipboardChoiceMade,
     startWithWindows: startsWithWindows(),
     status: currentStatus(),
     lastCheckStatus,
@@ -160,7 +164,8 @@ function sendAppState() {
 
 function setProtectionEnabled(enabled) {
   protectionEnabled = Boolean(enabled);
-  writeSettings({ ...readSettings(), protectionEnabled });
+  clipboardChoiceMade = true;
+  writeSettings({ ...readSettings(), protectionEnabled, clipboardChoiceMade });
   updateTray(currentStatus());
   sendAppState();
   showNotice(
@@ -247,6 +252,13 @@ function clearActivity() {
   }
 }
 
+function inferCheckKind(value) {
+  const text = typeof value === "string" ? value.trim() : "";
+  if (URL_ONLY_RE.test(text)) return { kind: "link", value: text };
+  if (ADDRESS_ONLY_RE.test(text)) return { kind: "address", value: text };
+  return null;
+}
+
 function proofItems(kind, data) {
   if (kind === "link") {
     return (Array.isArray(data.results) ? data.results : [])
@@ -282,9 +294,9 @@ function formatPriceUsd(price) {
   return price.toPrecision(3);
 }
 
-// A link verdict comes from several miners voting, a wallet verdict from
-// Sentinel alone, so each is flattened here into the one shape the status
-// window and the notification both read.
+// A link verdict comes from Telegraph routing, a wallet verdict from a wallet
+// safety check, so each is flattened here into the one shape the status window
+// and the notification both read.
 function summarise(kind, data) {
   if (kind === "link") {
     const line = (data.results || [])
@@ -293,7 +305,7 @@ function summarise(kind, data) {
       .join("  |  ");
     return {
       title: LINK_TITLES[data.overall] || "No clear link verdict",
-      detail: `${data.answeredCount}/${data.totalCount} miners answered${data.overall === "caution" ? ". Do not treat an incomplete result as safe." : ""}${line ? `: ${line}` : ""}`,
+      detail: `Telegraph routed this link to ${data.miner || "a URL safety miner"}${data.overall === "caution" ? ". Do not treat an unclear route as safe." : ""}${line ? `: ${line}` : ""}`,
     };
   }
   const formattedPrice = formatPriceUsd(data.priceUsd);
@@ -384,6 +396,17 @@ ipcMain.on("set-protection-enabled", (_event, enabled) => {
   setProtectionEnabled(enabled);
 });
 
+ipcMain.on("manual-check", (_event, value) => {
+  const parsed = inferCheckKind(value);
+  if (!parsed) {
+    sendToStatusWindow("manual-check-error", {
+      message: "Paste a full http:// or https:// link, or a 0x wallet address.",
+    });
+    return;
+  }
+  check(parsed.kind, parsed.value);
+});
+
 ipcMain.on("clear-history", () => {
   clearActivity();
 });
@@ -394,11 +417,10 @@ ipcMain.on("request-app-state", () => {
 
 function startWatching() {
   setInterval(() => {
-    const text = clipboard.readText().trim();
     if (!protectionEnabled) {
-      lastChecked = text;
       return;
     }
+    const text = clipboard.readText().trim();
     if (text === lastChecked) return;
     lastChecked = text;
     if (URL_ONLY_RE.test(text)) check("link", text);
@@ -431,6 +453,7 @@ if (!gotLock) {
       app.setAppUserModelId("com.asklens.clipguard");
       const settings = readSettings();
       protectionEnabled = settings.protectionEnabled;
+      clipboardChoiceMade = settings.clipboardChoiceMade;
       setStartWithWindows(settings.startWithWindows);
       const icon = nativeImage.createFromPath(ICON_PATH);
       tray = new Tray(icon.isEmpty() ? nativeImage.createEmpty() : icon);
@@ -441,7 +464,7 @@ if (!gotLock) {
       logToFile("tray watcher started");
       if (!startedInBackground()) {
         openStatusWindow();
-        showNotice("AskLens Clip Guard is on", "Copy a link or a wallet address and AskLens checks it before you use it.");
+        showNotice("AskLens Clip Guard is ready", "Choose automatic clipboard checks, or paste a link or wallet address into the app.");
       }
     } catch (err) {
       logToFile(`startup failed: ${err.stack || err.message}`);
