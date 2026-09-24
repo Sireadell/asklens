@@ -16,7 +16,7 @@ import { createAskLensServer } from "./mcp.js";
 import { assessWalletForSnap } from "./snap-wallet.js";
 import { createSnapRequestGuard } from "./snap-guard.js";
 import { createSnapWalletSafetyHandler } from "./snap-route.js";
-import { createClipguardHandler, createClipguardWalletHandler } from "./clipguard-route.js";
+import { allowCrossSiteChecks, createClipguardHandler, createClipguardWalletHandler } from "./clipguard-route.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -24,6 +24,7 @@ const app = express();
 // therefore uses only the address supplied by that final proxy and ignores
 // extra, user-supplied addresses farther to the left.
 app.set("trust proxy", 1);
+app.use(["/api/clipguard/check-url", "/api/clipguard/check-wallet"], allowCrossSiteChecks);
 app.use(express.json({ limit: "32kb" }));
 app.use(express.static(join(here, "..", "public")));
 

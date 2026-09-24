@@ -13,6 +13,17 @@ function isCheckableUrl(value) {
   }
 }
 
+// Lets other sites (the CheckFirst Anna app) call the two check routes from a
+// browser. `*` is safe here: no cookies or credentials, and the rate guard
+// still applies to every caller.
+export function allowCrossSiteChecks(req, res, next) {
+  res.set("Access-Control-Allow-Origin", "*");
+  res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.set("Access-Control-Allow-Headers", "content-type");
+  if (req.method === "OPTIONS") return res.sendStatus(204);
+  return next();
+}
+
 export function createClipguardHandler({ guard }) {
   return async function checkUrlHandler(req, res) {
     const url = req.body?.url;
