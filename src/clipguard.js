@@ -12,6 +12,15 @@ import { checkTokenSafety } from "./token-safety.js";
 
 const URL_SCAN_INTENT = "URL_SCAN";
 
+// Telegraph's router picks the lead answer. These compatible URL miners are
+// the safety cross-check set we know how to call and read directly through
+// Telegraph when the lead answer says a copied link is clean.
+export const CLIPGUARD_MINERS = [
+  { id: "7334", name: "NetWire", method: "GET", endpoint: "/url-scan", payload: (url) => ({ question: `Is ${url} safe?` }) },
+  { id: "5001", name: "URL Sentinel", method: "POST", endpoint: "/scan", payload: (url) => ({ url }) },
+  { id: "20260828", name: "Preflight", method: "GET", endpoint: "/url-scan", payload: (url) => ({ url }) },
+];
+
 const VERDICT_MAP = {
   safe: "safe", clean: "safe", benign: "safe", legitimate: "safe", ok: "safe", low: "safe",
   suspicious: "suspicious", caution: "suspicious", unverified: "suspicious", risky: "suspicious", warning: "suspicious", medium: "suspicious",
@@ -78,16 +87,12 @@ function routedUrlResult(url, body, settlement = null) {
   const confidence = extractConfidence(body?.result);
   const routedToUrlScan = routedIntent === URL_SCAN_INTENT;
 
-  let overall = "caution";
-  if (routedToUrlScan && verdict === "safe") overall = "safe";
-  else if (routedToUrlScan && verdict === "malicious") overall = "malicious";
-  else if (routedToUrlScan && verdict === "suspicious") overall = "suspicious";
-
   const result = {
     miner,
     minerId: body?.miner_id ?? null,
     ok: routedToUrlScan,
     verdict: routedToUrlScan ? verdict : "unknown",
+    source: "router",
     confidence,
     signalHash,
     reason: routedToUrlScan
@@ -100,13 +105,6 @@ function routedUrlResult(url, body, settlement = null) {
 
   return {
     url,
-    overall,
-    answeredCount: routedToUrlScan ? 1 : 0,
-    totalCount: 1,
-    malicious: overall === "malicious" ? 1 : 0,
-    suspicious: overall === "suspicious" ? 1 : 0,
-    safe: overall === "safe" ? 1 : 0,
-    unknown: overall === "caution" ? 1 : 0,
     router: true,
     miner,
     intent: routedIntent,
@@ -116,19 +114,106 @@ function routedUrlResult(url, body, settlement = null) {
   };
 }
 
-// A payment occasionally fails to settle on the first try. One retry after a
-// short pause clears it often enough that a transient payment race should not
-// cost the user a safety check.
-export async function checkUrlWithRouter(url, { timeoutMs = 9000, retriesLeft = 1, fetchFn } = {}) {
+// A payment occasionally fails to settle on the first try (a same-wallet
+// nonce race, not a real balance problem). One retry after a short pause
+// prevents one transient payment miss from removing a miner's vote.
+async function askOneUrlMiner(miner, url, timeoutMs, { retriesLeft = 1, fetchFn } = {}) {
   try {
-    const { body, settlement } = await ask(routedUrlQuestion(url), { surface: "clipguard", inputType: "copied_url", url }, { timeoutMs, fetchFn });
-    const result = routedUrlResult(url, body, settlement);
-    if (result.intent) recordAnswered({ intent: result.intent, minerName: result.miner });
-    return result;
+    const { body } = await askMiner(
+      miner.id,
+      { method: miner.method, endpoint: miner.endpoint, payload: miner.payload(url) },
+      { timeoutMs, fetchFn }
+    );
+    recordAnswered({ intent: URL_SCAN_INTENT, minerName: miner.name });
+    return {
+      miner: body?.miner_name ?? miner.name,
+      minerId: body?.miner_id ?? miner.id,
+      ok: true,
+      verdict: classifyUrlVerdict(body?.result),
+      source: "verifier",
+      confidence: extractConfidence(body?.result),
+      signalHash: body?.signal_hash ?? null,
+      reason: typeof body?.result?.reason === "string" && body.result.reason.trim()
+        ? body.result.reason.trim()
+        : extractAnswer(body?.result).text,
+      endpoint: miner.endpoint,
+    };
   } catch (err) {
     if (retriesLeft > 0 && err instanceof EngineError && err.code === "PAYMENT_FAILED") {
       await sleep(600);
-      return checkUrlWithRouter(url, { timeoutMs, retriesLeft: retriesLeft - 1, fetchFn });
+      return askOneUrlMiner(miner, url, timeoutMs, { retriesLeft: retriesLeft - 1, fetchFn });
+    }
+    return {
+      miner: miner.name,
+      minerId: miner.id,
+      ok: false,
+      verdict: "unknown",
+      source: "verifier",
+      error: err.message,
+    };
+  }
+}
+
+function dedupeUrlResults(results) {
+  const seen = new Map();
+  for (const result of results) {
+    const key = result?.minerId ? `id:${result.minerId}` : `name:${result?.miner ?? "unknown"}`;
+    if (!seen.has(key)) seen.set(key, result);
+  }
+  return [...seen.values()];
+}
+
+async function checkUrlVerifiers(url, { timeoutMs, fetchFn, verifierStaggerMs = 900, miners = CLIPGUARD_MINERS } = {}) {
+  const settled = await Promise.allSettled(
+    miners.map(async (miner, i) => {
+      await sleep(i * verifierStaggerMs);
+      return askOneUrlMiner(miner, url, timeoutMs, { fetchFn });
+    })
+  );
+  return settled.map((result) => (
+    result.status === "fulfilled"
+      ? result.value
+      : { miner: "URL verifier", ok: false, verdict: "unknown", source: "verifier", error: "internal error" }
+  ));
+}
+
+function buildUrlCheckResponse(url, results, { router = true, miner = "Telegraph router", intent = null, signalHash = null, confidence = null } = {}) {
+  const uniqueResults = dedupeUrlResults(results);
+  const verdict = aggregateUrlVerdict(uniqueResults, uniqueResults.length);
+
+  return {
+    url,
+    ...verdict,
+    totalCount: uniqueResults.length,
+    router,
+    miner,
+    intent,
+    signalHash,
+    confidence,
+    results: uniqueResults,
+  };
+}
+
+// A payment occasionally fails to settle on the first try. One retry after a
+// short pause clears it often enough that a transient payment race should not
+// cost the user a safety check.
+export async function checkUrlWithRouter(url, { timeoutMs = 9000, retriesLeft = 1, fetchFn, verifierStaggerMs, miners } = {}) {
+  try {
+    const { body, settlement } = await ask(routedUrlQuestion(url), { surface: "clipguard", inputType: "copied_url", url }, { timeoutMs, fetchFn });
+    const routed = routedUrlResult(url, body, settlement);
+    if (routed.intent) recordAnswered({ intent: routed.intent, minerName: routed.miner });
+    const verifiers = await checkUrlVerifiers(url, { timeoutMs, fetchFn, verifierStaggerMs, miners });
+    return buildUrlCheckResponse(url, [...routed.results, ...verifiers], {
+      router: true,
+      miner: routed.miner,
+      intent: routed.intent,
+      signalHash: routed.signalHash,
+      confidence: routed.confidence,
+    });
+  } catch (err) {
+    if (retriesLeft > 0 && err instanceof EngineError && err.code === "PAYMENT_FAILED") {
+      await sleep(600);
+      return checkUrlWithRouter(url, { timeoutMs, retriesLeft: retriesLeft - 1, fetchFn, verifierStaggerMs, miners });
     }
     return {
       url,
@@ -151,25 +236,27 @@ export async function checkUrlWithRouter(url, { timeoutMs = 9000, retriesLeft = 
 // Kept as the server-facing name so older route code and tests do not need a
 // new public function. It now lets Telegraph route the copied link instead of
 // naming URL miners inside AskLens.
-export async function checkUrlAcrossMiners(url, { timeoutMs = 9000 } = {}) {
-  return checkUrlWithRouter(url, { timeoutMs });
+export async function checkUrlAcrossMiners(url, { timeoutMs = 9000, fetchFn, verifierStaggerMs, miners } = {}) {
+  return checkUrlWithRouter(url, { timeoutMs, fetchFn, verifierStaggerMs, miners });
 }
 
-// A partial clean result is not a clean bill of health. A slow, unavailable,
-// or incompatible miner must turn an otherwise-safe link result into caution,
-// so Clip Guard never calls a link safe on one incomplete answer.
+// One miner cannot issue the final safety label alone. Safe needs at least two
+// clean Telegraph answers and no disagreement. Strong "Do not use" needs more
+// than one malicious answer. Disagreement becomes Review.
 export function aggregateUrlVerdict(results, totalCount = results.length) {
   const answered = results.filter((result) => result?.ok);
   const malicious = answered.filter((result) => result.verdict === "malicious").length;
   const suspicious = answered.filter((result) => result.verdict === "suspicious").length;
   const safe = answered.filter((result) => result.verdict === "safe").length;
   const unknown = answered.length - malicious - suspicious - safe;
+  const missing = Math.max(totalCount - answered.length, 0);
+  const hasReadableButUntrustedAnswer = results.some((result) => result && !result.ok && !result.error);
 
   let overall = "caution";
-  if (answered.length === 0) overall = "unavailable";
-  else if (malicious > 0) overall = "malicious";
-  else if (suspicious > 0) overall = "suspicious";
-  else if (safe === totalCount && answered.length === totalCount) overall = "safe";
+  if (answered.length === 0) overall = hasReadableButUntrustedAnswer ? "caution" : "unavailable";
+  else if (malicious >= 2) overall = "malicious";
+  else if (malicious > 0 || suspicious > 0) overall = "suspicious";
+  else if (safe >= 2 && unknown === 0 && missing === 0) overall = "safe";
 
   return {
     overall,
@@ -177,7 +264,7 @@ export function aggregateUrlVerdict(results, totalCount = results.length) {
     malicious,
     suspicious,
     safe,
-    unknown,
+    unknown: unknown + missing,
   };
 }
 
