@@ -21,6 +21,21 @@ export const CLIPGUARD_MINERS = [
   { id: "20260828", name: "Preflight", method: "GET", endpoint: "/url-scan", payload: (url) => ({ url }) },
 ];
 
+export function selectVerifierMiners(routedMinerId, {
+  miners = CLIPGUARD_MINERS,
+  count = 2,
+  random = Math.random,
+} = {}) {
+  const routed = routedMinerId === null || routedMinerId === undefined ? null : String(routedMinerId);
+  const eligible = miners.filter((miner) => String(miner.id) !== routed);
+  const shuffled = [...eligible];
+  for (let i = shuffled.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled.slice(0, count);
+}
+
 const VERDICT_MAP = {
   safe: "safe", clean: "safe", benign: "safe", legitimate: "safe", ok: "safe", low: "safe",
   suspicious: "suspicious", caution: "suspicious", unverified: "suspicious", risky: "suspicious", warning: "suspicious", medium: "suspicious",
@@ -163,9 +178,10 @@ function dedupeUrlResults(results) {
   return [...seen.values()];
 }
 
-async function checkUrlVerifiers(url, { timeoutMs, fetchFn, verifierStaggerMs = 900, miners = CLIPGUARD_MINERS } = {}) {
+async function checkUrlVerifiers(url, { timeoutMs, fetchFn, verifierStaggerMs = 900, miners = CLIPGUARD_MINERS, routedMinerId, random } = {}) {
+  const selectedMiners = selectVerifierMiners(routedMinerId, { miners, random });
   const settled = await Promise.allSettled(
-    miners.map(async (miner, i) => {
+    selectedMiners.map(async (miner, i) => {
       await sleep(i * verifierStaggerMs);
       return askOneUrlMiner(miner, url, timeoutMs, { fetchFn });
     })
@@ -197,12 +213,12 @@ function buildUrlCheckResponse(url, results, { router = true, miner = "Telegraph
 // A payment occasionally fails to settle on the first try. One retry after a
 // short pause clears it often enough that a transient payment race should not
 // cost the user a safety check.
-export async function checkUrlWithRouter(url, { timeoutMs = 9000, retriesLeft = 1, fetchFn, verifierStaggerMs, miners } = {}) {
+export async function checkUrlWithRouter(url, { timeoutMs = 9000, retriesLeft = 1, fetchFn, verifierStaggerMs, miners, random } = {}) {
   try {
     const { body, settlement } = await ask(routedUrlQuestion(url), { surface: "clipguard", inputType: "copied_url", url }, { timeoutMs, fetchFn });
     const routed = routedUrlResult(url, body, settlement);
     if (routed.intent) recordAnswered({ intent: routed.intent, minerName: routed.miner });
-    const verifiers = await checkUrlVerifiers(url, { timeoutMs, fetchFn, verifierStaggerMs, miners });
+    const verifiers = await checkUrlVerifiers(url, { timeoutMs, fetchFn, verifierStaggerMs, miners, routedMinerId: routed.results[0]?.minerId, random });
     return buildUrlCheckResponse(url, [...routed.results, ...verifiers], {
       router: true,
       miner: routed.miner,
@@ -213,7 +229,7 @@ export async function checkUrlWithRouter(url, { timeoutMs = 9000, retriesLeft = 
   } catch (err) {
     if (retriesLeft > 0 && err instanceof EngineError && err.code === "PAYMENT_FAILED") {
       await sleep(600);
-      return checkUrlWithRouter(url, { timeoutMs, retriesLeft: retriesLeft - 1, fetchFn, verifierStaggerMs, miners });
+      return checkUrlWithRouter(url, { timeoutMs, retriesLeft: retriesLeft - 1, fetchFn, verifierStaggerMs, miners, random });
     }
     return {
       url,
@@ -236,8 +252,8 @@ export async function checkUrlWithRouter(url, { timeoutMs = 9000, retriesLeft = 
 // Kept as the server-facing name so older route code and tests do not need a
 // new public function. It now lets Telegraph route the copied link instead of
 // naming URL miners inside AskLens.
-export async function checkUrlAcrossMiners(url, { timeoutMs = 9000, fetchFn, verifierStaggerMs, miners } = {}) {
-  return checkUrlWithRouter(url, { timeoutMs, fetchFn, verifierStaggerMs, miners });
+export async function checkUrlAcrossMiners(url, { timeoutMs = 9000, fetchFn, verifierStaggerMs, miners, random } = {}) {
+  return checkUrlWithRouter(url, { timeoutMs, fetchFn, verifierStaggerMs, miners, random });
 }
 
 // One miner cannot issue the final safety label alone. Safe needs at least two
