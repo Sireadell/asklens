@@ -76,21 +76,34 @@ function renderAnswer(data) {
   resultEl.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
+// Keeps the lasting on-chain figure once /api/stats has sent it, because the
+// stats that come back with each answer only carry the since-start count.
+let onchainUsage = null;
+
 function renderCounter(stats) {
-  // The counter resets to 0 whenever the server restarts (a redeploy, a
-  // free-tier sleep/wake cycle). Showing "0 real requests" on a page whose
-  // whole pitch is live, paid, real answers reads as broken, so it is left
-  // out until there is a real number to show, rather than shown at zero.
-  if (!stats.total) {
+  if (stats.onchain) onchainUsage = stats.onchain;
+  // The lasting figure is the paying wallet's on-chain history, with the
+  // scripted runs taken out. Scripted runs are never counted as use here.
+  if (onchainUsage?.everyday) {
+    const n = onchainUsage.everyday;
+    counterEl.hidden = false;
+    counterEl.innerHTML =
+      `<strong>${n}</strong> paid request${n === 1 ? "" : "s"} sent to Telegraph miners in everyday use, ` +
+      `not counting scripted test runs. ` +
+      `<a href="${onchainUsage.explorer}" rel="noopener">Check every payment on chain</a>.`;
+    return;
+  }
+  // Before the on-chain read arrives, fall back to the count since the
+  // server started. Zero is hidden rather than shown, since it only means the
+  // server restarted recently.
+  const total = stats.sinceStart?.total ?? stats.total;
+  if (!total) {
     counterEl.hidden = true;
     return;
   }
-  const intents = Object.keys(stats.byIntent ?? {}).length;
   counterEl.hidden = false;
   counterEl.innerHTML =
-    `<strong>${stats.total}</strong> real request${stats.total === 1 ? "" : "s"} sent to Telegraph miners ` +
-    `across <strong>${intents}</strong> question type${intents === 1 ? "" : "s"}. ` +
-    `<a href="https://github.com/Sireadell/asklens/blob/main/HASHES.md" rel="noopener">Check every signal hash</a>.`;
+    `<strong>${total}</strong> paid request${total === 1 ? "" : "s"} sent to Telegraph miners since the server last started.`;
 }
 
 async function post(url, body) {

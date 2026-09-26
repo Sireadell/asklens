@@ -1,0 +1,25 @@
+{
+  "note": "Scripted runs paid from the AskLens wallet. They are kept out of the everyday-use count. Each one names the file that proves it. Times are UTC.",
+  "recipient": "0x5a2324aA18613FAD4e44bDF0d6c73Ec1f6D87ff8",
+  "launchedAt": "2026-09-07T21:59:00Z",
+  "runs": [
+    {
+      "label": "Verification run: 720 signals across 14 intents",
+      "from": "2026-09-07T21:59:00Z",
+      "to": "2026-09-07T22:21:00Z",
+      "source": "scripts/evidence-run.mjs, HASHES.md"
+    },
+    {
+      "label": "Load test: 100 requests to TxLens and Sentinel",
+      "from": "2026-09-11T19:00:00Z",
+      "to": "2026-09-11T19:59:59Z",
+      "source": "load-test-telegraph.js, load-test-run.log"
+    },
+    {
+      "label": "Load test: 500 auto-routed asks",
+      "from": "2026-09-12T17:00:00Z",
+      "to": "2026-09-12T18:59:59Z",
+      "source": "load-test-500.js, load-test-500.log"
+    }
+  ]
+}

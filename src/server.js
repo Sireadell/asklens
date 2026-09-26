@@ -8,7 +8,8 @@ import { config } from "./config.js";
 import { initPayments, paymentReady, getPayerAddress, ask, askMiner, EngineError } from "./telegraph.js";
 import { extractAnswer, extractConfidence } from "./answer.js";
 import { INTENTS, EXAMPLES, intentInfo } from "./intents.js";
-import { loadStats, getStats, recordAnswered } from "./stats.js";
+import { loadStats, getStats, recordAnswered, recordVisitor, verificationRun } from "./stats.js";
+import { getOnchainUsage } from "./onchainUsage.js";
 import { logAsk, readLog } from "./asklog.js";
 import { buildReport } from "./report.js";
 import { readComparisons } from "./compare.js";
@@ -26,6 +27,16 @@ const app = express();
 app.set("trust proxy", 1);
 app.use(["/api/clipguard/check-url", "/api/clipguard/check-wallet"], allowCrossSiteChecks);
 app.use(express.json({ limit: "32kb" }));
+
+// Count a visitor once one of the paid checks has actually answered. The
+// visitor is the client address plus browser, hashed in stats.js.
+const PAID_ROUTES = ["/api/ask", "/api/second-opinion", "/api/snap/wallet-safety", "/api/clipguard/check-url", "/api/clipguard/check-wallet"];
+app.use(PAID_ROUTES, (req, res, next) => {
+  res.on("finish", () => {
+    if (req.method === "POST" && res.statusCode === 200) recordVisitor(`${req.ip}|${req.get("user-agent") ?? ""}`);
+  });
+  next();
+});
 app.use(express.static(join(here, "..", "public")));
 
 // Claude's custom connectors speak MCP over normal HTTPS. Each visitor gets
@@ -156,8 +167,18 @@ app.post("/api/second-opinion", async (req, res) => {
   }
 });
 
-app.get("/api/stats", (_req, res) => {
-  res.json({ ...getStats(), intents: INTENTS, examples: EXAMPLES });
+// sinceStart is the local count, which a deploy wipes. onchain is the lasting
+// count from the paying wallet, split so scripted runs never read as users.
+app.get("/api/stats", async (_req, res) => {
+  const onchain = await getOnchainUsage(getPayerAddress());
+  res.json({
+    ...getStats(),
+    sinceStart: getStats(),
+    onchain,
+    verificationRun: verificationRun(),
+    intents: INTENTS,
+    examples: EXAMPLES,
+  });
 });
 
 // The last N questions asked, each with the signal hash needed to pull the
@@ -211,6 +232,8 @@ app.get("/api/health", (_req, res) => {
 
 loadStats();
 initPayments();
+// Start the first on-chain read now, so the page has it by the first visit.
+getOnchainUsage(getPayerAddress(), { waitMs: 0 });
 app.listen(config.port, () => {
   console.log(`AskLens listening on http://localhost:${config.port}`);
 });

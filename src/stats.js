@@ -4,29 +4,42 @@
 // intent, so this is the number that matters, shown on the page rather than
 // kept private. Counts are only incremented after Telegraph actually answered
 // and settled payment, never on a failed or refused call.
+//
+// This count lives on the host's disk, which is wiped on every deploy, so it
+// only covers the time since the server last started. The lasting count is
+// read from the paying wallet's on-chain history (see onchainUsage.js).
+//
+// It used to start from the 720-request verification run in
+// evidence/stats-baseline.json, which made a scripted run read as live
+// traffic. That run is now reported on its own, as verificationRun, and is
+// never added to the live total.
 import { readFileSync, writeFileSync, mkdirSync, rmSync } from "node:fs";
 import { dirname } from "node:path";
+import { createHash, randomBytes } from "node:crypto";
 import { config } from "./config.js";
 
 let state = { total: 0, byIntent: {}, byMiner: {}, startedAt: new Date().toISOString() };
-let baselineApplied = false;
 
-// Requests already made and independently verifiable: every one of these is
-// a settled Telegraph call whose signal hash is published in HASHES.md, so
-// anyone can resolve them at the Engine rather than take the number on faith.
-//
-// This exists because the host's filesystem does not survive a deploy. Without
-// a committed floor the live counter silently restarted at zero on every push,
-// reporting a handful of requests for an app that had made hundreds. The
-// baseline is the audited floor; live traffic accumulates on top of it.
+// Distinct visitors since start. Only a salted hash of each visitor is kept,
+// never the address itself, and the salt is new each time the server starts.
+const visitorSalt = randomBytes(16);
+const visitors = new Set();
+
 const BASELINE_FILE = new URL("../evidence/stats-baseline.json", import.meta.url);
 
-function readBaseline() {
+export function verificationRun() {
   try {
     const parsed = JSON.parse(readFileSync(BASELINE_FILE, "utf8"));
-    if (parsed && typeof parsed === "object") return parsed;
+    if (parsed && typeof parsed === "object") {
+      return {
+        total: Number(parsed.total) || 0,
+        byIntent: parsed.byIntent ?? {},
+        note: "One scripted run on 7 September 2026 that checked every intent end to end. Not user traffic.",
+        proof: "HASHES.md",
+      };
+    }
   } catch {
-    // No baseline published yet.
+    // No record published.
   }
   return null;
 }
@@ -44,24 +57,7 @@ export function loadStats() {
       return state;
     }
   } catch {
-    // No local stats file: either a genuine first run, or a fresh deploy on a
-    // host that wiped the disk. Fall through to the published baseline.
-  }
-
-  // Seeded at most once per process. Re-applying it on every miss would let
-  // the floor reappear after a deliberate reset, and would re-add itself on
-  // top of counts already recorded.
-  if (baselineApplied) return state;
-  baselineApplied = true;
-
-  const baseline = readBaseline();
-  if (baseline) {
-    state = {
-      total: Number(baseline.total) || 0,
-      byIntent: baseline.byIntent ?? {},
-      byMiner: baseline.byMiner ?? {},
-      startedAt: baseline.startedAt ?? state.startedAt,
-    };
+    // No local stats file: a first run, or a fresh deploy that wiped the disk.
   }
   return state;
 }
@@ -73,6 +69,11 @@ function persist() {
   } catch (err) {
     console.warn("[stats] could not write stats file:", err.message);
   }
+}
+
+export function recordVisitor(clientId) {
+  if (!clientId) return;
+  visitors.add(createHash("sha256").update(visitorSalt).update(String(clientId)).digest("hex"));
 }
 
 export function recordAnswered({ intent, minerName }) {
@@ -94,6 +95,7 @@ export function getStats() {
     byIntent: { ...state.byIntent },
     byMiner: { ...state.byMiner },
     startedAt: state.startedAt,
+    visitorsSinceStart: visitors.size,
   };
 }
 
@@ -101,7 +103,7 @@ export function getStats() {
 // now re-reads the file, a reset that left the file behind would not be one.
 export function _resetForTests() {
   state = { total: 0, byIntent: {}, byMiner: {}, startedAt: new Date().toISOString() };
-  baselineApplied = true;
+  visitors.clear();
   try {
     rmSync(config.statsFile, { force: true });
   } catch {

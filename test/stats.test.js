@@ -47,3 +47,22 @@ test("an increment builds on what is already on disk, not on stale memory", asyn
   assert.equal(getStats().byIntent.GAS_PRICE, 42);
   rmSync(config.statsFile, { force: true });
 });
+
+test("the scripted verification run is never added to the live total", async () => {
+  const { loadStats, verificationRun } = await import("../src/stats.js");
+  loadStats();
+  assert.equal(getStats().total, 0);
+  const run = verificationRun();
+  assert.equal(run.total, 720);
+  assert.match(run.note, /Not user traffic/);
+});
+
+test("visitors are counted once each, and only as hashes", async () => {
+  const { recordVisitor } = await import("../src/stats.js");
+  recordVisitor("1.2.3.4|Firefox");
+  recordVisitor("1.2.3.4|Firefox");
+  recordVisitor("5.6.7.8|Chrome");
+  recordVisitor("");
+  assert.equal(getStats().visitorsSinceStart, 2);
+  assert.ok(!JSON.stringify(getStats()).includes("1.2.3.4"));
+});
